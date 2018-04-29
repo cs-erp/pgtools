@@ -570,6 +570,7 @@ object MainForm: TMainForm
   object CleanBtn: TButton
     Left = 378
     Height = 25
+    Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
     Top = 106
     Width = 110
     Anchors = [akTop, akRight]
