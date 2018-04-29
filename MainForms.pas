@@ -82,7 +82,7 @@ begin
   DB := 'test';
   FileName := DB + '.backup';
   cmd := '';
-  cmd := cmd + ' -v --host localhost --port 5432 --username "' + UserNameEdit.Text + '"';
+  cmd := cmd + ' -v --host localhost --port 5432 --password --username "' + UserNameEdit.Text + '"';
   cmd := cmd + ' --format custom --compress=9 --blobs --section pre-data --section data --file "' + Application.Location + FileName + '" "' + DB + '"';
   //RunCommand(cmd, output);
   Log(cmd);
@@ -173,18 +173,18 @@ var
   reg: TRegistry;
   ini: TIniFile;
 begin
+  inherited Create(TheOwner);
   reg := TRegistry.Create(KEY_READ);
   reg.RootKey := HKEY_LOCAL_MACHINE;
   //if reg.OpenKey('SOFTWARE\PostgreSQL\', False)
   reg.Free;
 
-  ini:=TIniFile.Create(Application.Location + 'pgtools.ini');
+  ini := TIniFile.Create(Application.Location + 'pgtools.ini');
   UserNameEdit.Text := ini.ReadString('options', 'username', 'postgres');
   PasswordEdit.Text := ini.ReadString('options', 'password', '');
   ini.Free;
 
   Databases := TStringList.Create;
-  inherited Create(TheOwner);
 end;
 
 destructor TMainForm.Destroy;
@@ -204,7 +204,7 @@ begin
   ini.WriteString('options', 'username', UserNameEdit.Text);
   ini.WriteString('options', 'password', PasswordEdit.Text);
   ini.Free;
-  inherited Destroy;
+  inherited;
 end;
 
 end.

@@ -28,6 +28,7 @@ type
     destructor Destroy; override;
     procedure Execute; override;
     procedure Read; virtual;
+    procedure ReadPrompt; virtual;
     procedure ReadStream; virtual;
     property OnWriteString: TmnOnWriteString read FOnWriteString write FOnWriteString;
     property Password: string read FPassword write FPassword;
@@ -109,6 +110,21 @@ begin
   //WriteString('------exit--------');
 end;
 
+procedure TmnConsoleThread.ReadPrompt;
+var
+  T: String;
+  aBuffer: array[0..79] of AnsiChar;
+  C: DWORD;
+begin
+  aBuffer := '';
+  C := FProcess.Output.Read(aBuffer, SizeOf(aBuffer));
+  if C <> 0 then
+  begin
+    SetString(T, aBuffer, C);
+    WriteString(T);
+  end;
+end;
+
 procedure TmnConsoleThread.ReadStream;
 var
   aWrapper: TmnWrapperStream;
@@ -141,9 +157,10 @@ end;
 procedure TmnConsoleThread.Execute;
 begin
   FProcess.Execute;
-  {if (FProcess.Input <> nil) and (Password <> '') then
-    FProcess.Input.WriteAnsiString(Password + #13);}
-  //FProcess.CloseInput;
+  ReadPrompt;
+  if (FProcess.Input <> nil) and (Password <> '') then
+    FProcess.Input.WriteAnsiString(Password + #13#10+#13#10); //idk why 2 eol
+  FProcess.CloseInput;
   ReadStream;
   Status := FProcess.ExitStatus;
   FreeAndNil(FProcess);
