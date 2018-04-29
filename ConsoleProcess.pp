@@ -1,4 +1,11 @@
 unit ConsoleProcess;
+{**
+ *  This file is part of the "Creative Solutions PGTools http://www.cserp.org/"
+ *
+ * @license   mit(https://opensource.org/licenses/MIT)
+ *
+ * @author    Zaher Dirkey <zaher at parmaja dot com>
+ *}
 
 {$mode objfpc}{$H+}
 
@@ -6,41 +13,55 @@ interface
 
 uses
   Forms, Classes, SysUtils, process, pipes,
-  mnStreams;
+  mnUtils, mnStreams;
 
 type
+  TmnConsoleThread = class;
+
+  TExecuteObject =class(TObject)
+  public
+    procedure Prepare(ConsoleThread: TmnConsoleThread); virtual; abstract;
+    procedure Execute(ConsoleThread: TmnConsoleThread); virtual; abstract;
+  end;
+
   TmnOnWriteString = procedure(S: String) of object;
 
   { TmnConsoleThread }
 
   TmnConsoleThread = class(TThread)
   private
+    FExecuteObject: TExecuteObject;
     FOnWriteString: TmnOnWriteString;
     FPassword: string;
     FProcess: TProcess;
+    procedure SetExecuteObject(AValue: TExecuteObject);
   protected
     Buffer: String;
     procedure DoOnWriteString; virtual; //To Sync
-    procedure WriteString(S: String);
   public
     Status: Integer;
-    constructor Create(vExecutable, vParameters: string; AOnWriteString: TmnOnWriteString = nil);
+    Message: string;
+    constructor Create(vExecutable, vParameters: string; vOnWriteString: TmnOnWriteString = nil);
     destructor Destroy; override;
     procedure Execute; override;
     procedure Read; virtual;
     procedure ReadPrompt; virtual;
     procedure ReadStream; virtual;
+    procedure WriteString(S: String);
     property OnWriteString: TmnOnWriteString read FOnWriteString write FOnWriteString;
     property Password: string read FPassword write FPassword;
+    property ExecuteObject: TExecuteObject read FExecuteObject write SetExecuteObject;
   end;
 
 implementation
 
-type
-  THackThread = class(TThread)
-  end;
-
 { TmnConsoleThread }
+
+procedure TmnConsoleThread.SetExecuteObject(AValue: TExecuteObject);
+begin
+  if FExecuteObject <> AValue then
+    FExecuteObject :=AValue;
+end;
 
 procedure TmnConsoleThread.DoOnWriteString;
 begin
@@ -55,10 +76,10 @@ begin
   Buffer := '';
 end;
 
-constructor TmnConsoleThread.Create(vExecutable, vParameters: string; AOnWriteString: TmnOnWriteString);
+constructor TmnConsoleThread.Create(vExecutable, vParameters: string; vOnWriteString: TmnOnWriteString);
 begin
   inherited Create(True);
-  FOnWriteString := AOnWriteString;
+  FOnWriteString := vOnWriteString;
   FProcess := TProcess.Create(nil);
   FProcess.Executable := vExecutable;
   CommandToList(vParameters, FProcess.Parameters);
@@ -77,6 +98,7 @@ begin
     FProcess.WaitOnExit;
     FreeAndNil(FProcess);
   end;
+  FreeAndNil(FExecuteObject);
   inherited Destroy;
 end;
 
@@ -107,7 +129,6 @@ begin
         WriteString(T);
     end;
   end;
-  //WriteString('------exit--------');
 end;
 
 procedure TmnConsoleThread.ReadPrompt;
@@ -139,9 +160,9 @@ begin
       while not Terminated do
       begin
         b := aWrapper.ReadLine(Buffer, False);
-        WriteString(Buffer);
-        if not (FProcess.Running) or not b then
+        if not b and not (FProcess.Running) then
           break;
+        WriteString(Buffer);
       end;
     aWrapper.Free;
   except
@@ -155,15 +176,35 @@ begin
 end;
 
 procedure TmnConsoleThread.Execute;
+var
+  d: Int64;
 begin
-  FProcess.Execute;
-  ReadPrompt;
-  if (FProcess.Input <> nil) and (Password <> '') then
-    FProcess.Input.WriteAnsiString(Password + #13#10+#13#10); //idk why 2 eol
-  FProcess.CloseInput;
-  ReadStream;
-  Status := FProcess.ExitStatus;
-  FreeAndNil(FProcess);
+  d := GetTickCount64;
+  try
+    try
+      if FExecuteObject <> nil then
+        FExecuteObject.Prepare(Self);
+      WriteString(FProcess.Executable + ' ' + StringReplace(FProcess.Parameters.Text, #13#10, ' ', [rfReplaceAll]));
+      FProcess.Execute;
+      ReadPrompt;
+      if (FProcess.Input <> nil) and (Password <> '') then
+        FProcess.Input.WriteAnsiString(Password + #13#10+#13#10); //idk why 2 eol
+      FProcess.CloseInput;
+      ReadStream;
+      Status := FProcess.ExitStatus;
+      FreeAndNil(FProcess);
+      if (Status = 0) and (FExecuteObject <> nil) then
+        FExecuteObject.Execute(Self);
+    except
+      on E:Exception do
+      begin
+        WriteString(E.Message);
+        raise;
+      end;
+    end;
+  finally
+    WriteString('Execute Time: "' + TicksToString(GetTickCount64 - d) + '"');
+  end;
 end;
 
 end.

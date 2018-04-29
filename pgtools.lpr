@@ -1,4 +1,11 @@
 program pgtools;
+{**
+ *  This file is part of the "Creative Solutions PGTools http://www.cserp.org/"
+ *
+ * @license   mit(https://opensource.org/licenses/MIT)
+ *
+ * @author    Zaher Dirkey <zaher at parmaja dot com>
+ *}
 
 {$mode objfpc}{$H+}
 

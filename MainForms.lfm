@@ -1,18 +1,18 @@
 object MainForm: TMainForm
   Left = 394
-  Height = 371
+  Height = 364
   Top = 187
-  Width = 519
-  Caption = 'PG tools'
-  ClientHeight = 371
-  ClientWidth = 519
+  Width = 497
+  Caption = 'Creative Solutions PG backup tool'
+  ClientHeight = 364
+  ClientWidth = 497
   OnCreate = FormCreate
   LCLVersion = '1.9.0.0'
   inline LogEdit: TSynEdit
     Left = 0
-    Height = 117
-    Top = 227
-    Width = 519
+    Height = 99
+    Top = 235
+    Width = 497
     Align = alBottom
     Constraints.MinHeight = 60
     Font.Height = -13
@@ -21,7 +21,7 @@ object MainForm: TMainForm
     Font.Quality = fqNonAntialiased
     ParentColor = False
     ParentFont = False
-    TabOrder = 0
+    TabOrder = 14
     BorderStyle = bsNone
     Gutter.LeftOffset = 5
     Gutter.RightOffset = 10
@@ -568,32 +568,35 @@ object MainForm: TMainForm
     end
   end
   object CleanBtn: TButton
-    Left = 415
+    Left = 378
     Height = 25
-    Top = 11
-    Width = 91
-    Caption = 'Clean'
+    Top = 106
+    Width = 110
+    Anchors = [akTop, akRight]
+    Caption = 'Clean all'
     OnClick = CleanBtnClick
-    TabOrder = 1
+    TabOrder = 13
   end
   object UserNameEdit: TEdit
-    Left = 70
+    Left = 77
     Height = 23
-    Top = 8
-    Width = 113
+    Top = 11
+    Width = 90
     TabOrder = 2
     Text = 'postgres'
   end
   object PasswordEdit: TEdit
-    Left = 70
+    Left = 234
     Height = 23
-    Top = 34
-    Width = 113
+    Top = 11
+    Width = 89
+    EchoMode = emPassword
+    PasswordChar = '*'
     TabOrder = 3
     Text = 'syspwd'
   end
   object Label1: TLabel
-    Left = 8
+    Left = 12
     Height = 15
     Top = 14
     Width = 56
@@ -601,36 +604,138 @@ object MainForm: TMainForm
     ParentColor = False
   end
   object Label2: TLabel
-    Left = 10
+    Left = 177
     Height = 15
-    Top = 40
+    Top = 14
     Width = 50
     Caption = 'Password'
     ParentColor = False
   end
   object InfoPanel: TPanel
     Left = 0
-    Height = 27
-    Top = 344
-    Width = 519
+    Height = 30
+    Top = 334
+    Width = 497
     Align = alBottom
-    TabOrder = 4
+    Alignment = taLeftJustify
+    BevelInner = bvLowered
+    BevelOuter = bvNone
+    BorderWidth = 1
+    BorderStyle = bsSingle
+    Caption = 'Creative Solutions PG backup tool'
+    TabOrder = 15
+    Visible = False
   end
-  object CleanBtn1: TButton
-    Left = 415
+  object BackupBtn: TButton
+    Left = 378
     Height = 25
-    Top = 37
-    Width = 91
-    Caption = 'Backup'
-    OnClick = CleanBtn1Click
+    Top = 40
+    Width = 110
+    Anchors = [akTop, akRight]
+    Caption = 'Backup all'
+    OnClick = BackupBtnClick
+    TabOrder = 0
+  end
+  object RestoreBtn: TButton
+    Left = 378
+    Height = 25
+    Top = 66
+    Width = 110
+    Anchors = [akTop, akRight]
+    Caption = 'Restore all'
+    OnClick = RestoreBtnClick
+    TabOrder = 1
+  end
+  object BackupDatabasesList: TListBox
+    Left = 11
+    Height = 147
+    Top = 84
+    Width = 181
+    Anchors = [akTop, akLeft, akBottom]
+    ItemHeight = 0
+    TabOrder = 7
+  end
+  object Label3: TLabel
+    Left = 14
+    Height = 15
+    Top = 67
+    Width = 68
+    Caption = 'Auto backup'
+    ParentColor = False
+  end
+  object DatabasesCbo: TComboBox
+    Left = 11
+    Height = 23
+    Top = 40
+    Width = 181
+    ItemHeight = 15
+    Style = csDropDownList
     TabOrder = 5
   end
-  object CleanBtn2: TButton
-    Left = 415
+  object CleanBtn3: TButton
+    Left = 196
     Height = 25
-    Top = 63
+    Top = 39
     Width = 91
-    Caption = 'Restore'
+    Caption = 'Get'
+    OnClick = CleanBtn3Click
     TabOrder = 6
+  end
+  object CleanBtn4: TButton
+    Left = 196
+    Height = 25
+    Top = 85
+    Width = 91
+    Caption = 'Add'
+    OnClick = CleanBtn4Click
+    TabOrder = 8
+  end
+  object CleanBtn5: TButton
+    Left = 196
+    Height = 25
+    Top = 111
+    Width = 91
+    Caption = 'Remove'
+    OnClick = CleanBtn5Click
+    TabOrder = 9
+  end
+  object BackupBtn1: TButton
+    Left = 196
+    Height = 25
+    Top = 180
+    Width = 91
+    Anchors = [akTop, akRight]
+    Caption = 'Backup'
+    OnClick = BackupBtn1Click
+    TabOrder = 11
+  end
+  object RestoreBtn1: TButton
+    Left = 196
+    Height = 25
+    Top = 206
+    Width = 91
+    Anchors = [akTop, akRight]
+    Caption = 'Restore'
+    OnClick = RestoreBtn1Click
+    TabOrder = 12
+  end
+  object BackupBtn2: TButton
+    Left = 195
+    Height = 25
+    Top = 137
+    Width = 91
+    Anchors = [akTop, akRight]
+    Caption = 'Info'
+    OnClick = BackupBtn2Click
+    TabOrder = 10
+  end
+  object CSProductsChk: TCheckBox
+    Left = 330
+    Height = 19
+    Hint = 'Use this only for Creative Solutions databases'
+    Top = 14
+    Width = 155
+    Caption = 'Creative Solution product'
+    TabOrder = 4
   end
 end
