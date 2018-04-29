@@ -487,7 +487,7 @@ begin
   reg.Free;
 
   ini := TIniFile.Create(Application.Location + 'pgtools.ini');
-  CSProductsChk.Checked := ini.ReadBool('options', 'username', True);
+  CSProductsChk.Checked := ini.ReadBool('options', 'CSProducts', True);
   UserNameEdit.Text := ini.ReadString('options', 'username', 'postgres');
   PasswordEdit.Text := ini.ReadString('options', 'password', '');
   i := 0;
@@ -520,7 +520,7 @@ begin
   FreeAndNil(Databases);
 
   ini := TIniFile.Create(Application.Location + 'pgtools.ini');
-  ini.WriteBool('options', 'username', CSProductsChk.Checked);
+  ini.WriteBool('options', 'CSProducts', CSProductsChk.Checked);
   ini.WriteString('options', 'username', UserNameEdit.Text);
   ini.WriteString('options', 'password', PasswordEdit.Text);
   ini.EraseSection('data');
