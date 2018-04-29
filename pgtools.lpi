@@ -20,7 +20,7 @@
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="25"/>
+      <BuildNr Value="26"/>
       <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools"/>
     </VersionInfo>
     <BuildModes Count="1">

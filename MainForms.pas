@@ -145,6 +145,8 @@ begin
   OpenPG;
   EnumDatabases(false);
   DatabasesCbo.Items.Assign(Databases);
+  if DatabasesCbo.Items.Count > 0 then
+    DatabasesCbo.ItemIndex := 0;
   Databases.Clear;
   ClosePG;
 end;
@@ -172,7 +174,7 @@ type
     UserName: string;
     Password: string;
     Database: string;
-    Prefix: string;
+    Suffix: string;
     CSProducts: Boolean;
     procedure OpenPG(vDatabase: string = 'postgres');
     procedure ClosePG;
@@ -200,7 +202,11 @@ type
 procedure TBackupExecuteObject.Prepare(ConsoleThread: TmnConsoleThread);
 var
   cmd: TmncPGCommand;
+  filename: string;
 begin
+  filename := Application.Location + Database + '.backup';
+  if FileExists(filename) then
+    RenameFile(filename, filename + '.' + Suffix);
   if CSProducts then
   begin
     OpenPG(Database);
@@ -261,7 +267,7 @@ end;
 constructor TPGExecuteObject.Create;
 begin
   inherited;
-  Prefix := FormatDateTime('yyyymmddhhnnss', Now);
+  Suffix := FormatDateTime('yyyymmddhhnnss', Now);
 end;
 
 procedure TRestoreExecuteObject.Prepare(ConsoleThread: TmnConsoleThread);
@@ -272,7 +278,7 @@ begin
   cmd := PGSession.CreateCommand as TmncPGCommand;
   try
     ConsoleThread.WriteString('Create new Database ' + Database);
-    cmd.SQL.Text := 'create database ' + Database + '_temp_' + Prefix;
+    cmd.SQL.Text := 'create database ' + Database + '_temp_' + Suffix;
     cmd.Execute;
   finally
     cmd.Free;
@@ -292,11 +298,11 @@ begin
     cmd.SQL.Add('WHERE datistemplate = false and datname = ''' + Database + '''');
     if cmd.Execute then
     begin
-      cmd.SQL.Text := 'alter database ' + Database + ' rename to "' + Database + '.old_' + Prefix + '"';
+      cmd.SQL.Text := 'alter database ' + Database + ' rename to "' + Database + '.old_' + Suffix + '"';
       cmd.Execute;
     end;
     ConsoleThread.WriteString('Rename new Database ' + Database);
-    cmd.SQL.Text := 'alter database "' + Database + '_temp_' + Prefix + '" rename to ' + Database;
+    cmd.SQL.Text := 'alter database "' + Database + '_temp_' + Suffix + '" rename to ' + Database;
     ConsoleThread.WriteString('Renamed database ' + Database);
     cmd.Execute;
   finally
@@ -332,7 +338,7 @@ begin
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
   filename := Application.Location + DB + '.backup';
-  cmd := '--host localhost --port 5432 --username "' + UserNameEdit.Text + '" --dbname "' + DB + '"_temp_' + o.Prefix + ' --password --verbose "' + filename + '"';
+  cmd := '--host localhost --port 5432 --username "' + UserNameEdit.Text + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + filename + '"';
   Launch('Restore: '+ DB, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
 end;
 
@@ -408,6 +414,7 @@ begin
     cmd.SQL.Add('or datname like ''%.old%''');
     cmd.SQL.Add('or datname like ''%.temp%''');
     cmd.SQL.Add('or datname like ''%_temp%'')');
+    cmd.SQL.Add('order by datname');
     if cmd.Execute then
     begin
       while not cmd.Done do
