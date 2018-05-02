@@ -1,19 +1,20 @@
 object MainForm: TMainForm
   Left = 394
-  Height = 364
+  Height = 427
   Top = 187
-  Width = 497
+  Width = 506
   Caption = 'Creative Solutions PG backup tool'
-  ClientHeight = 364
-  ClientWidth = 497
+  ClientHeight = 427
+  ClientWidth = 506
+  Constraints.MinWidth = 500
   OnCreate = FormCreate
   LCLVersion = '1.9.0.0'
   inline LogEdit: TSynEdit
     Left = 0
-    Height = 99
-    Top = 235
-    Width = 497
-    Align = alBottom
+    Height = 117
+    Top = 280
+    Width = 506
+    Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 60
     Font.Height = -13
     Font.Name = 'Courier New'
@@ -568,10 +569,10 @@ object MainForm: TMainForm
     end
   end
   object CleanBtn: TButton
-    Left = 378
+    Left = 387
     Height = 25
     Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
-    Top = 106
+    Top = 148
     Width = 110
     Anchors = [akTop, akRight]
     Caption = 'Clean all'
@@ -615,8 +616,8 @@ object MainForm: TMainForm
   object InfoPanel: TPanel
     Left = 0
     Height = 30
-    Top = 334
-    Width = 497
+    Top = 397
+    Width = 506
     Align = alBottom
     Alignment = taLeftJustify
     BevelInner = bvLowered
@@ -628,9 +629,9 @@ object MainForm: TMainForm
     Visible = False
   end
   object BackupBtn: TButton
-    Left = 378
+    Left = 387
     Height = 25
-    Top = 40
+    Top = 82
     Width = 110
     Anchors = [akTop, akRight]
     Caption = 'Backup all'
@@ -638,9 +639,9 @@ object MainForm: TMainForm
     TabOrder = 0
   end
   object RestoreBtn: TButton
-    Left = 378
+    Left = 387
     Height = 25
-    Top = 66
+    Top = 108
     Width = 110
     Anchors = [akTop, akRight]
     Caption = 'Restore all'
@@ -650,16 +651,15 @@ object MainForm: TMainForm
   object BackupDatabasesList: TListBox
     Left = 11
     Height = 147
-    Top = 84
+    Top = 127
     Width = 181
-    Anchors = [akTop, akLeft, akBottom]
     ItemHeight = 0
     TabOrder = 7
   end
   object Label3: TLabel
     Left = 14
     Height = 15
-    Top = 67
+    Top = 110
     Width = 68
     Caption = 'Auto backup'
     ParentColor = False
@@ -667,7 +667,7 @@ object MainForm: TMainForm
   object DatabasesCbo: TComboBox
     Left = 11
     Height = 23
-    Top = 40
+    Top = 83
     Width = 181
     ItemHeight = 15
     Style = csDropDownList
@@ -676,7 +676,7 @@ object MainForm: TMainForm
   object CleanBtn3: TButton
     Left = 196
     Height = 25
-    Top = 39
+    Top = 82
     Width = 91
     Caption = 'Get'
     OnClick = CleanBtn3Click
@@ -685,7 +685,7 @@ object MainForm: TMainForm
   object CleanBtn4: TButton
     Left = 196
     Height = 25
-    Top = 85
+    Top = 128
     Width = 91
     Caption = 'Add'
     OnClick = CleanBtn4Click
@@ -694,7 +694,7 @@ object MainForm: TMainForm
   object CleanBtn5: TButton
     Left = 196
     Height = 25
-    Top = 111
+    Top = 154
     Width = 91
     Caption = 'Remove'
     OnClick = CleanBtn5Click
@@ -703,9 +703,8 @@ object MainForm: TMainForm
   object BackupBtn1: TButton
     Left = 196
     Height = 25
-    Top = 180
+    Top = 223
     Width = 91
-    Anchors = [akTop, akRight]
     Caption = 'Backup'
     OnClick = BackupBtn1Click
     TabOrder = 11
@@ -713,9 +712,8 @@ object MainForm: TMainForm
   object RestoreBtn1: TButton
     Left = 196
     Height = 25
-    Top = 206
+    Top = 249
     Width = 91
-    Anchors = [akTop, akRight]
     Caption = 'Restore'
     OnClick = RestoreBtn1Click
     TabOrder = 12
@@ -723,20 +721,50 @@ object MainForm: TMainForm
   object BackupBtn2: TButton
     Left = 195
     Height = 25
-    Top = 137
+    Top = 180
     Width = 91
-    Anchors = [akTop, akRight]
     Caption = 'Info'
     OnClick = BackupBtn2Click
     TabOrder = 10
   end
   object CSProductsChk: TCheckBox
-    Left = 330
+    Left = 340
     Height = 19
     Hint = 'Use this only for Creative Solutions databases'
-    Top = 14
+    Top = 42
     Width = 155
     Caption = 'Creative Solution product'
     TabOrder = 4
+  end
+  object Label4: TLabel
+    Left = 18
+    Height = 15
+    Top = 44
+    Width = 48
+    Caption = 'Directory'
+    ParentColor = False
+  end
+  object PortEdit: TEdit
+    Left = 376
+    Height = 23
+    Top = 11
+    Width = 89
+    TabOrder = 16
+  end
+  object Label5: TLabel
+    Left = 337
+    Height = 15
+    Top = 14
+    Width = 22
+    Caption = 'Port'
+    ParentColor = False
+  end
+  object DirectoryEdit: TEdit
+    Left = 75
+    Height = 23
+    Top = 40
+    Width = 249
+    TabOrder = 17
+    Text = './'
   end
 end

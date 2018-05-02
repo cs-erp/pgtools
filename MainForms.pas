@@ -14,7 +14,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
   IniFiles, registry, Contnrs,
-  SynEdit, mncPostgre, ConsoleProcess;
+  SynEdit, mncPostgre, ConsoleProcess, mnUtils;
 
 type
 
@@ -26,6 +26,9 @@ type
     CSProductsChk: TCheckBox;
     CleanBtn: TButton;
     BackupBtn: TButton;
+    Label4: TLabel;
+    Label5: TLabel;
+    PortEdit: TEdit;
     RestoreBtn: TButton;
     CleanBtn3: TButton;
     CleanBtn4: TButton;
@@ -40,6 +43,7 @@ type
     Label1: TLabel;
     Label2: TLabel;
     LogEdit: TSynEdit;
+    DirectoryEdit: TEdit;
     procedure BackupBtn1Click(Sender: TObject);
     procedure BackupBtn2Click(Sender: TObject);
     procedure BackupBtnClick(Sender: TObject);
@@ -53,6 +57,7 @@ type
   private
     PoolThread: TObjectList;
     ConsoleThread: TmnConsoleThread;
+    function GetPort: String;
     procedure BackupDatabase(DB: string);
     procedure RestoreDatabase(DB: string);
     procedure Log(S: String);
@@ -173,7 +178,9 @@ type
     PGSession: TmncPGSession;
     UserName: string;
     Password: string;
+    Port: string;
     Database: string;
+    Directory: string;
     Suffix: string;
     CSProducts: Boolean;
     procedure OpenPG(vDatabase: string = 'postgres');
@@ -204,7 +211,8 @@ var
   cmd: TmncPGCommand;
   filename: string;
 begin
-  filename := Application.Location + Database + '.backup';
+  filename := Directory + Database + '.backup';
+  filename := ExpandToPath(filename, Application.Location);
   if FileExists(filename) then
     RenameFile(filename, filename + '.' + Suffix);
   if CSProducts then
@@ -253,6 +261,7 @@ begin
     PGConn := TmncPGConnection.Create;
   PGConn.UserName := UserName;
   PGConn.Password := Password;
+  PGConn.Port := Port;
   PGConn.Resource := vDatabase;
   PGConn.Connect;
   PGSession := PGConn.CreateSession as TmncPGSession;
@@ -335,10 +344,13 @@ begin
   o := TRestoreExecuteObject.Create;
   o.UserName := UserNameEdit.Text;
   o.Password := PasswordEdit.Text;
+  o.Port := GetPort;
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
-  filename := Application.Location + DB + '.backup';
-  cmd := '--host localhost --port 5432 --username "' + UserNameEdit.Text + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + filename + '"';
+  o.Directory := DirectoryEdit.Text;
+  filename := DirectoryEdit.Text + DB + '.backup';
+  filename := ExpandToPath(filename, Application.Location);
+  cmd := '--host localhost --port ' + GetPort + ' --username "' + UserNameEdit.Text + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + filename + '"';
   Launch('Restore: '+ DB, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
 end;
 
@@ -350,12 +362,15 @@ begin
   o := TBackupExecuteObject.Create;
   o.UserName := UserNameEdit.Text;
   o.Password := PasswordEdit.Text;
+  o.Port := GetPort;
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
+  o.Directory := DirectoryEdit.Text;
   //"SET PGPASSWORD=<password>"
-  filename := Application.Location + DB + '.backup';
+  filename := DirectoryEdit.Text + DB + '.backup';
+  filename := ExpandToPath(filename, Application.Location);
   cmd := '';
-  cmd := cmd + ' -v --host localhost --port 5432 --password --username "' + UserNameEdit.Text + '"';
+  cmd := cmd + ' -v --host localhost --port ' + GetPort + ' --password --username "' + UserNameEdit.Text + '"';
   cmd := cmd + ' --format custom --compress=9 --blobs --file "' + filename + '" "' + DB + '"';
   //cmd := cmd + ' --format tar --blobs --file "' + filename + '" "' + DB + '"';
   Launch('Backup: ' + DB, 'pg_dump.exe', cmd, PasswordEdit.Text, o);
@@ -379,6 +394,13 @@ begin
   begin
     RestoreDatabase(BackupDatabasesList.Items[i]);
   end;
+end;
+
+function TMainForm.GetPort: String;
+begin
+  Result := PortEdit.Text;
+  if Result = '' then
+    Result := '5432'
 end;
 
 procedure TMainForm.Log(S: String);
@@ -435,6 +457,7 @@ begin
     PGConn := TmncPGConnection.Create;
   PGConn.UserName := UserNameEdit.Text;
   PGConn.Password := PasswordEdit.Text;
+  PGConn.Port := GetPort;
   PGConn.Resource := vDatabase;
   PGConn.Connect;
   PGSession := PGConn.CreateSession as TmncPGSession;
@@ -497,6 +520,8 @@ begin
   CSProductsChk.Checked := ini.ReadBool('options', 'CSProducts', True);
   UserNameEdit.Text := ini.ReadString('options', 'username', 'postgres');
   PasswordEdit.Text := ini.ReadString('options', 'password', '');
+  PortEdit.Text := ini.ReadString('options', 'port', '');
+  DirectoryEdit.Text := ini.ReadString('options', 'directory', './');
   i := 0;
   while true do
   begin
@@ -530,6 +555,8 @@ begin
   ini.WriteBool('options', 'CSProducts', CSProductsChk.Checked);
   ini.WriteString('options', 'username', UserNameEdit.Text);
   ini.WriteString('options', 'password', PasswordEdit.Text);
+  ini.WriteString('options', 'port', PortEdit.Text);
+  ini.WriteString('options', 'directory', DirectoryEdit.Text);
   ini.EraseSection('data');
   for i := 0 to BackupDatabasesList.Items.Count -1 do
     ini.WriteString('data', 'data'+InttoStr(i), BackupDatabasesList.Items[i]);
@@ -539,4 +566,3 @@ begin
 end;
 
 end.
-
