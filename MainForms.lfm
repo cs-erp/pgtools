@@ -2,18 +2,18 @@ object MainForm: TMainForm
   Left = 394
   Height = 427
   Top = 187
-  Width = 506
+  Width = 553
   Caption = 'Creative Solutions PG backup tool'
   ClientHeight = 427
-  ClientWidth = 506
+  ClientWidth = 553
   Constraints.MinWidth = 500
   OnCreate = FormCreate
   LCLVersion = '1.9.0.0'
   inline LogEdit: TSynEdit
     Left = 0
-    Height = 117
-    Top = 280
-    Width = 506
+    Height = 97
+    Top = 300
+    Width = 553
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 60
     Font.Height = -13
@@ -22,7 +22,7 @@ object MainForm: TMainForm
     Font.Quality = fqNonAntialiased
     ParentColor = False
     ParentFont = False
-    TabOrder = 14
+    TabOrder = 6
     BorderStyle = bsNone
     Gutter.LeftOffset = 5
     Gutter.RightOffset = 10
@@ -568,23 +568,12 @@ object MainForm: TMainForm
       end
     end
   end
-  object CleanBtn: TButton
-    Left = 387
-    Height = 25
-    Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
-    Top = 148
-    Width = 110
-    Anchors = [akTop, akRight]
-    Caption = 'Clean all'
-    OnClick = CleanBtnClick
-    TabOrder = 13
-  end
   object UserNameEdit: TEdit
     Left = 77
     Height = 23
     Top = 11
     Width = 90
-    TabOrder = 2
+    TabOrder = 0
     Text = 'postgres'
   end
   object PasswordEdit: TEdit
@@ -594,7 +583,7 @@ object MainForm: TMainForm
     Width = 89
     EchoMode = emPassword
     PasswordChar = '*'
-    TabOrder = 3
+    TabOrder = 1
     Text = 'syspwd'
   end
   object Label1: TLabel
@@ -617,7 +606,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 30
     Top = 397
-    Width = 506
+    Width = 553
     Align = alBottom
     Alignment = taLeftJustify
     BevelInner = bvLowered
@@ -625,44 +614,16 @@ object MainForm: TMainForm
     BorderWidth = 1
     BorderStyle = bsSingle
     Caption = 'Creative Solutions PG backup tool'
-    TabOrder = 15
+    TabOrder = 7
     Visible = False
-  end
-  object BackupBtn: TButton
-    Left = 387
-    Height = 25
-    Top = 82
-    Width = 110
-    Anchors = [akTop, akRight]
-    Caption = 'Backup all'
-    OnClick = BackupBtnClick
-    TabOrder = 0
-  end
-  object RestoreBtn: TButton
-    Left = 387
-    Height = 25
-    Top = 108
-    Width = 110
-    Anchors = [akTop, akRight]
-    Caption = 'Restore all'
-    OnClick = RestoreBtnClick
-    TabOrder = 1
   end
   object BackupDatabasesList: TListBox
     Left = 11
-    Height = 147
-    Top = 127
+    Height = 153
+    Top = 138
     Width = 181
     ItemHeight = 0
-    TabOrder = 7
-  end
-  object Label3: TLabel
-    Left = 14
-    Height = 15
-    Top = 110
-    Width = 68
-    Caption = 'Auto backup'
-    ParentColor = False
+    TabOrder = 5
   end
   object DatabasesCbo: TComboBox
     Left = 11
@@ -671,7 +632,7 @@ object MainForm: TMainForm
     Width = 181
     ItemHeight = 15
     Style = csDropDownList
-    TabOrder = 5
+    TabOrder = 3
   end
   object CleanBtn3: TButton
     Left = 196
@@ -680,61 +641,16 @@ object MainForm: TMainForm
     Width = 91
     Caption = 'Get'
     OnClick = CleanBtn3Click
-    TabOrder = 6
-  end
-  object CleanBtn4: TButton
-    Left = 196
-    Height = 25
-    Top = 128
-    Width = 91
-    Caption = 'Add'
-    OnClick = CleanBtn4Click
-    TabOrder = 8
-  end
-  object CleanBtn5: TButton
-    Left = 196
-    Height = 25
-    Top = 154
-    Width = 91
-    Caption = 'Remove'
-    OnClick = CleanBtn5Click
-    TabOrder = 9
-  end
-  object BackupBtn1: TButton
-    Left = 196
-    Height = 25
-    Top = 223
-    Width = 91
-    Caption = 'Backup'
-    OnClick = BackupBtn1Click
-    TabOrder = 11
-  end
-  object RestoreBtn1: TButton
-    Left = 196
-    Height = 25
-    Top = 249
-    Width = 91
-    Caption = 'Restore'
-    OnClick = RestoreBtn1Click
-    TabOrder = 12
-  end
-  object BackupBtn2: TButton
-    Left = 195
-    Height = 25
-    Top = 180
-    Width = 91
-    Caption = 'Info'
-    OnClick = BackupBtn2Click
-    TabOrder = 10
+    TabOrder = 4
   end
   object CSProductsChk: TCheckBox
-    Left = 340
+    Left = 336
     Height = 19
     Hint = 'Use this only for Creative Solutions databases'
-    Top = 42
+    Top = 41
     Width = 155
     Caption = 'Creative Solution product'
-    TabOrder = 4
+    TabOrder = 2
   end
   object Label4: TLabel
     Left = 18
@@ -749,7 +665,7 @@ object MainForm: TMainForm
     Height = 23
     Top = 11
     Width = 89
-    TabOrder = 16
+    TabOrder = 8
   end
   object Label5: TLabel
     Left = 337
@@ -764,7 +680,187 @@ object MainForm: TMainForm
     Height = 23
     Top = 40
     Width = 249
-    TabOrder = 17
+    TabOrder = 9
     Text = './'
+  end
+  object PGPageControl: TPageControl
+    Left = 196
+    Height = 183
+    Top = 109
+    Width = 353
+    ActivePage = TabSheet2
+    Anchors = [akTop, akLeft, akRight]
+    TabIndex = 1
+    TabOrder = 10
+    object TabSheet1: TTabSheet
+      Caption = 'Database'
+      ClientHeight = 155
+      ClientWidth = 345
+      object BackupBtn1: TButton
+        Left = 6
+        Height = 25
+        Top = 50
+        Width = 91
+        Caption = 'Backup'
+        OnClick = BackupBtn1Click
+        TabOrder = 0
+      end
+      object RestoreBtn1: TButton
+        Left = 6
+        Height = 25
+        Top = 76
+        Width = 91
+        Caption = 'Restore'
+        OnClick = RestoreBtn1Click
+        TabOrder = 1
+      end
+      object BackupBtn2: TButton
+        Left = 5
+        Height = 25
+        Top = 7
+        Width = 91
+        Caption = 'Info'
+        OnClick = BackupBtn2Click
+        TabOrder = 2
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Restore'
+      ClientHeight = 155
+      ClientWidth = 345
+      object BackupFileNameEdit: TEdit
+        Left = 6
+        Height = 23
+        Top = 35
+        Width = 335
+        Anchors = [akTop, akLeft, akRight]
+        TabOrder = 0
+      end
+      object Label6: TLabel
+        Left = 6
+        Height = 15
+        Top = 14
+        Width = 169
+        Caption = 'Restore this file to new database'
+        ParentColor = False
+      end
+      object RestoreBtn2: TButton
+        Left = 6
+        Height = 25
+        Top = 61
+        Width = 91
+        Caption = 'Restore'
+        OnClick = RestoreBtn2Click
+        TabOrder = 1
+      end
+    end
+    object ExportTab: TTabSheet
+      Caption = 'Expert'
+      ClientHeight = 155
+      ClientWidth = 490
+      TabVisible = False
+      object BackupBtn: TButton
+        Left = 3
+        Height = 25
+        Top = 8
+        Width = 110
+        Caption = 'Backup all'
+        OnClick = BackupBtnClick
+        TabOrder = 0
+      end
+      object RestoreBtn: TButton
+        Left = 3
+        Height = 25
+        Top = 34
+        Width = 110
+        Caption = 'Restore all'
+        OnClick = RestoreBtnClick
+        TabOrder = 1
+      end
+      object CleanBtn: TButton
+        Left = 3
+        Height = 25
+        Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
+        Top = 74
+        Width = 110
+        Caption = 'Clean all'
+        OnClick = CleanBtnClick
+        TabOrder = 2
+      end
+    end
+  end
+  object CleanBtn4: TButton
+    Left = 11
+    Height = 25
+    Top = 109
+    Width = 91
+    Caption = 'Add'
+    OnClick = CleanBtn4Click
+    TabOrder = 11
+  end
+  object CleanBtn5: TButton
+    Left = 101
+    Height = 25
+    Top = 109
+    Width = 91
+    Caption = 'Remove'
+    OnClick = CleanBtn5Click
+    TabOrder = 12
+  end
+  object Image1: TImage
+    Left = 496
+    Height = 48
+    Top = 5
+    Width = 48
+    Anchors = [akTop, akLeft, akRight]
+    AutoSize = True
+    Picture.Data = {
+      1754506F727461626C654E6574776F726B477261706869638705000089504E47
+      0D0A1A0A0000000D49484452000000300000003008060000005702F987000000
+      017352474200AECE1CE90000000467414D410000B18F0BFC6105000000097048
+      597300000EC400000EC401952B0E1B0000051C494441546843ED9959C86E5318
+      C7DFCF74700C39C7E1C878CC75325D285C205C48217241B920C30D9292243329
+      71458652B892E44289940B841BB38C65C84CE6799E7EBFBDCEF39DFDAEB3D7DE
+      FB1DBEEF9CAFCEBF7EEDB5B6EFBCFB79F67A9E673D6B9BF90F0D16B03658755D
+      B05AEFC0DAD61A393033333358CEF50FF809FEF6E63C699C746C746077AE67C2
+      3FA013BFC22FA066C0659318ABD23C709EDF53DFC047F0017C0CBFC1288E3456
+      A145387108D7F3201E34D772A51F8167E043E8EB44B18C2EC6895DB81E0D87C3
+      7C39E24ADC05EF401F275AF701C36973AE3BC2B6B0271C0CE6C85CEA07B811DE
+      852E275A1D503A11D2F0D3E0D06AD6AE6FE12B3034FEF546EDEA03A5745FBE86
+      C7E04BE72D26763AA096AE4AEC73609BEACEB07CD8C3F03D98F43F8349AF1316
+      8249359103AEC0815C2F85A830A1BFE00178013EF5C61CAA6466A703BBE2C005
+      5ED374562FC183F03E44086C06E6CA22D802CC9F7AF28F3A76F5BE0073413599
+      DA99C427703D3D4D6765A85C03F1D63576051C0107C0D6302D198A26F4DBD064
+      6A1E1543DA0D4E4CC321DD0961BCA5F60CB81C2CB7D3345E2D861DD2B0514507
+      7CFBFEC32DD374564FC09B6958FDF7E361AEF70977E7928A0E1816EEC6B95E83
+      DFD370B02F1836732943E793346C54310756B0025772D591BA8CFD37C084BD18
+      F683BA2CA1F781A555C58FBB4291ECA1FA8373239CFBF79F811B5B29551B1D30
+      7C5672BD2A4D6765D9BC048C7FF785AB6153A8EB66782E0DA7A292E1A1620859
+      0273B949FD9986834DC07299CBEE32E4C327A54B450722CEEB5A021152DF81CB
+      9B6B0F08E75DC9711845C510B271BB214D87E4BD57D2B02A9FC7A5E1ACFCB1C7
+      C10D2EDE4EFE807C6EBF64A5B1E61BEFF55DBD6B158A0EB8F31AE3D6E1BA6E83
+      A7D270B0175C06F9DF4C228DB73DF190138EB439510C21B770AB4DAE93213616
+      7BF6DBA1FD1D8D265BF78BE07CD81F3686B6B06A74408F3D133755138D3F0A2C
+      A3CA4DED5A68727612994B369036921B41C989E23EE03F3044346EC3EACEB0EA
+      B9A06CB32DAD3B83F963089AF46DAA0C4BC3A2AC7A8672E970D3EA806FD95EC8
+      B0C96549BD07FC61C32D970EC52A95A403E68FD8539D044DA5F959F0593F426E
+      6ED101A5132EA5899AF744A1B7E07EF020EED78B71652CBB8286E731DEA84903
+      B5E13DC7A33AA00E830B9D57B335E596EFD70457C356427C5B3AD4752233442C
+      9D2173CCF27C50355BAD5BE1E9341C72A2D501A5132EB1E7E073AB3BFDA4E1F6
+      435D1FC674C0107919FC2EA45CF5EBA19E7B8FC2BD6938E440B18CD6E506F322
+      DC01F6437DE4C3B707CB621B1E843C30F9B7A17C335351BA73753A10DEDA3AB8
+      84D7411CF1A6293FD7845CB9FC1956B4A63CECB502E184E1607F7E0B78CCAB97
+      D149653108599DF2939DAD465391E8CC81BA22A943BE9165B015D8E419067B83
+      25B1AB84860CC957E12188838B7B89556769354BF2246808ABBAC9233910CA1D
+      A9CB2575B97D8B7D6405B3058F6A659B7E249C5DCD56CB0436917373C77240B5
+      3931AE5C39F782B320DFD0E22438B1031AEED21A3EF6FD4D6D86EAFBA39EE8C4
+      903B160C9F5CB6E637812B35B6031ABE0F57F7038F9B7E276DDAF6A72D43CCCA
+      D7F4F6552F0776C2785BDB53A16F724E4B7E6A7F124CF6B11C588EF17E3A3925
+      4DE74D96CDBBE179B07C96CC6C756009C61B32F626F325777DBFB9BE0E3688AA
+      ED1DB73AB01207AEE06AA27AC0B1498BFF5F368DCFE6CA877F0E1A6B03683FD4
+      E728192A3AB00CE3B7E36A5FEFD6EE8FBB13EBC8341D28A98FF1AA5712AFCBEA
+      D50BADCB5AEFC0DAD602776030F81F583DF727A8E176910000000049454E44AE
+      426082
+    }
   end
 end

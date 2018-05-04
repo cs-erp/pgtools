@@ -13,31 +13,38 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  IniFiles, registry, Contnrs,
-  SynEdit, mncPostgre, ConsoleProcess, mnUtils;
+  ComCtrls, IniFiles, registry, Contnrs, SynEdit, mncPostgre, ConsoleProcess,
+  mnUtils;
 
 type
 
   { TMainForm }
 
   TMainForm = class(TForm)
+    BackupBtn: TButton;
     BackupBtn1: TButton;
     BackupBtn2: TButton;
-    CSProductsChk: TCheckBox;
     CleanBtn: TButton;
-    BackupBtn: TButton;
-    Label4: TLabel;
-    Label5: TLabel;
-    PortEdit: TEdit;
-    RestoreBtn: TButton;
-    CleanBtn3: TButton;
     CleanBtn4: TButton;
     CleanBtn5: TButton;
+    CSProductsChk: TCheckBox;
+    BackupFileNameEdit: TEdit;
+    Image1: TImage;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    PGPageControl: TPageControl;
+    PortEdit: TEdit;
+    CleanBtn3: TButton;
     DatabasesCbo: TComboBox;
     InfoPanel: TPanel;
-    Label3: TLabel;
     BackupDatabasesList: TListBox;
+    RestoreBtn: TButton;
     RestoreBtn1: TButton;
+    RestoreBtn2: TButton;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    ExportTab: TTabSheet;
     UserNameEdit: TEdit;
     PasswordEdit: TEdit;
     Label1: TLabel;
@@ -53,13 +60,14 @@ type
     procedure CleanBtnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RestoreBtn1Click(Sender: TObject);
+    procedure RestoreBtn2Click(Sender: TObject);
     procedure RestoreBtnClick(Sender: TObject);
   private
     PoolThread: TObjectList;
     ConsoleThread: TmnConsoleThread;
     function GetPort: String;
     procedure BackupDatabase(DB: string);
-    procedure RestoreDatabase(DB: string);
+    procedure RestoreDatabase(DB: string; filename: string = ''; Overwrite: Boolean = true);
     procedure Log(S: String);
     procedure ConsoleTerminated(Sender: TObject);
   protected
@@ -181,6 +189,7 @@ type
     Port: string;
     Database: string;
     Directory: string;
+    Overwrite: Boolean;
     Suffix: string;
     CSProducts: Boolean;
     procedure OpenPG(vDatabase: string = 'postgres');
@@ -307,8 +316,13 @@ begin
     cmd.SQL.Add('WHERE datistemplate = false and datname = ''' + Database + '''');
     if cmd.Execute then
     begin
-      cmd.SQL.Text := 'alter database ' + Database + ' rename to "' + Database + '.old_' + Suffix + '"';
-      cmd.Execute;
+      if Overwrite then
+      begin
+        cmd.SQL.Text := 'alter database ' + Database + ' rename to "' + Database + '.old_' + Suffix + '"';
+        cmd.Execute;
+      end
+      else
+        raise Exception.Create('Can''t restore database is exists ' + Database);
     end;
     ConsoleThread.WriteString('Rename new Database ' + Database);
     cmd.SQL.Text := 'alter database "' + Database + '_temp_' + Suffix + '" rename to ' + Database;
@@ -336,10 +350,10 @@ begin
   end;
 end;
 
-procedure TMainForm.RestoreDatabase(DB: string);
+procedure TMainForm.RestoreDatabase(DB: string; filename: string; Overwrite: Boolean);
 var
   o: TRestoreExecuteObject;
-  filename, cmd: string;
+  cmd: string;
 begin
   o := TRestoreExecuteObject.Create;
   o.UserName := UserNameEdit.Text;
@@ -348,8 +362,12 @@ begin
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
   o.Directory := DirectoryEdit.Text;
-  filename := DirectoryEdit.Text + DB + '.backup';
-  filename := ExpandToPath(filename, Application.Location);
+  o.Overwrite := Overwrite;
+  if filename = '' then
+  begin
+    filename := DirectoryEdit.Text + DB + '.backup';
+    filename := ExpandToPath(filename, Application.Location);
+  end;
   cmd := '--host localhost --port ' + GetPort + ' --username "' + UserNameEdit.Text + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + filename + '"';
   Launch('Restore: '+ DB, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
 end;
@@ -366,6 +384,7 @@ begin
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
   o.Directory := DirectoryEdit.Text;
+  //o.Overwrite := Overwrite;
   //"SET PGPASSWORD=<password>"
   filename := DirectoryEdit.Text + DB + '.backup';
   filename := ExpandToPath(filename, Application.Location);
@@ -384,6 +403,14 @@ procedure TMainForm.RestoreBtn1Click(Sender: TObject);
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
     RestoreDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex]);
+end;
+
+procedure TMainForm.RestoreBtn2Click(Sender: TObject);
+var
+  DB: string;
+begin
+  DB := ExtractFileName(BackupFileNameEdit.Text);
+  RestoreDatabase(DB, BackupFileNameEdit.Text, True);
 end;
 
 procedure TMainForm.RestoreBtnClick(Sender: TObject);
@@ -427,7 +454,7 @@ begin
   cmd := PGSession.CreateCommand as TmncPGCommand;
   try
     cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
-    cmd.SQL.Add('WHERE datistemplate = false');
+    cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
     if vOld then
       cmd.SQL.Add('and ')
     else
@@ -509,7 +536,7 @@ var
   ini: TIniFile;
   s: string;
 begin
-  inherited Create(TheOwner);
+  inherited;
   PoolThread := TObjectList.Create;
   reg := TRegistry.Create(KEY_READ);
   reg.RootKey := HKEY_LOCAL_MACHINE;
@@ -522,6 +549,8 @@ begin
   PasswordEdit.Text := ini.ReadString('options', 'password', '');
   PortEdit.Text := ini.ReadString('options', 'port', '');
   DirectoryEdit.Text := ini.ReadString('options', 'directory', './');
+  ExportTab.TabVisible := ini.ReadBool('options', 'expert', false);
+  PGPageControl.TabIndex := 0;
   i := 0;
   while true do
   begin
@@ -532,7 +561,8 @@ begin
     Inc(i);
   end;
   ini.Free;
-
+  if BackupDatabasesList.Items.Count > 0 then
+    BackupDatabasesList.ItemIndex := 0;
   Databases := TStringList.Create;
 end;
 
@@ -557,6 +587,7 @@ begin
   ini.WriteString('options', 'password', PasswordEdit.Text);
   ini.WriteString('options', 'port', PortEdit.Text);
   ini.WriteString('options', 'directory', DirectoryEdit.Text);
+  ini.WriteBool('options', 'expert', ExportTab.TabVisible);
   ini.EraseSection('data');
   for i := 0 to BackupDatabasesList.Items.Count -1 do
     ini.WriteString('data', 'data'+InttoStr(i), BackupDatabasesList.Items[i]);
