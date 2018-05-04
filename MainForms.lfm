@@ -1,18 +1,18 @@
 object MainForm: TMainForm
   Left = 394
-  Height = 427
+  Height = 463
   Top = 187
   Width = 553
   Caption = 'Creative Solutions PG backup tool'
-  ClientHeight = 427
+  ClientHeight = 463
   ClientWidth = 553
   Constraints.MinWidth = 500
   OnCreate = FormCreate
   LCLVersion = '1.9.0.0'
   inline LogEdit: TSynEdit
     Left = 0
-    Height = 97
-    Top = 300
+    Height = 138
+    Top = 296
     Width = 553
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 60
@@ -22,11 +22,10 @@ object MainForm: TMainForm
     Font.Quality = fqNonAntialiased
     ParentColor = False
     ParentFont = False
+    PopupMenu = PopupMenu1
     TabOrder = 6
-    BorderStyle = bsNone
-    Gutter.LeftOffset = 5
-    Gutter.RightOffset = 10
-    Gutter.Width = 32
+    Gutter.RightOffset = 2
+    Gutter.Width = 21
     Gutter.MouseActions = <    
       item
         ClickCount = ccAny
@@ -566,6 +565,12 @@ object MainForm: TMainForm
         ZeroStart = False
         LeadingZeros = False
       end
+      object SynGutterSeparator1: TSynGutterSeparator
+        Width = 2
+        MouseActions = <>
+        MarkupInfo.Background = clWhite
+        MarkupInfo.Foreground = clGray
+      end
     end
   end
   object UserNameEdit: TEdit
@@ -605,7 +610,7 @@ object MainForm: TMainForm
   object InfoPanel: TPanel
     Left = 0
     Height = 30
-    Top = 397
+    Top = 433
     Width = 553
     Align = alBottom
     Alignment = taLeftJustify
@@ -615,12 +620,11 @@ object MainForm: TMainForm
     BorderStyle = bsSingle
     Caption = 'Creative Solutions PG backup tool'
     TabOrder = 7
-    Visible = False
   end
   object BackupDatabasesList: TListBox
     Left = 11
-    Height = 153
-    Top = 138
+    Height = 170
+    Top = 123
     Width = 181
     ItemHeight = 0
     TabOrder = 5
@@ -628,7 +632,7 @@ object MainForm: TMainForm
   object DatabasesCbo: TComboBox
     Left = 11
     Height = 23
-    Top = 83
+    Top = 68
     Width = 181
     ItemHeight = 15
     Style = csDropDownList
@@ -637,7 +641,7 @@ object MainForm: TMainForm
   object CleanBtn3: TButton
     Left = 196
     Height = 25
-    Top = 82
+    Top = 67
     Width = 91
     Caption = 'Get'
     OnClick = CleanBtn3Click
@@ -647,13 +651,13 @@ object MainForm: TMainForm
     Left = 336
     Height = 19
     Hint = 'Use this only for Creative Solutions databases'
-    Top = 41
+    Top = 42
     Width = 155
     Caption = 'Creative Solution product'
     TabOrder = 2
   end
   object Label4: TLabel
-    Left = 18
+    Left = 12
     Height = 15
     Top = 44
     Width = 48
@@ -685,8 +689,8 @@ object MainForm: TMainForm
   end
   object PGPageControl: TPageControl
     Left = 196
-    Height = 183
-    Top = 109
+    Height = 199
+    Top = 94
     Width = 353
     ActivePage = TabSheet2
     Anchors = [akTop, akLeft, akRight]
@@ -694,7 +698,7 @@ object MainForm: TMainForm
     TabOrder = 10
     object TabSheet1: TTabSheet
       Caption = 'Database'
-      ClientHeight = 155
+      ClientHeight = 171
       ClientWidth = 345
       object BackupBtn1: TButton
         Left = 6
@@ -726,13 +730,13 @@ object MainForm: TMainForm
     end
     object TabSheet2: TTabSheet
       Caption = 'Restore'
-      ClientHeight = 155
+      ClientHeight = 171
       ClientWidth = 345
       object BackupFileNameEdit: TEdit
         Left = 6
         Height = 23
         Top = 35
-        Width = 335
+        Width = 333
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 0
       end
@@ -747,17 +751,26 @@ object MainForm: TMainForm
       object RestoreBtn2: TButton
         Left = 6
         Height = 25
-        Top = 61
+        Top = 95
         Width = 91
         Caption = 'Restore'
         OnClick = RestoreBtn2Click
         TabOrder = 1
       end
+      object RestoreBtn3: TButton
+        Left = 6
+        Height = 25
+        Top = 60
+        Width = 91
+        Caption = 'Browse'
+        OnClick = RestoreBtn3Click
+        TabOrder = 2
+      end
     end
     object ExportTab: TTabSheet
       Caption = 'Expert'
-      ClientHeight = 155
-      ClientWidth = 490
+      ClientHeight = 171
+      ClientWidth = 345
       TabVisible = False
       object BackupBtn: TButton
         Left = 3
@@ -792,7 +805,7 @@ object MainForm: TMainForm
   object CleanBtn4: TButton
     Left = 11
     Height = 25
-    Top = 109
+    Top = 94
     Width = 91
     Caption = 'Add'
     OnClick = CleanBtn4Click
@@ -801,14 +814,14 @@ object MainForm: TMainForm
   object CleanBtn5: TButton
     Left = 101
     Height = 25
-    Top = 109
+    Top = 94
     Width = 91
     Caption = 'Remove'
     OnClick = CleanBtn5Click
     TabOrder = 12
   end
   object Image1: TImage
-    Left = 496
+    Left = 499
     Height = 48
     Top = 5
     Width = 48
@@ -862,5 +875,13 @@ object MainForm: TMainForm
       D50BADCB5AEFC0DAD602776030F81F583DF727A8E176910000000049454E44AE
       426082
     }
+  end
+  object PopupMenu1: TPopupMenu
+    left = 293
+    top = 319
+    object MenuItem1: TMenuItem
+      Caption = 'Clear'
+      OnClick = MenuItem1Click
+    end
   end
 end

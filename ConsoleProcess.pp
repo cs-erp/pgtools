@@ -24,31 +24,34 @@ type
     procedure Execute(ConsoleThread: TmnConsoleThread); virtual; abstract;
   end;
 
-  TmnOnWriteString = procedure(S: String) of object;
+  TmnLogKind = (lgLog, lgStatus, lgMessage);
+
+  TmnOnLog = procedure(S: String; Kind: TmnLogKind) of object;
 
   { TmnConsoleThread }
 
   TmnConsoleThread = class(TThread)
   private
     FExecuteObject: TExecuteObject;
-    FOnWriteString: TmnOnWriteString;
+    FOnLog: TmnOnLog;
     FPassword: string;
     FProcess: TProcess;
     procedure SetExecuteObject(AValue: TExecuteObject);
   protected
-    Buffer: String;
-    procedure DoOnWriteString; virtual; //To Sync
+    FString: String;
+    FKind: TmnLogKind;
+    procedure DoOnLog; virtual; //To Sync
   public
     Status: Integer;
     Message: string;
-    constructor Create(vExecutable, vParameters: string; vOnWriteString: TmnOnWriteString = nil);
+    constructor Create(vExecutable, vParameters: string; vOnLog: TmnOnLog = nil);
     destructor Destroy; override;
     procedure Execute; override;
     procedure Read; virtual;
     procedure ReadPrompt; virtual;
     procedure ReadStream; virtual;
-    procedure WriteString(S: String);
-    property OnWriteString: TmnOnWriteString read FOnWriteString write FOnWriteString;
+    procedure Log(S: String; Kind: TmnLogKind = lgLog);
+    property OnLog: TmnOnLog read FOnLog write FOnLog;
     property Password: string read FPassword write FPassword;
     property ExecuteObject: TExecuteObject read FExecuteObject write SetExecuteObject;
   end;
@@ -63,23 +66,24 @@ begin
     FExecuteObject :=AValue;
 end;
 
-procedure TmnConsoleThread.DoOnWriteString;
+procedure TmnConsoleThread.DoOnLog;
 begin
-  if Assigned(FOnWriteString) then
-    FOnWriteString(Buffer);
+  if Assigned(FOnLog) then
+    FOnLog(FString, FKind);
 end;
 
-procedure TmnConsoleThread.WriteString(S: String);
+procedure TmnConsoleThread.Log(S: String; Kind: TmnLogKind);
 begin
-  Buffer := S;
-  Synchronize(@DoOnWriteString);
-  Buffer := '';
+  FString := S;
+  FKind := Kind;
+  Synchronize(@DoOnLog);
+  FString := '';
 end;
 
-constructor TmnConsoleThread.Create(vExecutable, vParameters: string; vOnWriteString: TmnOnWriteString);
+constructor TmnConsoleThread.Create(vExecutable, vParameters: string; vOnLog: TmnOnLog);
 begin
   inherited Create(True);
-  FOnWriteString := vOnWriteString;
+  FOnLog := vOnLog;
   FProcess := TProcess.Create(nil);
   FProcess.Executable := vExecutable;
   CommandToList(vParameters, FProcess.Parameters);
@@ -126,7 +130,7 @@ begin
     begin
       SetString(T, aBuffer, C);
       if T <> '' then
-        WriteString(T);
+        Log(T);
     end;
   end;
 end;
@@ -142,13 +146,14 @@ begin
   if C <> 0 then
   begin
     SetString(T, aBuffer, C);
-    WriteString(T);
+    Log(T);
   end;
 end;
 
 procedure TmnConsoleThread.ReadStream;
 var
   aWrapper: TmnWrapperStream;
+  S: string;
   b: Boolean;
 begin
   if FProcess.Output <> nil then
@@ -159,10 +164,10 @@ begin
 
       while not Terminated do
       begin
-        b := aWrapper.ReadLine(Buffer, False);
+        b := aWrapper.ReadLine(S, False);
         if not b and not (FProcess.Running) then
           break;
-        WriteString(Buffer);
+        Log(S);
       end;
     aWrapper.Free;
   except
@@ -184,7 +189,7 @@ begin
     try
       if FExecuteObject <> nil then
         FExecuteObject.Prepare(Self);
-      WriteString(FProcess.Executable + ' ' + StringReplace(FProcess.Parameters.Text, #13#10, ' ', [rfReplaceAll]));
+      Log(FProcess.Executable + ' ' + StringReplace(FProcess.Parameters.Text, #13#10, ' ', [rfReplaceAll]));
       FProcess.Execute;
       ReadPrompt;
       if (FProcess.Input <> nil) and (Password <> '') then
@@ -198,12 +203,12 @@ begin
     except
       on E:Exception do
       begin
-        WriteString(E.Message);
+        Log(E.Message, lgMessage);
         raise;
       end;
     end;
   finally
-    WriteString('Execute Time: "' + TicksToString(GetTickCount64 - d) + '"');
+    Log('Execute Time: "' + TicksToString(GetTickCount64 - d) + '"');
   end;
 end;
 

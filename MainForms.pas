@@ -13,11 +13,10 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, IniFiles, registry, Contnrs, SynEdit, mncPostgre, ConsoleProcess,
-  mnUtils;
+  ComCtrls, Menus, IniFiles, registry, Contnrs, SynEdit, mncPostgre,
+  ConsoleProcess, FileUtil, mnUtils;
 
 type
-
   { TMainForm }
 
   TMainForm = class(TForm)
@@ -33,7 +32,9 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
+    MenuItem1: TMenuItem;
     PGPageControl: TPageControl;
+    PopupMenu1: TPopupMenu;
     PortEdit: TEdit;
     CleanBtn3: TButton;
     DatabasesCbo: TComboBox;
@@ -42,6 +43,7 @@ type
     RestoreBtn: TButton;
     RestoreBtn1: TButton;
     RestoreBtn2: TButton;
+    RestoreBtn3: TButton;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     ExportTab: TTabSheet;
@@ -59,8 +61,10 @@ type
     procedure CleanBtn5Click(Sender: TObject);
     procedure CleanBtnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure MenuItem1Click(Sender: TObject);
     procedure RestoreBtn1Click(Sender: TObject);
     procedure RestoreBtn2Click(Sender: TObject);
+    procedure RestoreBtn3Click(Sender: TObject);
     procedure RestoreBtnClick(Sender: TObject);
   private
     PoolThread: TObjectList;
@@ -68,7 +72,7 @@ type
     function GetPort: String;
     procedure BackupDatabase(DB: string);
     procedure RestoreDatabase(DB: string; filename: string = ''; Overwrite: Boolean = true);
-    procedure Log(S: String);
+    procedure Log(S: String; Kind: TmnLogKind = lgLog);
     procedure ConsoleTerminated(Sender: TObject);
   protected
     PGConn: TmncPGConnection;
@@ -105,14 +109,14 @@ begin
     InfoPanel.Caption := 'Dropping database ' + Databases[i];
     PGConn.Execute('drop database "' + Databases[i] + '"');
     //if PGConn.Execute('drop database "' + Databases[i]+'"') then
-    Log('Database Dropped: "' + Databases[i] + '"');
+    Log('Database Dropped: "' + Databases[i] + '"', lgStatus);
     //else
     //  Log('Database Dropped: "' + Databases[i]+'"');
     LogEdit.CaretY := LogEdit.Lines.Count - 1;
     Application.ProcessMessages;
   end;
   ClosePG;
-  Log('Clean Done');
+  Log('Clean Done', lgStatus);
   Databases.Clear;
 end;
 
@@ -229,7 +233,6 @@ begin
     OpenPG(Database);
     cmd := PGSession.CreateCommand as TmncPGCommand;
     try
-      ConsoleThread.WriteString(' ' + Database);
       cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBeforeBackupDate'', ?SysValue)';
       cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
       cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD:HH:MM:SS', Now);
@@ -250,7 +253,7 @@ begin
     OpenPG(Database);
     cmd := PGSession.CreateCommand as TmncPGCommand;
     try
-      ConsoleThread.WriteString(' ' + Database);
+      ConsoleThread.Log(' ' + Database);
       cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBackupDate'', ?SysValue)';
       cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") DO UPDATE SET "SysValue" = ?SysValue');
       cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD:HH:MM:SS', Now);
@@ -295,8 +298,16 @@ begin
   OpenPG;
   cmd := PGSession.CreateCommand as TmncPGCommand;
   try
-    ConsoleThread.WriteString('Create new Database ' + Database);
-    cmd.SQL.Text := 'create database ' + Database + '_temp_' + Suffix;
+    cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
+    cmd.SQL.Add('WHERE datistemplate = false and datname = ''' + Database + '''');
+    if cmd.Execute then
+    begin
+      if not Overwrite then
+        raise Exception.Create('Can''t restore database is exists ' + Database);
+    end;
+
+    ConsoleThread.Log('Create new Database ' + Database, lgStatus);
+    cmd.SQL.Text := 'create database "' + Database + '_temp_' + Suffix+'"';
     cmd.Execute;
   finally
     cmd.Free;
@@ -311,22 +322,22 @@ begin
   OpenPG;
   cmd := PGSession.CreateCommand as TmncPGCommand;
   try
-    ConsoleThread.WriteString('Renaming databases ' + Database);
+    ConsoleThread.Log('Renaming database ' + Database, lgStatus);
     cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
     cmd.SQL.Add('WHERE datistemplate = false and datname = ''' + Database + '''');
     if cmd.Execute then
     begin
       if Overwrite then
       begin
-        cmd.SQL.Text := 'alter database ' + Database + ' rename to "' + Database + '.old_' + Suffix + '"';
+        cmd.SQL.Text := 'alter database "' + Database + '" rename to "' + Database + '.old_' + Suffix + '"';
         cmd.Execute;
       end
       else
         raise Exception.Create('Can''t restore database is exists ' + Database);
     end;
-    ConsoleThread.WriteString('Rename new Database ' + Database);
-    cmd.SQL.Text := 'alter database "' + Database + '_temp_' + Suffix + '" rename to ' + Database;
-    ConsoleThread.WriteString('Renamed database ' + Database);
+    ConsoleThread.Log('Rename new Database ' + Database, lgStatus);
+    cmd.SQL.Text := 'alter database "' + Database + '_temp_' + Suffix + '" rename to "' + Database + '"';
+    ConsoleThread.Log('Renamed database ' + Database, lgStatus);
     cmd.Execute;
   finally
     cmd.Free;
@@ -338,7 +349,6 @@ begin
     OpenPG(Database);
     cmd := PGSession.CreateCommand as TmncPGCommand;
     try
-      ConsoleThread.WriteString(' ' + Database);
       cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastRestoreDate'', ?SysValue)';
       cmd.SQL.Add('on conflict ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
       cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD:HH:MM:SS', Now);
@@ -368,7 +378,7 @@ begin
     filename := DirectoryEdit.Text + DB + '.backup';
     filename := ExpandToPath(filename, Application.Location);
   end;
-  cmd := '--host localhost --port ' + GetPort + ' --username "' + UserNameEdit.Text + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + filename + '"';
+  cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + filename + '"';
   Launch('Restore: '+ DB, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
 end;
 
@@ -389,7 +399,7 @@ begin
   filename := DirectoryEdit.Text + DB + '.backup';
   filename := ExpandToPath(filename, Application.Location);
   cmd := '';
-  cmd := cmd + ' -v --host localhost --port ' + GetPort + ' --password --username "' + UserNameEdit.Text + '"';
+  cmd := cmd + ' -v --host localhost --port ' + GetPort + ' --password --username "' + o.UserName + '"';
   cmd := cmd + ' --format custom --compress=9 --blobs --file "' + filename + '" "' + DB + '"';
   //cmd := cmd + ' --format tar --blobs --file "' + filename + '" "' + DB + '"';
   Launch('Backup: ' + DB, 'pg_dump.exe', cmd, PasswordEdit.Text, o);
@@ -397,6 +407,11 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+end;
+
+procedure TMainForm.MenuItem1Click(Sender: TObject);
+begin
+  LogEdit.Clear;
 end;
 
 procedure TMainForm.RestoreBtn1Click(Sender: TObject);
@@ -409,8 +424,20 @@ procedure TMainForm.RestoreBtn2Click(Sender: TObject);
 var
   DB: string;
 begin
-  DB := ExtractFileName(BackupFileNameEdit.Text);
-  RestoreDatabase(DB, BackupFileNameEdit.Text, True);
+  DB := ExtractFileNameWithoutExt(ExtractFileName(BackupFileNameEdit.Text));
+  RestoreDatabase(DB, BackupFileNameEdit.Text, False);
+end;
+
+procedure TMainForm.RestoreBtn3Click(Sender: TObject);
+begin
+  with TOpenDialog.Create(Self) do
+  begin
+    Filter := '*.backup';
+    FileName := '*.backup';
+    if Execute then
+      BackupFileNameEdit.Text := FileName;
+    Free;
+  end;
 end;
 
 procedure TMainForm.RestoreBtnClick(Sender: TObject);
@@ -430,18 +457,25 @@ begin
     Result := '5432'
 end;
 
-procedure TMainForm.Log(S: String);
+procedure TMainForm.Log(S: String; Kind: TmnLogKind);
 begin
-  LogEdit.Lines.Add(S);
-  LogEdit.CaretY := LogEdit.Lines.Count;
+  case Kind of
+    lgLog:
+    begin
+      LogEdit.Lines.Add(S);
+      LogEdit.CaretY := LogEdit.Lines.Count;
+    end;
+    lgStatus : InfoPanel.Caption := S;
+    lgMessage: ShowMessage(S);
+  end;
 end;
 
 procedure TMainForm.ConsoleTerminated(Sender: TObject);
 begin
   if ConsoleThread.Status = 0 then
-    Log(ConsoleThread.Message + ' Done')
+    Log(ConsoleThread.Message + ' Done', lgStatus)
   else
-    Log('error');
+    Log('Error look the log', lgMessage);
   FreeAndNil(ConsoleThread);
   Resume;
 end;
@@ -524,7 +558,7 @@ begin
   end
   else
   begin
-    Log('All done');
+    Log('Finished');
     InfoPanel.Caption := '';
   end;
 end;
