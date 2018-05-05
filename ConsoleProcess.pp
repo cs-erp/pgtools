@@ -189,6 +189,7 @@ begin
     try
       if FExecuteObject <> nil then
         FExecuteObject.Prepare(Self);
+      Log(Message, lgStatus);
       Log(FProcess.Executable + ' ' + StringReplace(FProcess.Parameters.Text, #13#10, ' ', [rfReplaceAll]));
       FProcess.Execute;
       ReadPrompt;

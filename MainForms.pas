@@ -235,7 +235,7 @@ begin
     try
       cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBeforeBackupDate'', ?SysValue)';
       cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
-      cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD:HH:MM:SS', Now);
+      cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
       cmd.Execute;
     finally
       cmd.Free;
@@ -256,7 +256,7 @@ begin
       ConsoleThread.Log(' ' + Database);
       cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBackupDate'', ?SysValue)';
       cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") DO UPDATE SET "SysValue" = ?SysValue');
-      cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD:HH:MM:SS', Now);
+      cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
       cmd.Execute;
     finally
       cmd.Free;
@@ -306,7 +306,7 @@ begin
         raise Exception.Create('Can''t restore database is exists ' + Database);
     end;
 
-    ConsoleThread.Log('Create new Database ' + Database, lgStatus);
+    ConsoleThread.Log('Creating new Database ' + Database, lgStatus);
     cmd.SQL.Text := 'create database "' + Database + '_temp_' + Suffix+'"';
     cmd.Execute;
   finally
@@ -351,7 +351,7 @@ begin
     try
       cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastRestoreDate'', ?SysValue)';
       cmd.SQL.Add('on conflict ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
-      cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD:HH:MM:SS', Now);
+      cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
       cmd.Execute;
     finally
       cmd.Free;
@@ -379,7 +379,7 @@ begin
     filename := ExpandToPath(filename, Application.Location);
   end;
   cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + filename + '"';
-  Launch('Restore: '+ DB, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
+  Launch('Restoring: '+ DB, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
 end;
 
 procedure TMainForm.BackupDatabase(DB: string);
@@ -402,7 +402,7 @@ begin
   cmd := cmd + ' -v --host localhost --port ' + GetPort + ' --password --username "' + o.UserName + '"';
   cmd := cmd + ' --format custom --compress=9 --blobs --file "' + filename + '" "' + DB + '"';
   //cmd := cmd + ' --format tar --blobs --file "' + filename + '" "' + DB + '"';
-  Launch('Backup: ' + DB, 'pg_dump.exe', cmd, PasswordEdit.Text, o);
+  Launch('Backuping: ' + DB, 'pg_dump.exe', cmd, PasswordEdit.Text, o);
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
@@ -460,14 +460,11 @@ end;
 procedure TMainForm.Log(S: String; Kind: TmnLogKind);
 begin
   case Kind of
-    lgLog:
-    begin
-      LogEdit.Lines.Add(S);
-      LogEdit.CaretY := LogEdit.Lines.Count;
-    end;
     lgStatus : InfoPanel.Caption := S;
     lgMessage: ShowMessage(S);
   end;
+  LogEdit.Lines.Add(S);
+  LogEdit.CaretY := LogEdit.Lines.Count;
 end;
 
 procedure TMainForm.ConsoleTerminated(Sender: TObject);
