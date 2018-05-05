@@ -183,6 +183,17 @@ end;
 procedure TmnConsoleThread.Execute;
 var
   d: Int64;
+
+  procedure StreamWriteLn(S: string);
+  var
+    i : integer;
+  begin
+    for i := 1 to Length(S) do
+      FProcess.Input.WriteByte(Byte(S[i]));
+    FProcess.Input.WriteByte(13);
+    FProcess.Input.WriteByte(10);
+  end;
+
 begin
   d := GetTickCount64;
   try
@@ -194,8 +205,8 @@ begin
       FProcess.Execute;
       ReadPrompt;
       if (FProcess.Input <> nil) and (Password <> '') then
-        FProcess.Input.WriteAnsiString(Password + #13#10+#13#10); //idk why 2 eol
-      FProcess.CloseInput;
+        StreamWriteLn(Password);
+      //FProcess.CloseInput;
       ReadStream;
       Status := FProcess.ExitStatus;
       FreeAndNil(FProcess);

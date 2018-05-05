@@ -590,7 +590,6 @@ object MainForm: TMainForm
     EchoMode = emPassword
     PasswordChar = '*'
     TabOrder = 1
-    Text = 'syspwd'
   end
   object Label1: TLabel
     Left = 12
@@ -695,9 +694,9 @@ object MainForm: TMainForm
     Height = 199
     Top = 94
     Width = 320
-    ActivePage = TabSheet1
+    ActivePage = ExportTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 2
     TabOrder = 10
     object TabSheet1: TTabSheet
       Caption = 'Database'
@@ -773,7 +772,7 @@ object MainForm: TMainForm
     object ExportTab: TTabSheet
       Caption = 'Expert'
       ClientHeight = 171
-      ClientWidth = 345
+      ClientWidth = 312
       TabVisible = False
       object BackupBtn: TButton
         Left = 3
@@ -802,6 +801,38 @@ object MainForm: TMainForm
         Caption = 'Clean all'
         OnClick = CleanBtnClick
         TabOrder = 2
+      end
+      object NewPasswordEdit: TEdit
+        Left = 97
+        Height = 23
+        Top = 137
+        Width = 112
+        Anchors = [akLeft, akBottom]
+        AutoSize = False
+        EchoMode = emPassword
+        PasswordChar = '*'
+        TabOrder = 3
+      end
+      object Label3: TLabel
+        Left = 9
+        Height = 15
+        Top = 140
+        Width = 77
+        Anchors = [akLeft, akBottom]
+        AutoSize = False
+        Caption = 'New Password'
+        ParentColor = False
+      end
+      object CleanBtn1: TButton
+        Left = 215
+        Height = 25
+        Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
+        Top = 136
+        Width = 81
+        Anchors = [akLeft, akBottom]
+        Caption = 'Change'
+        OnClick = CleanBtn1Click
+        TabOrder = 4
       end
     end
   end

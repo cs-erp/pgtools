@@ -24,16 +24,19 @@ type
     BackupBtn1: TButton;
     BackupBtn2: TButton;
     CleanBtn: TButton;
+    CleanBtn1: TButton;
     CleanBtn4: TButton;
     CleanBtn5: TButton;
     CSProductsChk: TCheckBox;
     BackupFileNameEdit: TEdit;
     DBDirectoryChk: TCheckBox;
     Image1: TImage;
+    Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     MenuItem1: TMenuItem;
+    NewPasswordEdit: TEdit;
     PGPageControl: TPageControl;
     PopupMenu1: TPopupMenu;
     PortEdit: TEdit;
@@ -57,6 +60,7 @@ type
     procedure BackupBtn1Click(Sender: TObject);
     procedure BackupBtn2Click(Sender: TObject);
     procedure BackupBtnClick(Sender: TObject);
+    procedure CleanBtn1Click(Sender: TObject);
     procedure CleanBtn3Click(Sender: TObject);
     procedure CleanBtn4Click(Sender: TObject);
     procedure CleanBtn5Click(Sender: TObject);
@@ -128,6 +132,26 @@ begin
   for i := 0 to BackupDatabasesList.Items.Count - 1 do
   begin
     BackupDatabase(BackupDatabasesList.Items[i]);
+  end;
+end;
+
+procedure TMainForm.CleanBtn1Click(Sender: TObject);
+var
+  cmd: TmncPGCommand;
+  DB: string;
+begin
+  if BackupDatabasesList.ItemIndex >= 0 then
+  begin
+    OpenPG('postgres');
+    cmd := PGSession.CreateCommand as TmncPGCommand;
+    try
+      cmd.SQL.Text := 'ALTER ROLE '+UserNameEdit.Text + ' WITH PASSWORD ''' + NewPasswordEdit.Text + '''';
+      cmd.Execute;
+      ShowMessage('Password changed successfully');
+    finally
+      cmd.Free;
+      ClosePG;
+    end;
   end;
 end;
 
@@ -254,7 +278,6 @@ begin
     OpenPG(Database);
     cmd := PGSession.CreateCommand as TmncPGCommand;
     try
-      ConsoleThread.Log(' ' + Database);
       cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBackupDate'', ?SysValue)';
       cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") DO UPDATE SET "SysValue" = ?SysValue');
       cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
