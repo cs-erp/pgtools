@@ -28,6 +28,7 @@ type
     CleanBtn5: TButton;
     CSProductsChk: TCheckBox;
     BackupFileNameEdit: TEdit;
+    DBDirectoryChk: TCheckBox;
     Image1: TImage;
     Label4: TLabel;
     Label5: TLabel;
@@ -371,11 +372,13 @@ begin
   o.Port := GetPort;
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
-  o.Directory := DirectoryEdit.Text;
+  o.Directory := IncludePathSeparator(DirectoryEdit.Text);
+  if DBDirectoryChk.Checked then
+    o.Directory := IncludePathSeparator(o.Directory + DB);
   o.Overwrite := Overwrite;
   if filename = '' then
   begin
-    filename := DirectoryEdit.Text + DB + '.backup';
+    filename := o.Directory + DB + '.backup';
     filename := ExpandToPath(filename, Application.Location);
   end;
   cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + filename + '"';
@@ -393,11 +396,14 @@ begin
   o.Port := GetPort;
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
-  o.Directory := DirectoryEdit.Text;
+  o.Directory := IncludePathSeparator(DirectoryEdit.Text);
+  if DBDirectoryChk.Checked then
+    o.Directory := IncludePathSeparator(o.Directory + DB);
   //o.Overwrite := Overwrite;
   //"SET PGPASSWORD=<password>"
-  filename := DirectoryEdit.Text + DB + '.backup';
+  filename := o.Directory + DB + '.backup';
   filename := ExpandToPath(filename, Application.Location);
+  ForceDirectories(ExtractFilePath(filename));
   cmd := '';
   cmd := cmd + ' -v --host localhost --port ' + GetPort + ' --password --username "' + o.UserName + '"';
   cmd := cmd + ' --format custom --compress=9 --blobs --file "' + filename + '" "' + DB + '"';
@@ -581,6 +587,7 @@ begin
   PortEdit.Text := ini.ReadString('options', 'port', '');
   DirectoryEdit.Text := ini.ReadString('options', 'directory', './');
   ExportTab.TabVisible := ini.ReadBool('options', 'expert', false);
+  DBDirectoryChk.Checked := ini.ReadBool('options', 'DBDirectory', false);
   PGPageControl.TabIndex := 0;
   i := 0;
   while true do
@@ -619,6 +626,7 @@ begin
   ini.WriteString('options', 'port', PortEdit.Text);
   ini.WriteString('options', 'directory', DirectoryEdit.Text);
   ini.WriteBool('options', 'expert', ExportTab.TabVisible);
+  ini.WriteBool('options', 'DBDirectory', DBDirectoryChk.Checked);
   ini.EraseSection('data');
   for i := 0 to BackupDatabasesList.Items.Count -1 do
     ini.WriteString('data', 'data'+InttoStr(i), BackupDatabasesList.Items[i]);
