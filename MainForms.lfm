@@ -1,10 +1,10 @@
 object MainForm: TMainForm
   Left = 394
-  Height = 463
+  Height = 512
   Top = 187
   Width = 520
   Caption = 'Creative Solutions PG backup tool'
-  ClientHeight = 463
+  ClientHeight = 512
   ClientWidth = 520
   Constraints.MinWidth = 500
   OnCreate = FormCreate
@@ -12,8 +12,8 @@ object MainForm: TMainForm
   LCLVersion = '1.9.0.0'
   inline LogEdit: TSynEdit
     Left = 0
-    Height = 138
-    Top = 296
+    Height = 145
+    Top = 338
     Width = 520
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 60
@@ -577,7 +577,7 @@ object MainForm: TMainForm
   object UserNameEdit: TEdit
     Left = 77
     Height = 23
-    Top = 11
+    Top = 48
     Width = 90
     TabOrder = 0
     Text = 'postgres'
@@ -585,7 +585,7 @@ object MainForm: TMainForm
   object PasswordEdit: TEdit
     Left = 234
     Height = 23
-    Top = 11
+    Top = 48
     Width = 89
     EchoMode = emPassword
     PasswordChar = '*'
@@ -594,7 +594,7 @@ object MainForm: TMainForm
   object Label1: TLabel
     Left = 12
     Height = 15
-    Top = 14
+    Top = 51
     Width = 56
     Caption = 'User name'
     ParentColor = False
@@ -602,7 +602,7 @@ object MainForm: TMainForm
   object Label2: TLabel
     Left = 177
     Height = 15
-    Top = 14
+    Top = 51
     Width = 50
     Caption = 'Password'
     ParentColor = False
@@ -610,7 +610,7 @@ object MainForm: TMainForm
   object InfoPanel: TPanel
     Left = 0
     Height = 30
-    Top = 433
+    Top = 482
     Width = 520
     Align = alBottom
     Alignment = taLeftJustify
@@ -624,7 +624,7 @@ object MainForm: TMainForm
   object BackupDatabasesList: TListBox
     Left = 11
     Height = 170
-    Top = 123
+    Top = 160
     Width = 181
     ItemHeight = 0
     TabOrder = 5
@@ -632,7 +632,7 @@ object MainForm: TMainForm
   object DatabasesCbo: TComboBox
     Left = 11
     Height = 23
-    Top = 68
+    Top = 105
     Width = 181
     ItemHeight = 15
     Style = csDropDownList
@@ -641,7 +641,7 @@ object MainForm: TMainForm
   object CleanBtn3: TButton
     Left = 196
     Height = 25
-    Top = 67
+    Top = 104
     Width = 91
     Caption = 'Get'
     OnClick = CleanBtn3Click
@@ -651,7 +651,7 @@ object MainForm: TMainForm
     Left = 305
     Height = 19
     Hint = 'Use this only for Creative Solutions databases'
-    Top = 70
+    Top = 107
     Width = 206
     Anchors = [akTop, akRight]
     Caption = 'Creative Solution Database product'
@@ -660,7 +660,7 @@ object MainForm: TMainForm
   object Label4: TLabel
     Left = 12
     Height = 15
-    Top = 44
+    Top = 81
     Width = 48
     Caption = 'Directory'
     ParentColor = False
@@ -668,14 +668,14 @@ object MainForm: TMainForm
   object PortEdit: TEdit
     Left = 376
     Height = 23
-    Top = 11
+    Top = 48
     Width = 89
     TabOrder = 8
   end
   object Label5: TLabel
     Left = 337
     Height = 15
-    Top = 14
+    Top = 51
     Width = 22
     Caption = 'Port'
     ParentColor = False
@@ -683,7 +683,7 @@ object MainForm: TMainForm
   object DirectoryEdit: TEdit
     Left = 75
     Height = 23
-    Top = 40
+    Top = 77
     Width = 295
     Anchors = [akTop, akLeft, akRight]
     TabOrder = 9
@@ -692,11 +692,11 @@ object MainForm: TMainForm
   object PGPageControl: TPageControl
     Left = 196
     Height = 199
-    Top = 94
+    Top = 131
     Width = 320
-    ActivePage = ExportTab
+    ActivePage = TabSheet1
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 10
     object TabSheet1: TTabSheet
       Caption = 'Database'
@@ -839,7 +839,7 @@ object MainForm: TMainForm
   object CleanBtn4: TButton
     Left = 11
     Height = 25
-    Top = 94
+    Top = 131
     Width = 91
     Caption = 'Add'
     OnClick = CleanBtn4Click
@@ -848,14 +848,14 @@ object MainForm: TMainForm
   object CleanBtn5: TButton
     Left = 101
     Height = 25
-    Top = 94
+    Top = 131
     Width = 91
     Caption = 'Remove'
     OnClick = CleanBtn5Click
     TabOrder = 12
   end
   object Image1: TImage
-    Left = 481
+    Left = 13
     Height = 32
     Top = 8
     Width = 32
@@ -921,11 +921,19 @@ object MainForm: TMainForm
     Left = 378
     Height = 19
     Hint = 'Use this only for Creative Solutions databases'
-    Top = 42
+    Top = 79
     Width = 132
     Anchors = [akTop, akRight]
     Caption = 'Directory for each DB'
     TabOrder = 13
+  end
+  object Label7: TLabel
+    Left = 54
+    Height = 15
+    Top = 14
+    Width = 201
+    Caption = 'Creative Solution tools www.cserp.org'
+    ParentColor = False
   end
   object PopupMenu1: TPopupMenu
     left = 293

@@ -19,6 +19,7 @@ uses
 {$R *.res}
 
 begin
+  Application.Title :='PGTools';
   RequireDerivedFormResource:= True;
   Application.Scaled:= True;
   Application.Initialize;

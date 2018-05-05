@@ -35,6 +35,7 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
+    Label7: TLabel;
     MenuItem1: TMenuItem;
     NewPasswordEdit: TEdit;
     PGPageControl: TPageControl;
@@ -138,7 +139,6 @@ end;
 procedure TMainForm.CleanBtn1Click(Sender: TObject);
 var
   cmd: TmncPGCommand;
-  DB: string;
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
@@ -515,6 +515,8 @@ begin
   try
     cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
     cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
+    if CSProductsChk.checked then
+      cmd.SQL.Add('and datname <> ''APPLICATIONS''');
     if vOld then
       cmd.SQL.Add('and ')
     else
@@ -524,6 +526,7 @@ begin
     cmd.SQL.Add('or datname like ''%.temp%''');
     cmd.SQL.Add('or datname like ''%_temp%'')');
     cmd.SQL.Add('order by datname');
+
     if cmd.Execute then
     begin
       while not cmd.Done do
