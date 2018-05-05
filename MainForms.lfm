@@ -2,19 +2,19 @@ object MainForm: TMainForm
   Left = 394
   Height = 512
   Top = 187
-  Width = 520
+  Width = 547
   Caption = 'Creative Solutions PG backup tool'
   ClientHeight = 512
-  ClientWidth = 520
+  ClientWidth = 547
   Constraints.MinWidth = 500
   OnCreate = FormCreate
   ShowHint = True
   LCLVersion = '1.9.0.0'
   inline LogEdit: TSynEdit
     Left = 0
-    Height = 145
-    Top = 338
-    Width = 520
+    Height = 129
+    Top = 354
+    Width = 547
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 60
     Font.Height = -13
@@ -586,7 +586,7 @@ object MainForm: TMainForm
     Left = 234
     Height = 23
     Top = 48
-    Width = 89
+    Width = 88
     EchoMode = emPassword
     PasswordChar = '*'
     TabOrder = 1
@@ -611,7 +611,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 30
     Top = 482
-    Width = 520
+    Width = 547
     Align = alBottom
     Alignment = taLeftJustify
     BevelInner = bvLowered
@@ -624,7 +624,7 @@ object MainForm: TMainForm
   object BackupDatabasesList: TListBox
     Left = 11
     Height = 170
-    Top = 160
+    Top = 180
     Width = 181
     ItemHeight = 0
     TabOrder = 5
@@ -632,7 +632,7 @@ object MainForm: TMainForm
   object DatabasesCbo: TComboBox
     Left = 11
     Height = 23
-    Top = 105
+    Top = 125
     Width = 181
     ItemHeight = 15
     Style = csDropDownList
@@ -641,50 +641,50 @@ object MainForm: TMainForm
   object CleanBtn3: TButton
     Left = 196
     Height = 25
-    Top = 104
+    Top = 124
     Width = 91
     Caption = 'Get'
     OnClick = CleanBtn3Click
     TabOrder = 4
   end
   object CSProductsChk: TCheckBox
-    Left = 305
+    Left = 332
     Height = 19
     Hint = 'Use this only for Creative Solutions databases'
-    Top = 107
+    Top = 127
     Width = 206
     Anchors = [akTop, akRight]
     Caption = 'Creative Solution Database product'
     TabOrder = 2
   end
   object Label4: TLabel
-    Left = 12
+    Left = 15
     Height = 15
-    Top = 81
+    Top = 103
     Width = 48
     Caption = 'Directory'
     ParentColor = False
   end
   object PortEdit: TEdit
-    Left = 376
+    Left = 78
     Height = 23
-    Top = 48
+    Top = 74
     Width = 89
     TabOrder = 8
   end
   object Label5: TLabel
-    Left = 337
+    Left = 39
     Height = 15
-    Top = 51
+    Top = 77
     Width = 22
     Caption = 'Port'
     ParentColor = False
   end
   object DirectoryEdit: TEdit
-    Left = 75
+    Left = 78
     Height = 23
-    Top = 77
-    Width = 295
+    Top = 99
+    Width = 322
     Anchors = [akTop, akLeft, akRight]
     TabOrder = 9
     Text = './'
@@ -692,8 +692,8 @@ object MainForm: TMainForm
   object PGPageControl: TPageControl
     Left = 196
     Height = 199
-    Top = 131
-    Width = 320
+    Top = 151
+    Width = 347
     ActivePage = TabSheet1
     Anchors = [akTop, akLeft, akRight]
     TabIndex = 0
@@ -701,7 +701,7 @@ object MainForm: TMainForm
     object TabSheet1: TTabSheet
       Caption = 'Database'
       ClientHeight = 171
-      ClientWidth = 312
+      ClientWidth = 339
       object BackupBtn1: TButton
         Left = 6
         Height = 25
@@ -839,7 +839,7 @@ object MainForm: TMainForm
   object CleanBtn4: TButton
     Left = 11
     Height = 25
-    Top = 131
+    Top = 151
     Width = 91
     Caption = 'Add'
     OnClick = CleanBtn4Click
@@ -848,18 +848,17 @@ object MainForm: TMainForm
   object CleanBtn5: TButton
     Left = 101
     Height = 25
-    Top = 131
+    Top = 151
     Width = 91
     Caption = 'Remove'
     OnClick = CleanBtn5Click
     TabOrder = 12
   end
   object Image1: TImage
-    Left = 13
+    Left = 10
     Height = 32
     Top = 8
     Width = 32
-    Anchors = [akTop, akRight]
     AutoSize = True
     Picture.Data = {
       1754506F727461626C654E6574776F726B477261706869638206000089504E47
@@ -918,10 +917,10 @@ object MainForm: TMainForm
     }
   end
   object DBDirectoryChk: TCheckBox
-    Left = 378
+    Left = 408
     Height = 19
     Hint = 'Use this only for Creative Solutions databases'
-    Top = 79
+    Top = 101
     Width = 132
     Anchors = [akTop, akRight]
     Caption = 'Directory for each DB'
@@ -935,9 +934,19 @@ object MainForm: TMainForm
     Caption = 'Creative Solution tools www.cserp.org'
     ParentColor = False
   end
+  object SavePasswordChk: TCheckBox
+    Left = 330
+    Height = 19
+    Hint = 'Use this only for Creative Solutions databases'
+    Top = 49
+    Width = 239
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Save password (saved uncrypted)'
+    TabOrder = 14
+  end
   object PopupMenu1: TPopupMenu
     left = 293
-    top = 319
+    top = 364
     object MenuItem1: TMenuItem
       Caption = 'Clear'
       OnClick = MenuItem1Click

@@ -30,6 +30,7 @@ type
     CSProductsChk: TCheckBox;
     BackupFileNameEdit: TEdit;
     DBDirectoryChk: TCheckBox;
+    SavePasswordChk: TCheckBox;
     Image1: TImage;
     Label3: TLabel;
     Label4: TLabel;
@@ -609,7 +610,11 @@ begin
   ini := TIniFile.Create(Application.Location + 'pgtools.ini');
   CSProductsChk.Checked := ini.ReadBool('options', 'CSProducts', True);
   UserNameEdit.Text := ini.ReadString('options', 'username', 'postgres');
-  PasswordEdit.Text := ini.ReadString('options', 'password', '');
+  SavePasswordChk.Checked := ini.ReadBool('options', 'savepassword', false);
+  if SavePasswordChk.Checked then
+    PasswordEdit.Text := ini.ReadString('options', 'password', '')
+  else
+    PasswordEdit.Text := '';
   PortEdit.Text := ini.ReadString('options', 'port', '');
   DirectoryEdit.Text := ini.ReadString('options', 'directory', './');
   ExportTab.TabVisible := ini.ReadBool('options', 'expert', false);
@@ -648,7 +653,9 @@ begin
   ini := TIniFile.Create(Application.Location + 'pgtools.ini');
   ini.WriteBool('options', 'CSProducts', CSProductsChk.Checked);
   ini.WriteString('options', 'username', UserNameEdit.Text);
-  ini.WriteString('options', 'password', PasswordEdit.Text);
+  ini.WriteBool('options', 'savepassword', SavePasswordChk.Checked);
+  if SavePasswordChk.Checked then
+    ini.WriteString('options', 'password', PasswordEdit.Text);
   ini.WriteString('options', 'port', PortEdit.Text);
   ini.WriteString('options', 'directory', DirectoryEdit.Text);
   ini.WriteBool('options', 'expert', ExportTab.TabVisible);
