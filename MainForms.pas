@@ -27,38 +27,45 @@ type
     CleanBtn1: TButton;
     CleanBtn4: TButton;
     CleanBtn5: TButton;
-    CSProductsChk: TCheckBox;
     BackupFileNameEdit: TEdit;
+    CSProductsChk: TCheckBox;
     DBDirectoryChk: TCheckBox;
-    SavePasswordChk: TCheckBox;
+    DirectoryEdit: TEdit;
+    Label8: TLabel;
+    PGDirectoryEdit: TEdit;
     Image1: TImage;
+    Label1: TLabel;
+    Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
+    Label9: TLabel;
     MenuItem1: TMenuItem;
     NewPasswordEdit: TEdit;
+    OptionsPageControl: TPageControl;
+    PasswordEdit: TEdit;
     PGPageControl: TPageControl;
     PopupMenu1: TPopupMenu;
-    PortEdit: TEdit;
     CleanBtn3: TButton;
     DatabasesCbo: TComboBox;
     InfoPanel: TPanel;
     BackupDatabasesList: TListBox;
+    PortEdit: TEdit;
     RestoreBtn: TButton;
     RestoreBtn1: TButton;
     RestoreBtn2: TButton;
     RestoreBtn3: TButton;
+    SavePasswordChk: TCheckBox;
+    SelectPGFolderBtn: TButton;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     ExportTab: TTabSheet;
-    UserNameEdit: TEdit;
-    PasswordEdit: TEdit;
-    Label1: TLabel;
-    Label2: TLabel;
     LogEdit: TSynEdit;
-    DirectoryEdit: TEdit;
+    TabSheet3: TTabSheet;
+    TabSheet4: TTabSheet;
+    UserNameEdit: TEdit;
     procedure BackupBtn1Click(Sender: TObject);
     procedure BackupBtn2Click(Sender: TObject);
     procedure BackupBtnClick(Sender: TObject);
@@ -73,6 +80,7 @@ type
     procedure RestoreBtn2Click(Sender: TObject);
     procedure RestoreBtn3Click(Sender: TObject);
     procedure RestoreBtnClick(Sender: TObject);
+    procedure SelectPGFolderBtnClick(Sender: TObject);
   private
     PoolThread: TObjectList;
     ConsoleThread: TmnConsoleThread;
@@ -86,6 +94,7 @@ type
     PGSession: TmncPGSession;
     Databases: TStringList;
     PGPathBin: String;
+    function GetCurrentDirectory: String;
     procedure EnumDatabases(vOld: Boolean);
     procedure OpenPG(vDatabase: string = 'postgres');
     procedure ClosePG;
@@ -437,6 +446,7 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+  OptionsPageControl.PageIndex := 0;
 end;
 
 procedure TMainForm.MenuItem1Click(Sender: TObject);
@@ -480,6 +490,14 @@ begin
   end;
 end;
 
+procedure TMainForm.SelectPGFolderBtnClick(Sender: TObject);
+var
+  S: string;
+begin
+  if SelectDirectory('Select where PG bin folder', PGDirectoryEdit.Text, S) then
+    PGDirectoryEdit.Text := S;
+end;
+
 function TMainForm.GetPort: String;
 begin
   Result := PortEdit.Text;
@@ -507,6 +525,13 @@ begin
   Resume;
 end;
 
+function TMainForm.GetCurrentDirectory: String;
+begin
+  Result := IncludePathSeparator(PGDirectoryEdit.Text);
+  if Result = '' then
+    Result := Application.Location;
+end;
+
 procedure TMainForm.EnumDatabases(vOld: Boolean);
 var
   cmd: TmncPGCommand;
@@ -517,7 +542,7 @@ begin
     cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
     cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
     if CSProductsChk.checked then
-      cmd.SQL.Add('and datname <> ''APPLICATIONS''');
+      cmd.SQL.Add('and datname <> ''CreativeSolutions''');
     if vOld then
       cmd.SQL.Add('and ')
     else
@@ -564,7 +589,9 @@ procedure TMainForm.Launch(vMessage, vExecutable, vParameters, vPassword: String
 var
   aConsoleThread: TmnConsoleThread;
 begin
-  aConsoleThread := TmnConsoleThread.Create(vExecutable, vParameters, @Log);
+  if PGDirectoryEdit.Text <> '' then
+    vExecutable := IncludePathSeparator(PGDirectoryEdit.Text) + vExecutable;
+  aConsoleThread := TmnConsoleThread.Create(vExecutable, GetCurrentDirectory, vParameters, @Log);
   aConsoleThread.OnTerminate := @ConsoleTerminated;
   aConsoleThread.Password := vPassword;
   aConsoleThread.Message := vMessage;
@@ -617,6 +644,7 @@ begin
     PasswordEdit.Text := '';
   PortEdit.Text := ini.ReadString('options', 'port', '');
   DirectoryEdit.Text := ini.ReadString('options', 'directory', './');
+  PGDirectoryEdit.Text := ini.ReadString('options', 'PGDirecotry', '');
   ExportTab.TabVisible := ini.ReadBool('options', 'expert', false);
   DBDirectoryChk.Checked := ini.ReadBool('options', 'DBDirectory', false);
   PGPageControl.TabIndex := 0;
@@ -656,6 +684,7 @@ begin
   ini.WriteBool('options', 'savepassword', SavePasswordChk.Checked);
   if SavePasswordChk.Checked then
     ini.WriteString('options', 'password', PasswordEdit.Text);
+  ini.WriteString('options', 'PGDirecotry', PGDirectoryEdit.Text);
   ini.WriteString('options', 'port', PortEdit.Text);
   ini.WriteString('options', 'directory', DirectoryEdit.Text);
   ini.WriteBool('options', 'expert', ExportTab.TabVisible);

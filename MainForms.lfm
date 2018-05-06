@@ -12,8 +12,8 @@ object MainForm: TMainForm
   LCLVersion = '1.9.0.0'
   inline LogEdit: TSynEdit
     Left = 0
-    Height = 129
-    Top = 354
+    Height = 124
+    Top = 359
     Width = 547
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 60
@@ -24,7 +24,7 @@ object MainForm: TMainForm
     ParentColor = False
     ParentFont = False
     PopupMenu = PopupMenu1
-    TabOrder = 6
+    TabOrder = 3
     Gutter.RightOffset = 2
     Gutter.Width = 21
     Gutter.MouseActions = <    
@@ -574,39 +574,6 @@ object MainForm: TMainForm
       end
     end
   end
-  object UserNameEdit: TEdit
-    Left = 77
-    Height = 23
-    Top = 48
-    Width = 90
-    TabOrder = 0
-    Text = 'postgres'
-  end
-  object PasswordEdit: TEdit
-    Left = 234
-    Height = 23
-    Top = 48
-    Width = 88
-    EchoMode = emPassword
-    PasswordChar = '*'
-    TabOrder = 1
-  end
-  object Label1: TLabel
-    Left = 12
-    Height = 15
-    Top = 51
-    Width = 56
-    Caption = 'User name'
-    ParentColor = False
-  end
-  object Label2: TLabel
-    Left = 177
-    Height = 15
-    Top = 51
-    Width = 50
-    Caption = 'Password'
-    ParentColor = False
-  end
   object InfoPanel: TPanel
     Left = 0
     Height = 30
@@ -619,89 +586,47 @@ object MainForm: TMainForm
     BorderWidth = 1
     BorderStyle = bsSingle
     Caption = 'Creative Solutions PG backup tool'
-    TabOrder = 7
+    TabOrder = 4
   end
   object BackupDatabasesList: TListBox
-    Left = 11
+    Left = 6
     Height = 170
-    Top = 180
+    Top = 183
     Width = 181
     ItemHeight = 0
-    TabOrder = 5
+    TabOrder = 2
   end
   object DatabasesCbo: TComboBox
-    Left = 11
+    Left = 6
     Height = 23
-    Top = 125
+    Top = 129
     Width = 181
     ItemHeight = 15
     Style = csDropDownList
-    TabOrder = 3
+    TabOrder = 0
   end
   object CleanBtn3: TButton
-    Left = 196
-    Height = 25
-    Top = 124
+    Left = 191
+    Height = 24
+    Top = 128
     Width = 91
     Caption = 'Get'
     OnClick = CleanBtn3Click
-    TabOrder = 4
-  end
-  object CSProductsChk: TCheckBox
-    Left = 332
-    Height = 19
-    Hint = 'Use this only for Creative Solutions databases'
-    Top = 127
-    Width = 206
-    Anchors = [akTop, akRight]
-    Caption = 'Creative Solution Database product'
-    TabOrder = 2
-  end
-  object Label4: TLabel
-    Left = 15
-    Height = 15
-    Top = 103
-    Width = 48
-    Caption = 'Directory'
-    ParentColor = False
-  end
-  object PortEdit: TEdit
-    Left = 78
-    Height = 23
-    Top = 74
-    Width = 89
-    TabOrder = 8
-  end
-  object Label5: TLabel
-    Left = 39
-    Height = 15
-    Top = 77
-    Width = 22
-    Caption = 'Port'
-    ParentColor = False
-  end
-  object DirectoryEdit: TEdit
-    Left = 78
-    Height = 23
-    Top = 99
-    Width = 322
-    Anchors = [akTop, akLeft, akRight]
-    TabOrder = 9
-    Text = './'
+    TabOrder = 1
   end
   object PGPageControl: TPageControl
-    Left = 196
+    Left = 192
     Height = 199
-    Top = 151
-    Width = 347
+    Top = 154
+    Width = 350
     ActivePage = TabSheet1
     Anchors = [akTop, akLeft, akRight]
     TabIndex = 0
-    TabOrder = 10
+    TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Database'
       ClientHeight = 171
-      ClientWidth = 339
+      ClientWidth = 342
       object BackupBtn1: TButton
         Left = 6
         Height = 25
@@ -837,27 +762,27 @@ object MainForm: TMainForm
     end
   end
   object CleanBtn4: TButton
-    Left = 11
+    Left = 6
     Height = 25
-    Top = 151
+    Top = 154
     Width = 91
     Caption = 'Add'
     OnClick = CleanBtn4Click
-    TabOrder = 11
+    TabOrder = 6
   end
   object CleanBtn5: TButton
-    Left = 101
+    Left = 96
     Height = 25
-    Top = 151
+    Top = 154
     Width = 91
     Caption = 'Remove'
     OnClick = CleanBtn5Click
-    TabOrder = 12
+    TabOrder = 7
   end
   object Image1: TImage
-    Left = 10
+    Left = 6
     Height = 32
-    Top = 8
+    Top = 2
     Width = 32
     AutoSize = True
     Picture.Data = {
@@ -916,33 +841,164 @@ object MainForm: TMainForm
       4D5E10C2D4043E8DFE0313DF6EFE8FA9DD8F0000000049454E44AE426082
     }
   end
-  object DBDirectoryChk: TCheckBox
-    Left = 408
-    Height = 19
-    Hint = 'Use this only for Creative Solutions databases'
-    Top = 101
-    Width = 132
-    Anchors = [akTop, akRight]
-    Caption = 'Directory for each DB'
-    TabOrder = 13
-  end
   object Label7: TLabel
-    Left = 54
+    Left = 49
     Height = 15
-    Top = 14
+    Top = 11
     Width = 201
     Caption = 'Creative Solution tools www.cserp.org'
     ParentColor = False
   end
-  object SavePasswordChk: TCheckBox
-    Left = 330
-    Height = 19
-    Hint = 'Use this only for Creative Solutions databases'
-    Top = 49
-    Width = 239
+  object OptionsPageControl: TPageControl
+    Left = 6
+    Height = 90
+    Top = 37
+    Width = 538
+    ActivePage = TabSheet4
     Anchors = [akTop, akLeft, akRight]
-    Caption = 'Save password (saved uncrypted)'
-    TabOrder = 14
+    TabIndex = 1
+    TabOrder = 8
+    object TabSheet3: TTabSheet
+      Caption = 'Postgre'
+      ClientHeight = 62
+      ClientWidth = 526
+      object UserNameEdit: TEdit
+        Left = 72
+        Height = 23
+        Top = 7
+        Width = 90
+        TabOrder = 0
+        Text = 'postgres'
+      end
+      object PasswordEdit: TEdit
+        Left = 229
+        Height = 23
+        Top = 7
+        Width = 88
+        EchoMode = emPassword
+        PasswordChar = '*'
+        TabOrder = 1
+      end
+      object Label1: TLabel
+        Left = 7
+        Height = 15
+        Top = 10
+        Width = 56
+        Caption = 'User name'
+        ParentColor = False
+      end
+      object Label2: TLabel
+        Left = 172
+        Height = 15
+        Top = 10
+        Width = 50
+        Caption = 'Password'
+        ParentColor = False
+      end
+      object SavePasswordChk: TCheckBox
+        Left = 326
+        Height = 19
+        Hint = 'Use this only for Creative Solutions databases'
+        Top = 8
+        Width = 162
+        Anchors = [akTop, akLeft, akRight]
+        Caption = 'Save password (saved uncrypted)'
+        TabOrder = 2
+      end
+      object PortEdit: TEdit
+        Left = 72
+        Height = 23
+        Top = 33
+        Width = 89
+        TabOrder = 3
+      end
+      object Label5: TLabel
+        Left = 33
+        Height = 15
+        Top = 36
+        Width = 22
+        Caption = 'Port'
+        ParentColor = False
+      end
+      object CSProductsChk: TCheckBox
+        Left = 178
+        Height = 19
+        Hint = 'Use this only for Creative Solutions databases'
+        Top = 34
+        Width = 206
+        Caption = 'Creative Solution Database product'
+        TabOrder = 4
+      end
+    end
+    object TabSheet4: TTabSheet
+      Caption = 'Folders'
+      ClientHeight = 62
+      ClientWidth = 530
+      object SelectPGFolderBtn: TButton
+        Left = 464
+        Height = 25
+        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
+        Top = 7
+        Width = 62
+        Anchors = [akTop, akRight]
+        Caption = 'PG Folder'
+        OnClick = SelectPGFolderBtnClick
+        TabOrder = 0
+      end
+      object Label4: TLabel
+        Left = 7
+        Height = 15
+        Top = 37
+        Width = 65
+        Caption = 'Backup Files'
+        ParentColor = False
+      end
+      object DirectoryEdit: TEdit
+        Left = 83
+        Height = 23
+        Top = 35
+        Width = 249
+        Anchors = [akTop, akLeft, akRight]
+        TabOrder = 1
+        Text = './'
+      end
+      object DBDirectoryChk: TCheckBox
+        Left = 330
+        Height = 19
+        Hint = 'Use this only for Creative Solutions databases'
+        Top = 60
+        Width = 132
+        Anchors = [akTop, akRight]
+        Caption = 'Directory for each DB'
+        TabOrder = 2
+      end
+      object PGDirectoryEdit: TEdit
+        Left = 83
+        Height = 23
+        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
+        Top = 7
+        Width = 374
+        Anchors = [akTop, akLeft, akRight]
+        TabOrder = 3
+      end
+      object Label9: TLabel
+        Left = 7
+        Height = 15
+        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
+        Top = 11
+        Width = 71
+        Caption = 'PG bin Folder'
+        ParentColor = False
+      end
+      object Label8: TLabel
+        Left = 345
+        Height = 15
+        Top = 38
+        Width = 75
+        Caption = 'Relative PATH'
+        ParentColor = False
+      end
+    end
   end
   object PopupMenu1: TPopupMenu
     left = 293

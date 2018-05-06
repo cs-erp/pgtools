@@ -44,7 +44,7 @@ type
   public
     Status: Integer;
     Message: string;
-    constructor Create(vExecutable, vParameters: string; vOnLog: TmnOnLog = nil);
+    constructor Create(vExecutable, vCurrentDirectory, vParameters: string; vOnLog: TmnOnLog = nil);
     destructor Destroy; override;
     procedure Execute; override;
     procedure Read; virtual;
@@ -80,11 +80,12 @@ begin
   FString := '';
 end;
 
-constructor TmnConsoleThread.Create(vExecutable, vParameters: string; vOnLog: TmnOnLog);
+constructor TmnConsoleThread.Create(vExecutable, vCurrentDirectory, vParameters: string; vOnLog: TmnOnLog);
 begin
   inherited Create(True);
   FOnLog := vOnLog;
   FProcess := TProcess.Create(nil);
+  FProcess.CurrentDirectory := vCurrentDirectory;
   FProcess.Executable := vExecutable;
   CommandToList(vParameters, FProcess.Parameters);
   FProcess.Options := [poUsePipes, poStderrToOutPut, poNoConsole];
