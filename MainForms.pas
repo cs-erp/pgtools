@@ -31,7 +31,6 @@ type
     CSProductsChk: TCheckBox;
     DBDirectoryChk: TCheckBox;
     DirectoryEdit: TEdit;
-    Label8: TLabel;
     PGDirectoryEdit: TEdit;
     Image1: TImage;
     Label1: TLabel;

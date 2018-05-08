@@ -962,16 +962,6 @@ object MainForm: TMainForm
         TabOrder = 1
         Text = './'
       end
-      object DBDirectoryChk: TCheckBox
-        Left = 330
-        Height = 19
-        Hint = 'Use this only for Creative Solutions databases'
-        Top = 60
-        Width = 132
-        Anchors = [akTop, akRight]
-        Caption = 'Directory for each DB'
-        TabOrder = 2
-      end
       object PGDirectoryEdit: TEdit
         Left = 83
         Height = 23
@@ -979,7 +969,7 @@ object MainForm: TMainForm
         Top = 7
         Width = 374
         Anchors = [akTop, akLeft, akRight]
-        TabOrder = 3
+        TabOrder = 2
       end
       object Label9: TLabel
         Left = 7
@@ -990,13 +980,15 @@ object MainForm: TMainForm
         Caption = 'PG bin Folder'
         ParentColor = False
       end
-      object Label8: TLabel
-        Left = 345
-        Height = 15
-        Top = 38
-        Width = 75
-        Caption = 'Relative PATH'
-        ParentColor = False
+      object DBDirectoryChk: TCheckBox
+        Left = 344
+        Height = 19
+        Hint = 'Use this only for Creative Solutions databases'
+        Top = 37
+        Width = 132
+        Anchors = [akTop, akRight]
+        Caption = 'Directory for each DB'
+        TabOrder = 3
       end
     end
   end
