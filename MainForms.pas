@@ -29,6 +29,7 @@ type
     CleanBtn5: TButton;
     BackupFileNameEdit: TEdit;
     CSProductsChk: TCheckBox;
+    PublicSchemaChk: TCheckBox;
     DBDirectoryChk: TCheckBox;
     DirectoryEdit: TEdit;
     PGDirectoryEdit: TEdit;
@@ -438,7 +439,12 @@ begin
   ForceDirectories(ExtractFilePath(filename));
   cmd := '';
   cmd := cmd + ' -v --host localhost --port ' + GetPort + ' --password --username "' + o.UserName + '"';
+  if PublicSchemaChk.Checked then
+    cmd := cmd + ' --schema=public';
+  if CSProductsChk.Checked then
+    cmd := cmd + ' -T "*.\"AppFiles\""';
   cmd := cmd + ' --format custom --compress=9 --blobs --file "' + filename + '" "' + DB + '"';
+
   //cmd := cmd + ' --format tar --blobs --file "' + filename + '" "' + DB + '"';
   Launch('Backuping: ' + DB, 'pg_dump.exe', cmd, PasswordEdit.Text, o);
 end;
@@ -646,6 +652,7 @@ begin
   PGDirectoryEdit.Text := ini.ReadString('options', 'PGDirecotry', '');
   ExportTab.TabVisible := ini.ReadBool('options', 'expert', false);
   DBDirectoryChk.Checked := ini.ReadBool('options', 'DBDirectory', false);
+  PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', false);
   PGPageControl.TabIndex := 0;
   i := 0;
   while true do
@@ -688,6 +695,7 @@ begin
   ini.WriteString('options', 'directory', DirectoryEdit.Text);
   ini.WriteBool('options', 'expert', ExportTab.TabVisible);
   ini.WriteBool('options', 'DBDirectory', DBDirectoryChk.Checked);
+  ini.WriteBool('options', 'PublicSchema', PublicSchemaChk.Checked);
   ini.EraseSection('data');
   for i := 0 to BackupDatabasesList.Items.Count -1 do
     ini.WriteString('data', 'data'+InttoStr(i), BackupDatabasesList.Items[i]);
