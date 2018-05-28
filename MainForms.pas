@@ -405,9 +405,9 @@ begin
   o.Port := GetPort;
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
-  o.Directory := IncludePathSeparator(DirectoryEdit.Text);
+  o.Directory := IncludeTrailingPathDelimiter(DirectoryEdit.Text);
   if DBDirectoryChk.Checked then
-    o.Directory := IncludePathSeparator(o.Directory + DB);
+    o.Directory := IncludeTrailingPathDelimiter(o.Directory + DB);
   o.Overwrite := Overwrite;
   if filename = '' then
   begin
@@ -429,9 +429,9 @@ begin
   o.Port := GetPort;
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
-  o.Directory := IncludePathSeparator(DirectoryEdit.Text);
+  o.Directory := IncludeTrailingPathDelimiter(DirectoryEdit.Text);
   if DBDirectoryChk.Checked then
-    o.Directory := IncludePathSeparator(o.Directory + DB);
+    o.Directory := IncludeTrailingPathDelimiter(o.Directory + DB);
   //o.Overwrite := Overwrite;
   //"SET PGPASSWORD=<password>"
   filename := o.Directory + DB + '.backup';
@@ -440,10 +440,12 @@ begin
   cmd := '';
   cmd := cmd + ' -v --host localhost --port ' + GetPort + ' --password --username "' + o.UserName + '"';
   if PublicSchemaChk.Checked then
-    cmd := cmd + ' --schema=public';
+    cmd := cmd + ' --schema=public'
+  else
+    cmd := cmd + ' --blobs';
   if CSProductsChk.Checked then
     cmd := cmd + ' -T "*.\"AppFiles\""';
-  cmd := cmd + ' --format custom --compress=9 --blobs --file "' + filename + '" "' + DB + '"';
+  cmd := cmd + ' --format custom --compress=9 --file "' + filename + '" "' + DB + '"';
 
   //cmd := cmd + ' --format tar --blobs --file "' + filename + '" "' + DB + '"';
   Launch('Backuping: ' + DB, 'pg_dump.exe', cmd, PasswordEdit.Text, o);
@@ -532,7 +534,7 @@ end;
 
 function TMainForm.GetCurrentDirectory: String;
 begin
-  Result := IncludePathSeparator(PGDirectoryEdit.Text);
+  Result := IncludeTrailingPathDelimiter(PGDirectoryEdit.Text);
   if Result = '' then
     Result := Application.Location;
 end;
@@ -595,7 +597,7 @@ var
   aConsoleThread: TmnConsoleThread;
 begin
   if PGDirectoryEdit.Text <> '' then
-    vExecutable := IncludePathSeparator(PGDirectoryEdit.Text) + vExecutable;
+    vExecutable := IncludeTrailingPathDelimiter(PGDirectoryEdit.Text) + vExecutable;
   aConsoleThread := TmnConsoleThread.Create(vExecutable, GetCurrentDirectory, vParameters, @Log);
   aConsoleThread.OnTerminate := @ConsoleTerminated;
   aConsoleThread.Password := vPassword;
