@@ -94,12 +94,15 @@ type
     PGSession: TmncPGSession;
     Databases: TStringList;
     PGPathBin: String;
+    IniPath: String;
+    Portable: Boolean;
     function GetCurrentDirectory: String;
     procedure EnumDatabases(vOld: Boolean);
     procedure OpenPG(vDatabase: string = 'postgres');
     procedure ClosePG;
     procedure Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject = nil);
     procedure Resume;
+    procedure LoadIni;
   public
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -627,21 +630,11 @@ begin
   end;
 end;
 
-constructor TMainForm.Create(TheOwner: TComponent);
+procedure TMainForm.LoadIni;
 var
-  i: Integer;
-  reg: TRegistry;
   ini: TIniFile;
-  s: string;
 begin
-  inherited;
-  PoolThread := TObjectList.Create;
-  reg := TRegistry.Create(KEY_READ);
-  reg.RootKey := HKEY_LOCAL_MACHINE;
-  //if reg.OpenKey('SOFTWARE\PostgreSQL\', False)
-  reg.Free;
-
-  ini := TIniFile.Create(Application.Location + 'pgtools.ini');
+  ini := TIniFile.Create(IniPath + 'pgtools.ini');
   CSProductsChk.Checked := ini.ReadBool('options', 'CSProducts', True);
   UserNameEdit.Text := ini.ReadString('options', 'username', 'postgres');
   SavePasswordChk.Checked := ini.ReadBool('options', 'savepassword', false);
@@ -655,6 +648,24 @@ begin
   ExportTab.TabVisible := ini.ReadBool('options', 'expert', false);
   DBDirectoryChk.Checked := ini.ReadBool('options', 'DBDirectory', false);
   PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', false);
+end;
+
+constructor TMainForm.Create(TheOwner: TComponent);
+var
+  i: Integer;
+  ini: TIniFile;
+  s: string;
+begin
+  inherited;
+  PoolThread := TObjectList.Create;
+  ini := TIniFile.Create(Application.Location + 'pgtools.ini');
+  Portable := ini.ReadBool('options', 'portable', true);
+  ini.Free;
+  if Portable then
+    IniPath := Application.Location
+  else
+    IniPath := GetAppConfigDir(false);
+  LoadIni;
   PGPageControl.TabIndex := 0;
   i := 0;
   while true do
@@ -686,7 +697,7 @@ begin
   ClosePG;
   FreeAndNil(Databases);
 
-  ini := TIniFile.Create(Application.Location + 'pgtools.ini');
+  ini := TIniFile.Create(IniPath + 'pgtools.ini');
   ini.WriteBool('options', 'CSProducts', CSProductsChk.Checked);
   ini.WriteString('options', 'username', UserNameEdit.Text);
   ini.WriteBool('options', 'savepassword', SavePasswordChk.Checked);

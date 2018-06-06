@@ -9,3 +9,5 @@ You need to have PostgreSQL installed to you computer and added the directory of
 Do not check "Creative Soultion products" to backup any databases, this check only for Creative Solutions database.
 
 If you need to enable Expert mode, open pgtools.ini, change expert to 1, expert=1
+
+If you do not want it portable application, disable it by add option in pgtools.ini portable=0
