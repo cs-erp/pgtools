@@ -14,6 +14,7 @@ AppUpdatesURL=http://www.cserp.org
 DefaultDirName={pf}\Creative Solutions\PG Tools
 DefaultGroupName=PG Tools
 OutputBaseFilename=pgtools-setup-1.9
+OutputDir=.\
 VersionInfoTextVersion=pgtools-setup-1.9
 VersionInfoVersion=1.9
 VersionInfoCompany=cserp.org
