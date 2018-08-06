@@ -29,7 +29,6 @@ type
     CleanBtn5: TButton;
     BackupFileNameEdit: TEdit;
     CSProductsChk: TCheckBox;
-    PublicSchemaChk: TCheckBox;
     DBDirectoryChk: TCheckBox;
     DirectoryEdit: TEdit;
     PGDirectoryEdit: TEdit;
@@ -53,6 +52,7 @@ type
     InfoPanel: TPanel;
     BackupDatabasesList: TListBox;
     PortEdit: TEdit;
+    PublicSchemaChk: TCheckBox;
     RestoreBtn: TButton;
     RestoreBtn1: TButton;
     RestoreBtn2: TButton;
@@ -65,6 +65,7 @@ type
     LogEdit: TSynEdit;
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
+    TabSheet5: TTabSheet;
     UserNameEdit: TEdit;
     procedure BackupBtn1Click(Sender: TObject);
     procedure BackupBtn2Click(Sender: TObject);
@@ -186,7 +187,7 @@ begin
     cmd := PGSession.CreateCommand as TmncPGCommand;
     try
       cmd.SQL.Text := 'select * from "System" where "SysSection" = ''Backup''';
-      while cmd.Run do
+      while cmd.Step do
          Log(cmd.Field['SysIdent'].AsString + ': ' + cmd.Field['SysValue'].AsString);
     finally
       cmd.Free;

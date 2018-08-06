@@ -630,7 +630,7 @@ object MainForm: TMainForm
       object BackupBtn1: TButton
         Left = 6
         Height = 25
-        Top = 72
+        Top = 53
         Width = 91
         Caption = 'Backup'
         OnClick = BackupBtn1Click
@@ -639,7 +639,7 @@ object MainForm: TMainForm
       object RestoreBtn1: TButton
         Left = 6
         Height = 25
-        Top = 98
+        Top = 79
         Width = 91
         Caption = 'Restore'
         OnClick = RestoreBtn1Click
@@ -648,20 +648,11 @@ object MainForm: TMainForm
       object BackupBtn2: TButton
         Left = 6
         Height = 25
-        Top = 29
+        Top = 10
         Width = 91
         Caption = 'Info'
         OnClick = BackupBtn2Click
         TabOrder = 2
-      end
-      object PublicSchemaChk: TCheckBox
-        Left = 12
-        Height = 19
-        Hint = 'Use this only for Creative Solutions databases'
-        Top = 5
-        Width = 124
-        Caption = 'Public Schema only'
-        TabOrder = 3
       end
     end
     object TabSheet2: TTabSheet
@@ -880,10 +871,10 @@ object MainForm: TMainForm
         Text = 'postgres'
       end
       object PasswordEdit: TEdit
-        Left = 229
+        Left = 71
         Height = 23
-        Top = 7
-        Width = 88
+        Top = 34
+        Width = 91
         EchoMode = emPassword
         PasswordChar = '*'
         TabOrder = 1
@@ -897,46 +888,37 @@ object MainForm: TMainForm
         ParentColor = False
       end
       object Label2: TLabel
-        Left = 172
+        Left = 14
         Height = 15
-        Top = 10
+        Top = 37
         Width = 50
         Caption = 'Password'
         ParentColor = False
       end
       object SavePasswordChk: TCheckBox
-        Left = 326
+        Left = 168
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 8
-        Width = 166
+        Top = 35
+        Width = 249
         Anchors = [akTop, akLeft, akRight]
         Caption = 'Save password (saved uncrypted)'
         TabOrder = 2
       end
       object PortEdit: TEdit
-        Left = 72
+        Left = 209
         Height = 23
-        Top = 33
+        Top = 10
         Width = 89
         TabOrder = 3
       end
       object Label5: TLabel
-        Left = 33
+        Left = 170
         Height = 15
-        Top = 36
+        Top = 13
         Width = 22
         Caption = 'Port'
         ParentColor = False
-      end
-      object CSProductsChk: TCheckBox
-        Left = 178
-        Height = 19
-        Hint = 'Use this only for Creative Solutions databases'
-        Top = 34
-        Width = 206
-        Caption = 'Creative Solution Database product'
-        TabOrder = 4
       end
     end
     object TabSheet4: TTabSheet
@@ -998,6 +980,29 @@ object MainForm: TMainForm
         Anchors = [akTop, akRight]
         Caption = 'Directory for each DB'
         TabOrder = 3
+      end
+    end
+    object TabSheet5: TTabSheet
+      Caption = 'Options'
+      ClientHeight = 62
+      ClientWidth = 530
+      object CSProductsChk: TCheckBox
+        Left = 8
+        Height = 19
+        Hint = 'Use this only for Creative Solutions databases'
+        Top = 10
+        Width = 206
+        Caption = 'Creative Solution Database product'
+        TabOrder = 0
+      end
+      object PublicSchemaChk: TCheckBox
+        Left = 8
+        Height = 19
+        Hint = 'Use this only for Creative Solutions databases'
+        Top = 36
+        Width = 124
+        Caption = 'Public Schema only'
+        TabOrder = 1
       end
     end
   end
