@@ -13,7 +13,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, Menus, IniFiles, registry, Contnrs, SynEdit, mncPostgre,
+  ComCtrls, Menus, IniFiles, Contnrs, SynEdit, mncPostgre,
   ConsoleProcess, FileUtil, mnUtils;
 
 type
@@ -123,19 +123,22 @@ var
   i: Integer;
 begin
   OpenPG;
-  EnumDatabases(True);
-  for i := 0 to Databases.Count - 1 do
-  begin
-    InfoPanel.Caption := 'Dropping database ' + Databases[i];
-    PGConn.Execute('drop database "' + Databases[i] + '"');
-    //if PGConn.Execute('drop database "' + Databases[i]+'"') then
-    Log('Database Dropped: "' + Databases[i] + '"', lgStatus);
-    //else
-    //  Log('Database Dropped: "' + Databases[i]+'"');
-    LogEdit.CaretY := LogEdit.Lines.Count - 1;
-    Application.ProcessMessages;
+  try
+    EnumDatabases(True);
+    for i := 0 to Databases.Count - 1 do
+    begin
+      InfoPanel.Caption := 'Dropping database ' + Databases[i];
+      PGConn.Execute('drop database "' + Databases[i] + '"');
+      //if PGConn.Execute('drop database "' + Databases[i]+'"') then
+      Log('Database Dropped: "' + Databases[i] + '"', lgStatus);
+      //else
+      //  Log('Database Dropped: "' + Databases[i]+'"');
+      LogEdit.CaretY := LogEdit.Lines.Count - 1;
+      Application.ProcessMessages;
+    end;
+  finally
+    ClosePG;
   end;
-  ClosePG;
   Log('Clean Done', lgStatus);
   Databases.Clear;
 end;
@@ -157,13 +160,16 @@ begin
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
     OpenPG('postgres');
-    cmd := PGSession.CreateCommand as TmncPGCommand;
     try
-      cmd.SQL.Text := 'ALTER ROLE '+UserNameEdit.Text + ' WITH PASSWORD ''' + NewPasswordEdit.Text + '''';
-      cmd.Execute;
-      ShowMessage('Password changed successfully');
+      cmd := PGSession.CreateCommand as TmncPGCommand;
+      try
+        cmd.SQL.Text := 'ALTER ROLE '+UserNameEdit.Text + ' WITH PASSWORD ''' + NewPasswordEdit.Text + '''';
+        cmd.Execute;
+        ShowMessage('Password changed successfully');
+      finally
+        cmd.Free;
+      end;
     finally
-      cmd.Free;
       ClosePG;
     end;
   end;
@@ -184,13 +190,16 @@ begin
   begin
     DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
     OpenPG(DB);
-    cmd := PGSession.CreateCommand as TmncPGCommand;
     try
-      cmd.SQL.Text := 'select * from "System" where "SysSection" = ''Backup''';
-      while cmd.Step do
-         Log(cmd.Field['SysIdent'].AsString + ': ' + cmd.Field['SysValue'].AsString);
+      cmd := PGSession.CreateCommand as TmncPGCommand;
+      try
+        cmd.SQL.Text := 'select * from "System" where "SysSection" = ''Backup''';
+        while cmd.Step do
+           Log(cmd.Field['SysIdent'].AsString + ': ' + cmd.Field['SysValue'].AsString);
+      finally
+        cmd.Free;
+      end;
     finally
-      cmd.Free;
       ClosePG;
     end;
   end;
@@ -199,12 +208,15 @@ end;
 procedure TMainForm.CleanBtn3Click(Sender: TObject);
 begin
   OpenPG;
-  EnumDatabases(false);
-  DatabasesCbo.Items.Assign(Databases);
-  if DatabasesCbo.Items.Count > 0 then
-    DatabasesCbo.ItemIndex := 0;
-  Databases.Clear;
-  ClosePG;
+  try
+    EnumDatabases(false);
+    DatabasesCbo.Items.Assign(Databases);
+    if DatabasesCbo.Items.Count > 0 then
+      DatabasesCbo.ItemIndex := 0;
+    Databases.Clear;
+  finally
+    ClosePG;
+  end;
 end;
 
 procedure TMainForm.CleanBtn4Click(Sender: TObject);
@@ -244,21 +256,21 @@ type
 
   TBackupExecuteObject = class(TPGExecuteObject)
   public
-    procedure Prepare(ConsoleThread: TmnConsoleThread); override;
-    procedure Execute(ConsoleThread: TmnConsoleThread); override;
+    procedure Prepare(const ConsoleThread: TmnConsoleThread); override;
+    procedure Execute(const ConsoleThread: TmnConsoleThread); override;
   end;
 
   { TRestoreExecuteObject }
 
   TRestoreExecuteObject = class(TPGExecuteObject)
   public
-    procedure Prepare(ConsoleThread: TmnConsoleThread); override;
-    procedure Execute(ConsoleThread: TmnConsoleThread); override;
+    procedure Prepare(const ConsoleThread: TmnConsoleThread); override;
+    procedure Execute(const ConsoleThread: TmnConsoleThread); override;
   end;
 
 { TBackupExecuteObject }
 
-procedure TBackupExecuteObject.Prepare(ConsoleThread: TmnConsoleThread);
+procedure TBackupExecuteObject.Prepare(const ConsoleThread: TmnConsoleThread);
 var
   cmd: TmncPGCommand;
   filename: string;
@@ -270,34 +282,40 @@ begin
   if CSProducts then
   begin
     OpenPG(Database);
-    cmd := PGSession.CreateCommand as TmncPGCommand;
     try
-      cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBeforeBackupDate'', ?SysValue)';
-      cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
-      cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
-      cmd.Execute;
+      cmd := PGSession.CreateCommand as TmncPGCommand;
+      try
+        cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBeforeBackupDate'', ?SysValue)';
+        cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
+        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
+        cmd.Execute;
+      finally
+        cmd.Free;
+      end;
     finally
-      cmd.Free;
       ClosePG;
     end;
   end;
 end;
 
-procedure TBackupExecuteObject.Execute(ConsoleThread: TmnConsoleThread);
+procedure TBackupExecuteObject.Execute(const ConsoleThread: TmnConsoleThread);
 var
   cmd: TmncPGCommand;
 begin
   if CSProducts then
   begin
     OpenPG(Database);
-    cmd := PGSession.CreateCommand as TmncPGCommand;
     try
-      cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBackupDate'', ?SysValue)';
-      cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") DO UPDATE SET "SysValue" = ?SysValue');
-      cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
-      cmd.Execute;
+      cmd := PGSession.CreateCommand as TmncPGCommand;
+      try
+        cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBackupDate'', ?SysValue)';
+        cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") DO UPDATE SET "SysValue" = ?SysValue');
+        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
+        cmd.Execute;
+      finally
+        cmd.Free;
+      end;
     finally
-      cmd.Free;
       ClosePG;
     end;
   end;
@@ -329,70 +347,79 @@ begin
   Suffix := FormatDateTime('yyyymmddhhnnss', Now);
 end;
 
-procedure TRestoreExecuteObject.Prepare(ConsoleThread: TmnConsoleThread);
+procedure TRestoreExecuteObject.Prepare(const ConsoleThread: TmnConsoleThread);
 var
   cmd: TmncPGCommand;
 begin
   OpenPG;
-  cmd := PGSession.CreateCommand as TmncPGCommand;
   try
-    cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
-    cmd.SQL.Add('WHERE datistemplate = false and datname = ''' + Database + '''');
-    if cmd.Execute then
-    begin
-      if not Overwrite then
-        raise Exception.Create('Can''t restore database is exists ' + Database);
-    end;
+    cmd := PGSession.CreateCommand as TmncPGCommand;
+    try
+      cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
+      cmd.SQL.Add('WHERE datistemplate = false and datname = ''' + Database + '''');
+      if cmd.Execute then
+      begin
+        if not Overwrite then
+          raise Exception.Create('Can''t restore database is exists ' + Database);
+      end;
 
-    ConsoleThread.Log('Creating new Database ' + Database, lgStatus);
-    cmd.SQL.Text := 'create database "' + Database + '_temp_' + Suffix+'"';
-    cmd.Execute;
+      ConsoleThread.Log('Creating new Database ' + Database, lgStatus);
+      cmd.SQL.Text := 'create database "' + Database + '_temp_' + Suffix+'"';
+      cmd.Execute;
+    finally
+      cmd.Free;
+    end;
   finally
-    cmd.Free;
     ClosePG;
   end;
 end;
 
-procedure TRestoreExecuteObject.Execute(ConsoleThread: TmnConsoleThread);
+procedure TRestoreExecuteObject.Execute(const ConsoleThread: TmnConsoleThread);
 var
   cmd: TmncPGCommand;
 begin
   OpenPG;
-  cmd := PGSession.CreateCommand as TmncPGCommand;
   try
-    ConsoleThread.Log('Renaming database ' + Database, lgStatus);
-    cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
-    cmd.SQL.Add('WHERE datistemplate = false and datname = ''' + Database + '''');
-    if cmd.Execute then
-    begin
-      if Overwrite then
+    cmd := PGSession.CreateCommand as TmncPGCommand;
+    try
+      ConsoleThread.Log('Renaming database ' + Database, lgStatus);
+      cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
+      cmd.SQL.Add('WHERE datistemplate = false and datname = ''' + Database + '''');
+      if cmd.Execute then
       begin
-        cmd.SQL.Text := 'alter database "' + Database + '" rename to "' + Database + '.old_' + Suffix + '"';
-        cmd.Execute;
-      end
-      else
-        raise Exception.Create('Can''t restore database is exists ' + Database);
+        if Overwrite then
+        begin
+          cmd.SQL.Text := 'alter database "' + Database + '" rename to "' + Database + '.old_' + Suffix + '"';
+          cmd.Execute;
+        end
+        else
+          raise Exception.Create('Can''t restore database is exists ' + Database);
+      end;
+      ConsoleThread.Log('Rename new Database ' + Database, lgStatus);
+      cmd.SQL.Text := 'alter database "' + Database + '_temp_' + Suffix + '" rename to "' + Database + '"';
+      ConsoleThread.Log('Renamed database ' + Database, lgStatus);
+      cmd.Execute;
+    finally
+      cmd.Free;
     end;
-    ConsoleThread.Log('Rename new Database ' + Database, lgStatus);
-    cmd.SQL.Text := 'alter database "' + Database + '_temp_' + Suffix + '" rename to "' + Database + '"';
-    ConsoleThread.Log('Renamed database ' + Database, lgStatus);
-    cmd.Execute;
   finally
-    cmd.Free;
     ClosePG;
   end;
 
   if CSProducts then
   begin
     OpenPG(Database);
-    cmd := PGSession.CreateCommand as TmncPGCommand;
     try
-      cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastRestoreDate'', ?SysValue)';
-      cmd.SQL.Add('on conflict ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
-      cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
-      cmd.Execute;
+      cmd := PGSession.CreateCommand as TmncPGCommand;
+      try
+        cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastRestoreDate'', ?SysValue)';
+        cmd.SQL.Add('on conflict ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
+        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
+        cmd.Execute;
+      finally
+        cmd.Free;
+      end;
     finally
-      cmd.Free;
       ClosePG;
     end;
   end;
@@ -586,14 +613,25 @@ begin
   PGConn.Password := PasswordEdit.Text;
   PGConn.Port := GetPort;
   PGConn.Resource := vDatabase;
+
+  PGConn.ClientEncoding := 'UNICODE';
+  PGConn.ByteaOutput := 'escape';
+  PGConn.DateStyle := 'iso, mdy';
+
   PGConn.Connect;
+  //PGConn.AutoStart : = true;
   PGSession := PGConn.CreateSession as TmncPGSession;
+  PGSession.Start;
 end;
 
 procedure TMainForm.ClosePG;
 begin
-  FreeAndNil(PGSession);
-  FreeAndNil(PGConn);
+  if PGConn <> nil then
+  begin
+    PGSession.Commit;
+    FreeAndNil(PGSession);
+    FreeAndNil(PGConn);
+  end;
 end;
 
 procedure TMainForm.Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject);
@@ -626,7 +664,7 @@ begin
   end
   else
   begin
-    Log('Finished');
+    Log('Finished', lgMessage);
     InfoPanel.Caption := '';
   end;
 end;

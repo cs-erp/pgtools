@@ -18,10 +18,12 @@ uses
 type
   TmnConsoleThread = class;
 
+  { TExecuteObject }
+
   TExecuteObject =class(TObject)
   public
-    procedure Prepare(ConsoleThread: TmnConsoleThread); virtual; abstract;
-    procedure Execute(ConsoleThread: TmnConsoleThread); virtual; abstract;
+    procedure Prepare(const ConsoleThread: TmnConsoleThread); virtual; abstract;
+    procedure Execute(const ConsoleThread: TmnConsoleThread); virtual; abstract;
   end;
 
   TmnLogKind = (lgLog, lgStatus, lgMessage);
