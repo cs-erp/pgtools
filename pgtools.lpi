@@ -21,9 +21,10 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <RevisionNr Value="11"/>
-      <BuildNr Value="32"/>
-      <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools" ProductVersion="1.0.11.28"/>
+      <MinorVersionNr Value="2"/>
+      <RevisionNr Value="2"/>
+      <BuildNr Value="35"/>
+      <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools" ProductVersion="1.2"/>
     </VersionInfo>
     <BuildModes Count="2">
       <Item1 Name="Release32" Default="True"/>
