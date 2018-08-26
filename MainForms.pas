@@ -748,6 +748,7 @@ begin
   ini.WriteString('options', 'port', PortEdit.Text);
   ini.WriteString('options', 'directory', DirectoryEdit.Text);
   ini.WriteBool('options', 'expert', ExportTab.TabVisible);
+  ini.WriteBool('options', 'portable', Portable);
   ini.WriteBool('options', 'DBDirectory', DBDirectoryChk.Checked);
   ini.WriteBool('options', 'PublicSchema', PublicSchemaChk.Checked);
   ini.EraseSection('data');

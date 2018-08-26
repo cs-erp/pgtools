@@ -13,17 +13,17 @@ AppSupportURL=http://www.cserp.org
 AppUpdatesURL=http://www.cserp.org
 DefaultDirName={pf}\Creative Solutions\PG Tools
 DefaultGroupName=Creative Solutions
-OutputBaseFilename=pgtools-setup-1.10
+OutputBaseFilename=pgtools-setup-1.2
 OutputDir=.\
-VersionInfoTextVersion=pgtools-setup-1.10
-VersionInfoVersion=1.9
+VersionInfoTextVersion=pgtools-setup-1.2
+VersionInfoVersion=1.2
 VersionInfoCompany=cserp.org
 VersionInfoDescription=PG Tools
 Compression=lzma/ultra
 SolidCompression=true
 InternalCompressLevel=ultra
 AppMutex=CS.PGTools
-UninstallDisplayIcon={app}\pgtools.exe
+UninstallDisplayIcon={app}\pgtools32.exe
 ShowLanguageDialog=yes
 
 [Languages]
@@ -35,7 +35,7 @@ Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:Ad
 Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {cm:AdditionalIcons}; Flags: unchecked
 
 [Files]
-Source: pgtools.exe; DestDir: {app}; Flags: ignoreversion
+Source: pgtools*.exe; DestDir: {app}; Flags: ignoreversion
 Source: setup\*.dll; DestDir: {app}; Flags: ignoreversion
 Source: setup\*.exe; DestDir: {app}; Flags: ignoreversion
 Source: setup\*.ini; DestDir: {app}; Flags: ignoreversion
@@ -43,11 +43,10 @@ Source: setup\*.ini; DestDir: {app}; Flags: ignoreversion
 [INI]
 
 [Icons]
-Name: {group}\PG Tools; Filename: {app}\pgtools.exe
+Name: {group}\PG Tools 32; Filename: {app}\pgtools32.exe
+Name: {group}\PG Tools 64; Filename: {app}\pgtools64.exe
 Name: {group}\{cm:UninstallProgram,PG Tools}; Filename: {uninstallexe}
-Name: {userdesktop}\Creative Solutions PG Tools; Filename: {app}\pgtools.exe; Tasks: desktopicon
-
-[Run]
-Filename: {app}\pgtools.exe; Description: {cm:LaunchProgram,PG Tools}; Flags: nowait postinstall skipifsilent
+Name: {userdesktop}\Creative Solutions PG Tools; Filename: {app}\pgtools32.exe; Tasks: desktopicon
+Name: {userdesktop}\Creative Solutions PG Tools; Filename: {app}\pgtools64.exe; Tasks: desktopicon
 
 [UninstallDelete]
