@@ -619,9 +619,9 @@ object MainForm: TMainForm
     Height = 199
     Top = 154
     Width = 350
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Database'
@@ -658,12 +658,12 @@ object MainForm: TMainForm
     object TabSheet2: TTabSheet
       Caption = 'Restore'
       ClientHeight = 171
-      ClientWidth = 312
+      ClientWidth = 342
       object BackupFileNameEdit: TEdit
         Left = 6
         Height = 23
         Top = 35
-        Width = 300
+        Width = 330
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 0
       end
@@ -697,7 +697,7 @@ object MainForm: TMainForm
     object ExportTab: TTabSheet
       Caption = 'Expert'
       ClientHeight = 171
-      ClientWidth = 312
+      ClientWidth = 342
       TabVisible = False
       object BackupBtn: TButton
         Left = 3

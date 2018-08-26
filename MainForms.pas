@@ -99,8 +99,8 @@ type
     Portable: Boolean;
     function GetCurrentDirectory: String;
     procedure EnumDatabases(vOld: Boolean);
-    procedure OpenPG(vDatabase: string = 'postgres');
-    procedure ClosePG;
+    procedure OpenPG(vDatabase: string = 'postgres'; StartSession: Boolean = true);
+    procedure ClosePG(StopSession: Boolean = true);
     procedure Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject = nil);
     procedure Resume;
     procedure LoadIni;
@@ -122,7 +122,7 @@ procedure TMainForm.CleanBtnClick(Sender: TObject);
 var
   i: Integer;
 begin
-  OpenPG;
+  OpenPG('postgres', False);
   try
     EnumDatabases(True);
     for i := 0 to Databases.Count - 1 do
@@ -137,7 +137,7 @@ begin
       Application.ProcessMessages;
     end;
   finally
-    ClosePG;
+    ClosePG(False);
   end;
   Log('Clean Done', lgStatus);
   Databases.Clear;
@@ -207,7 +207,7 @@ end;
 
 procedure TMainForm.CleanBtn3Click(Sender: TObject);
 begin
-  OpenPG;
+  OpenPG('postgres');
   try
     EnumDatabases(false);
     DatabasesCbo.Items.Assign(Databases);
@@ -351,7 +351,7 @@ procedure TRestoreExecuteObject.Prepare(const ConsoleThread: TmnConsoleThread);
 var
   cmd: TmncPGCommand;
 begin
-  OpenPG;
+  OpenPG('postgres');
   try
     cmd := PGSession.CreateCommand as TmncPGCommand;
     try
@@ -378,7 +378,7 @@ procedure TRestoreExecuteObject.Execute(const ConsoleThread: TmnConsoleThread);
 var
   cmd: TmncPGCommand;
 begin
-  OpenPG;
+  OpenPG('postgres');
   try
     cmd := PGSession.CreateCommand as TmncPGCommand;
     try
@@ -605,7 +605,7 @@ begin
   end;
 end;
 
-procedure TMainForm.OpenPG(vDatabase: string);
+procedure TMainForm.OpenPG(vDatabase: string; StartSession: Boolean);
 begin
   if PGConn = nil then
     PGConn := TmncPGConnection.Create;
@@ -621,14 +621,16 @@ begin
   PGConn.Connect;
   //PGConn.AutoStart : = true;
   PGSession := PGConn.CreateSession as TmncPGSession;
-  PGSession.Start;
+  if StartSession then
+    PGSession.Start;
 end;
 
-procedure TMainForm.ClosePG;
+procedure TMainForm.ClosePG(StopSession: Boolean);
 begin
   if PGConn <> nil then
   begin
-    PGSession.Commit;
+    if StopSession then
+      PGSession.Commit;
     FreeAndNil(PGSession);
     FreeAndNil(PGConn);
   end;
