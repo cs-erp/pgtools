@@ -24,6 +24,7 @@ type
   public
     procedure Prepare(const ConsoleThread: TmnConsoleThread); virtual; abstract;
     procedure Execute(const ConsoleThread: TmnConsoleThread); virtual; abstract;
+    procedure Unprepare(const ConsoleThread: TmnConsoleThread); virtual;
   end;
 
   TmnLogKind = (lgLog, lgStatus, lgMessage);
@@ -59,6 +60,12 @@ type
   end;
 
 implementation
+
+{ TExecuteObject }
+
+procedure TExecuteObject.Unprepare(const ConsoleThread: TmnConsoleThread);
+begin
+end;
 
 { TmnConsoleThread }
 
@@ -198,6 +205,7 @@ var
   end;
 
 begin
+  Status := 0;
   d := GetTickCount64;
   try
     try
@@ -223,7 +231,7 @@ begin
       end;
     end;
   finally
-    Log('Execute Time: "' + TicksToString(GetTickCount64 - d) + '"');
+    Log('Execute Time: "' + TicksToString(GetTickCount64 - d) + '" with Status: ' + IntToStr(Status) );
   end;
 end;
 

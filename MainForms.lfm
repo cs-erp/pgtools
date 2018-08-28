@@ -619,9 +619,9 @@ object MainForm: TMainForm
     Height = 199
     Top = 154
     Width = 350
-    ActivePage = TabSheet1
+    ActivePage = AdminSheet
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 3
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Database'
@@ -656,7 +656,7 @@ object MainForm: TMainForm
       end
     end
     object TabSheet2: TTabSheet
-      Caption = 'Restore'
+      Caption = 'Restore File'
       ClientHeight = 171
       ClientWidth = 342
       object BackupFileNameEdit: TEdit
@@ -678,7 +678,7 @@ object MainForm: TMainForm
       object RestoreBtn2: TButton
         Left = 6
         Height = 25
-        Top = 97
+        Top = 104
         Width = 91
         Caption = 'Restore'
         OnClick = RestoreBtn2Click
@@ -727,37 +727,43 @@ object MainForm: TMainForm
         OnClick = CleanBtnClick
         TabOrder = 2
       end
-      object NewPasswordEdit: TEdit
-        Left = 97
-        Height = 23
-        Top = 137
-        Width = 112
-        Anchors = [akLeft, akBottom]
-        AutoSize = False
-        EchoMode = emPassword
-        PasswordChar = '*'
-        TabOrder = 3
-      end
+    end
+    object AdminSheet: TTabSheet
+      Caption = 'Admin'
+      ClientHeight = 171
+      ClientWidth = 342
+      TabVisible = False
       object Label3: TLabel
-        Left = 9
+        Left = 16
         Height = 15
-        Top = 140
+        Top = 20
         Width = 77
         Anchors = [akLeft, akBottom]
         AutoSize = False
         Caption = 'New Password'
         ParentColor = False
       end
+      object NewPasswordEdit: TEdit
+        Left = 104
+        Height = 23
+        Top = 17
+        Width = 112
+        Anchors = [akLeft, akBottom]
+        AutoSize = False
+        EchoMode = emPassword
+        PasswordChar = '*'
+        TabOrder = 0
+      end
       object CleanBtn1: TButton
-        Left = 215
+        Left = 222
         Height = 25
         Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
-        Top = 136
+        Top = 16
         Width = 81
         Anchors = [akLeft, akBottom]
         Caption = 'Change'
         OnClick = CleanBtn1Click
-        TabOrder = 4
+        TabOrder = 1
       end
     end
   end
@@ -1004,6 +1010,36 @@ object MainForm: TMainForm
         Caption = 'Public Schema only'
         TabOrder = 1
       end
+    end
+  end
+  object AdminPanel: TPanel
+    Left = 285
+    Height = 25
+    Top = 128
+    Width = 257
+    Anchors = [akTop, akLeft, akRight]
+    BevelOuter = bvNone
+    ClientHeight = 25
+    ClientWidth = 257
+    TabOrder = 9
+    Visible = False
+    object DropBtn: TButton
+      Left = 1
+      Height = 24
+      Top = 0
+      Width = 91
+      Caption = 'Drop'
+      OnClick = DropBtnClick
+      TabOrder = 0
+    end
+    object RenameBtn: TButton
+      Left = 94
+      Height = 24
+      Top = 0
+      Width = 91
+      Caption = 'Rename'
+      OnClick = RenameBtnClick
+      TabOrder = 1
     end
   end
   object PopupMenu1: TPopupMenu

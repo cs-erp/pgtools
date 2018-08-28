@@ -1,4 +1,5 @@
 unit MainForms;
+
 {**
 *  This file is part of the "Creative Solutions PGTools http://www.cserp.org/"
  *
@@ -13,7 +14,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, Menus, IniFiles, Contnrs, SynEdit, mncPostgre,
+  ComCtrls, Menus, IniFiles, Contnrs, SynEdit, mncPostgre, MsgBox, GUIMsgBox,
   ConsoleProcess, FileUtil, mnUtils;
 
 type
@@ -28,21 +29,24 @@ type
     CleanBtn4: TButton;
     CleanBtn5: TButton;
     BackupFileNameEdit: TEdit;
+    DropBtn: TButton;
     CSProductsChk: TCheckBox;
     DBDirectoryChk: TCheckBox;
     DirectoryEdit: TEdit;
+    RenameBtn: TButton;
+    Label3: TLabel;
+    NewPasswordEdit: TEdit;
+    AdminPanel: TPanel;
     PGDirectoryEdit: TEdit;
     Image1: TImage;
     Label1: TLabel;
     Label2: TLabel;
-    Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
     Label9: TLabel;
     MenuItem1: TMenuItem;
-    NewPasswordEdit: TEdit;
     OptionsPageControl: TPageControl;
     PasswordEdit: TEdit;
     PGPageControl: TPageControl;
@@ -66,6 +70,7 @@ type
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
+    AdminSheet: TTabSheet;
     UserNameEdit: TEdit;
     procedure BackupBtn1Click(Sender: TObject);
     procedure BackupBtn2Click(Sender: TObject);
@@ -74,9 +79,11 @@ type
     procedure CleanBtn3Click(Sender: TObject);
     procedure CleanBtn4Click(Sender: TObject);
     procedure CleanBtn5Click(Sender: TObject);
+    procedure DropBtnClick(Sender: TObject);
     procedure CleanBtnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
+    procedure RenameBtnClick(Sender: TObject);
     procedure RestoreBtn1Click(Sender: TObject);
     procedure RestoreBtn2Click(Sender: TObject);
     procedure RestoreBtn3Click(Sender: TObject);
@@ -86,8 +93,8 @@ type
     PoolThread: TObjectList;
     ConsoleThread: TmnConsoleThread;
     function GetPort: String;
-    procedure BackupDatabase(DB: string);
-    procedure RestoreDatabase(DB: string; filename: string = ''; Overwrite: Boolean = true);
+    procedure BackupDatabase(DB: String);
+    procedure RestoreDatabase(DB: String; filename: String = ''; Overwrite: Boolean = True);
     procedure Log(S: String; Kind: TmnLogKind = lgLog);
     procedure ConsoleTerminated(Sender: TObject);
   protected
@@ -99,8 +106,10 @@ type
     Portable: Boolean;
     function GetCurrentDirectory: String;
     procedure EnumDatabases(vOld: Boolean);
-    procedure OpenPG(vDatabase: string = 'postgres'; StartSession: Boolean = true);
-    procedure ClosePG(StopSession: Boolean = true);
+    procedure DropDatabase(ADatabase: String);
+    procedure RenameDatabase(ADatabase, AToName: String);
+    procedure OpenPG(vDatabase: String = 'postgres'; StartSession: Boolean = True);
+    procedure ClosePG(StopSession: Boolean = True);
     procedure Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject = nil);
     procedure Resume;
     procedure LoadIni;
@@ -163,9 +172,9 @@ begin
     try
       cmd := PGSession.CreateCommand as TmncPGCommand;
       try
-        cmd.SQL.Text := 'ALTER ROLE '+UserNameEdit.Text + ' WITH PASSWORD ''' + NewPasswordEdit.Text + '''';
+        cmd.SQL.Text := 'ALTER ROLE ' + UserNameEdit.Text + ' WITH PASSWORD ''' + NewPasswordEdit.Text + '''';
         cmd.Execute;
-        ShowMessage('Password changed successfully');
+        Msg.Show('Password changed successfully');
       finally
         cmd.Free;
       end;
@@ -177,14 +186,14 @@ end;
 
 procedure TMainForm.BackupBtn1Click(Sender: TObject);
 begin
-  if BackupDatabasesList.ItemIndex >=0 then
+  if BackupDatabasesList.ItemIndex >= 0 then
     BackupDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex]);
 end;
 
 procedure TMainForm.BackupBtn2Click(Sender: TObject);
 var
   cmd: TmncPGCommand;
-  DB: string;
+  DB: String;
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
@@ -195,7 +204,7 @@ begin
       try
         cmd.SQL.Text := 'select * from "System" where "SysSection" = ''Backup''';
         while cmd.Step do
-           Log(cmd.Field['SysIdent'].AsString + ': ' + cmd.Field['SysValue'].AsString);
+          Log(cmd.Field['SysIdent'].AsString + ': ' + cmd.Field['SysValue'].AsString);
       finally
         cmd.Free;
       end;
@@ -209,7 +218,7 @@ procedure TMainForm.CleanBtn3Click(Sender: TObject);
 begin
   OpenPG('postgres');
   try
-    EnumDatabases(false);
+    EnumDatabases(False);
     DatabasesCbo.Items.Assign(Databases);
     if DatabasesCbo.Items.Count > 0 then
       DatabasesCbo.ItemIndex := 0;
@@ -221,14 +230,34 @@ end;
 
 procedure TMainForm.CleanBtn4Click(Sender: TObject);
 begin
-  if DatabasesCbo.ItemIndex >=0 then
+  if DatabasesCbo.ItemIndex >= 0 then
     BackupDatabasesList.Items.Add(DatabasesCbo.Items[DatabasesCbo.ItemIndex]);
 end;
 
 procedure TMainForm.CleanBtn5Click(Sender: TObject);
 begin
-  if BackupDatabasesList.ItemIndex >=0 then
+  if BackupDatabasesList.ItemIndex >= 0 then
     BackupDatabasesList.Items.Delete(BackupDatabasesList.ItemIndex);
+end;
+
+procedure TMainForm.DropBtnClick(Sender: TObject);
+var
+  DB: string;
+begin
+  if DatabasesCbo.ItemIndex >= 0 then
+  begin
+    DB := DatabasesCbo.Items[DatabasesCbo.ItemIndex];
+    if not Msg.No('Are you sure you want to drop: ' + DB + '?') then
+    begin
+      OpenPG('postgres', False);
+      try
+        DropDatabase(DB);
+        DatabasesCbo.Items.Delete(DatabasesCbo.ItemIndex);
+      finally
+        ClosePG(False);
+      end;
+    end;
+  end;
 end;
 
 type
@@ -239,15 +268,15 @@ type
   public
     PGConn: TmncPGConnection;
     PGSession: TmncPGSession;
-    UserName: string;
-    Password: string;
-    Port: string;
-    Database: string;
-    Directory: string;
+    UserName: String;
+    Password: String;
+    Port: String;
+    Database: String;
+    Directory: String;
     Overwrite: Boolean;
-    Suffix: string;
+    Suffix: String;
     CSProducts: Boolean;
-    procedure OpenPG(vDatabase: string = 'postgres');
+    procedure OpenPG(vDatabase: String = 'postgres');
     procedure ClosePG;
     constructor Create;
   end;
@@ -273,7 +302,7 @@ type
 procedure TBackupExecuteObject.Prepare(const ConsoleThread: TmnConsoleThread);
 var
   cmd: TmncPGCommand;
-  filename: string;
+  filename: String;
 begin
   filename := Directory + Database + '.backup';
   filename := ExpandToPath(filename, Application.Location);
@@ -323,7 +352,7 @@ end;
 
 { TPGExecuteObject }
 
-procedure TPGExecuteObject.OpenPG(vDatabase: string);
+procedure TPGExecuteObject.OpenPG(vDatabase: String);
 begin
   if PGConn = nil then
     PGConn := TmncPGConnection.Create;
@@ -364,7 +393,7 @@ begin
       end;
 
       ConsoleThread.Log('Creating new Database ' + Database, lgStatus);
-      cmd.SQL.Text := 'create database "' + Database + '_temp_' + Suffix+'"';
+      cmd.SQL.Text := 'create database "' + Database + '_temp_' + Suffix + '"';
       cmd.Execute;
     finally
       cmd.Free;
@@ -425,10 +454,10 @@ begin
   end;
 end;
 
-procedure TMainForm.RestoreDatabase(DB: string; filename: string; Overwrite: Boolean);
+procedure TMainForm.RestoreDatabase(DB: String; filename: String; Overwrite: Boolean);
 var
   o: TRestoreExecuteObject;
-  cmd: string;
+  cmd: String;
 begin
   o := TRestoreExecuteObject.Create;
   o.UserName := UserNameEdit.Text;
@@ -446,10 +475,10 @@ begin
     filename := ExpandToPath(filename, Application.Location);
   end;
   cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + filename + '"';
-  Launch('Restoring: '+ DB, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
+  Launch('Restoring: ' + DB, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
 end;
 
-procedure TMainForm.BackupDatabase(DB: string);
+procedure TMainForm.BackupDatabase(DB: String);
 var
   filename, cmd: String;
   o: TBackupExecuteObject;
@@ -492,6 +521,32 @@ begin
   LogEdit.Clear;
 end;
 
+procedure TMainForm.RenameBtnClick(Sender: TObject);
+var
+  DB, ToName: string;
+begin
+  if DatabasesCbo.ItemIndex >= 0 then
+  begin
+    DB := DatabasesCbo.Items[DatabasesCbo.ItemIndex];
+    ToName := DB;
+    if Msg.Input(ToName, 'You want to rename: ' + DB + ' to?') then
+    begin
+      if DB = ToName then
+        Msg.Show('Nothing to do')
+      else
+      begin
+        OpenPG('postgres', False);
+        try
+          RenameDatabase(DB, ToName);
+          DatabasesCbo.Items[DatabasesCbo.ItemIndex] := ToName;
+        finally
+          ClosePG(False);
+        end;
+      end;
+    end;
+  end;
+end;
+
 procedure TMainForm.RestoreBtn1Click(Sender: TObject);
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
@@ -500,10 +555,11 @@ end;
 
 procedure TMainForm.RestoreBtn2Click(Sender: TObject);
 var
-  DB: string;
+  DB: String;
 begin
   DB := ExtractFileNameWithoutExt(ExtractFileName(BackupFileNameEdit.Text));
-  RestoreDatabase(DB, BackupFileNameEdit.Text, False);
+  if Msg.Input(DB, 'Enter then name of new Database to restore') then
+    RestoreDatabase(DB, BackupFileNameEdit.Text, False);
 end;
 
 procedure TMainForm.RestoreBtn3Click(Sender: TObject);
@@ -530,7 +586,7 @@ end;
 
 procedure TMainForm.SelectPGFolderBtnClick(Sender: TObject);
 var
-  S: string;
+  S: String;
 begin
   if SelectDirectory('Select where PG bin folder', PGDirectoryEdit.Text, S) then
     PGDirectoryEdit.Text := S;
@@ -540,14 +596,14 @@ function TMainForm.GetPort: String;
 begin
   Result := PortEdit.Text;
   if Result = '' then
-    Result := '5432'
+    Result := '5432';
 end;
 
 procedure TMainForm.Log(S: String; Kind: TmnLogKind);
 begin
   case Kind of
-    lgStatus : InfoPanel.Caption := S;
-    lgMessage: ShowMessage(S);
+    lgStatus: InfoPanel.Caption := S;
+    lgMessage: Msg.Show(S);
   end;
   LogEdit.Lines.Add(S);
   LogEdit.CaretY := LogEdit.Lines.Count;
@@ -579,7 +635,7 @@ begin
   try
     cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
     cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
-    if CSProductsChk.checked then
+    if CSProductsChk.Checked then
       cmd.SQL.Add('and datname <> ''CreativeSolutions''');
     if vOld then
       cmd.SQL.Add('and ')
@@ -605,7 +661,21 @@ begin
   end;
 end;
 
-procedure TMainForm.OpenPG(vDatabase: string; StartSession: Boolean);
+procedure TMainForm.DropDatabase(ADatabase: String);
+begin
+  InfoPanel.Caption := 'Dropping database ' + ADatabase;
+  PGConn.Execute('drop database "' + ADatabase + '"');
+  Log('Database Dropped: "' + ADatabase + '"', lgStatus);
+end;
+
+procedure TMainForm.RenameDatabase(ADatabase, AToName: String);
+begin
+  InfoPanel.Caption := 'Renaming database ' + AToName;
+  PGConn.Execute('alter database "' + ADatabase + '" rename to "' + AToName + '"');
+  Log('Database Renames: "' + ADatabase + '"', lgStatus);
+end;
+
+procedure TMainForm.OpenPG(vDatabase: String; StartSession: Boolean);
 begin
   if PGConn = nil then
     PGConn := TmncPGConnection.Create;
@@ -662,7 +732,7 @@ begin
       InfoPanel.Caption := ConsoleThread.Message;
       Application.ProcessMessages;
       ConsoleThread.Start;
-    end
+    end;
   end
   else
   begin
@@ -678,7 +748,7 @@ begin
   ini := TIniFile.Create(IniPath + 'pgtools.ini');
   CSProductsChk.Checked := ini.ReadBool('options', 'CSProducts', True);
   UserNameEdit.Text := ini.ReadString('options', 'username', 'postgres');
-  SavePasswordChk.Checked := ini.ReadBool('options', 'savepassword', false);
+  SavePasswordChk.Checked := ini.ReadBool('options', 'savepassword', False);
   if SavePasswordChk.Checked then
     PasswordEdit.Text := ini.ReadString('options', 'password', '')
   else
@@ -686,30 +756,35 @@ begin
   PortEdit.Text := ini.ReadString('options', 'port', '');
   DirectoryEdit.Text := ini.ReadString('options', 'directory', './');
   PGDirectoryEdit.Text := ini.ReadString('options', 'PGDirecotry', '');
-  ExportTab.TabVisible := ini.ReadBool('options', 'expert', false);
-  DBDirectoryChk.Checked := ini.ReadBool('options', 'DBDirectory', false);
-  PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', false);
+  ExportTab.TabVisible := ini.ReadBool('options', 'expert', False);
+  if ExportTab.TabVisible then
+  begin
+    AdminSheet.TabVisible := True;
+    AdminPanel.Visible := True;
+  end;
+  DBDirectoryChk.Checked := ini.ReadBool('options', 'DBDirectory', False);
+  PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
 end;
 
 constructor TMainForm.Create(TheOwner: TComponent);
 var
   i: Integer;
   ini: TIniFile;
-  s: string;
+  s: String;
 begin
   inherited;
   PoolThread := TObjectList.Create;
   ini := TIniFile.Create(Application.Location + 'pgtools.ini');
-  Portable := ini.ReadBool('options', 'portable', true);
+  Portable := ini.ReadBool('options', 'portable', True);
   ini.Free;
   if Portable then
     IniPath := Application.Location
   else
-    IniPath := GetAppConfigDir(false);
+    IniPath := GetAppConfigDir(False);
   LoadIni;
   PGPageControl.TabIndex := 0;
   i := 0;
-  while true do
+  while True do
   begin
     s := ini.ReadString('data', 'data' + IntToStr(i), '');
     if s = '' then
@@ -752,8 +827,8 @@ begin
   ini.WriteBool('options', 'DBDirectory', DBDirectoryChk.Checked);
   ini.WriteBool('options', 'PublicSchema', PublicSchemaChk.Checked);
   ini.EraseSection('data');
-  for i := 0 to BackupDatabasesList.Items.Count -1 do
-    ini.WriteString('data', 'data'+InttoStr(i), BackupDatabasesList.Items[i]);
+  for i := 0 to BackupDatabasesList.Items.Count - 1 do
+    ini.WriteString('data', 'data' + IntToStr(i), BackupDatabasesList.Items[i]);
   ini.Free;
   FreeAndNil(PoolThread);
   inherited;
