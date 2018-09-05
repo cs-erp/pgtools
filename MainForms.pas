@@ -550,7 +550,8 @@ end;
 procedure TMainForm.RestoreBtn1Click(Sender: TObject);
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
-    RestoreDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex]);
+    if not Msg.No('Are you sure you want to restore database?') then
+      RestoreDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex]);
 end;
 
 procedure TMainForm.RestoreBtn2Click(Sender: TObject);
@@ -578,10 +579,11 @@ procedure TMainForm.RestoreBtnClick(Sender: TObject);
 var
   i: Integer;
 begin
-  for i := 0 to BackupDatabasesList.Items.Count - 1 do
-  begin
-    RestoreDatabase(BackupDatabasesList.Items[i]);
-  end;
+  if not Msg.No('Are you sure you want to RESTORE all databases?') then
+    for i := 0 to BackupDatabasesList.Items.Count - 1 do
+    begin
+      RestoreDatabase(BackupDatabasesList.Items[i]);
+    end;
 end;
 
 procedure TMainForm.SelectPGFolderBtnClick(Sender: TObject);
