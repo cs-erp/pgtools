@@ -130,7 +130,7 @@ implementation
 
 function GetLocalName: string;
 begin
-  Result := Application.EnvironmentVariable['USERNAME']+'@'+Application.EnvironmentVariable['COMPUTERNAME'];
+  Result := Application.EnvironmentVariable['USERNAME']+'_'+Application.EnvironmentVariable['COMPUTERNAME'];
 end;
 
 { TMainForm }
@@ -324,7 +324,7 @@ begin
       try
         cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBeforeBackupDate'', ?SysValue)';
         cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
-        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS at ' + GetLocalName, Now);
+        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now) +  ' at ' + GetLocalName;
         cmd.Execute;
       finally
         cmd.Free;
@@ -348,7 +348,7 @@ begin
       try
         cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBackupDate'', ?SysValue)';
         cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") DO UPDATE SET "SysValue" = ?SysValue');
-        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS at ' + GetLocalName, Now);
+        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now) +  ' at ' + GetLocalName;
         cmd.Execute;
       finally
         cmd.Free;
@@ -458,7 +458,7 @@ begin
       try
         cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastRestoreDate'', ?SysValue)';
         cmd.SQL.Add('on conflict ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
-        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS at ' + GetLocalName , Now);
+        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now) +  ' at ' + GetLocalName;
         cmd.Execute;
       finally
         cmd.Free;
