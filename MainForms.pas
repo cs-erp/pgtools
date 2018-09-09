@@ -33,6 +33,7 @@ type
     CSProductsChk: TCheckBox;
     DBDirectoryChk: TCheckBox;
     DirectoryEdit: TEdit;
+    CurrentNameLbl: TLabel;
     RenameBtn: TButton;
     Label3: TLabel;
     NewPasswordEdit: TEdit;
@@ -121,9 +122,16 @@ type
 var
   MainForm: TMainForm;
 
+function GetLocalName: string;
+
 implementation
 
 {$R *.lfm}
+
+function GetLocalName: string;
+begin
+  Result := Application.EnvironmentVariable['USERNAME']+'@'+Application.EnvironmentVariable['COMPUTERNAME'];
+end;
 
 { TMainForm }
 
@@ -316,7 +324,7 @@ begin
       try
         cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBeforeBackupDate'', ?SysValue)';
         cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
-        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
+        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS at ' + GetLocalName, Now);
         cmd.Execute;
       finally
         cmd.Free;
@@ -330,6 +338,7 @@ end;
 procedure TBackupExecuteObject.Execute(const ConsoleThread: TmnConsoleThread);
 var
   cmd: TmncPGCommand;
+  ini: TIniFile;
 begin
   if CSProducts then
   begin
@@ -339,7 +348,7 @@ begin
       try
         cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBackupDate'', ?SysValue)';
         cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") DO UPDATE SET "SysValue" = ?SysValue');
-        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
+        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS at ' + GetLocalName, Now);
         cmd.Execute;
       finally
         cmd.Free;
@@ -347,6 +356,12 @@ begin
     finally
       ClosePG;
     end;
+  end;
+  ini := TIniFile.Create(Directory + Database + '.ini');
+  try
+    ini.WriteString('info', 'id', GetLocalName);
+  finally
+    ini.Free;
   end;
 end;
 
@@ -443,7 +458,7 @@ begin
       try
         cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastRestoreDate'', ?SysValue)';
         cmd.SQL.Add('on conflict ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
-        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now);
+        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS at ' + GetLocalName , Now);
         cmd.Execute;
       finally
         cmd.Free;
@@ -775,6 +790,7 @@ var
   s: String;
 begin
   inherited;
+  CurrentNameLbl.Caption := GetLocalName;
   PoolThread := TObjectList.Create;
   ini := TIniFile.Create(Application.Location + 'pgtools.ini');
   Portable := ini.ReadBool('options', 'portable', True);
