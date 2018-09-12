@@ -594,6 +594,7 @@ object MainForm: TMainForm
     Top = 183
     Width = 181
     ItemHeight = 0
+    OnClick = BackupDatabasesListClick
     TabOrder = 2
   end
   object DatabasesCbo: TComboBox
@@ -619,9 +620,9 @@ object MainForm: TMainForm
     Height = 199
     Top = 154
     Width = 350
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Database'
@@ -654,12 +655,12 @@ object MainForm: TMainForm
         OnClick = BackupBtn2Click
         TabOrder = 2
       end
-      object CurrentNameLbl: TLabel
-        Left = 112
+      object BackupDeviceIDLbl: TLabel
+        Left = 110
         Height = 15
         Top = 15
-        Width = 72
-        Caption = 'CurrentName'
+        Width = 85
+        Caption = 'BackupDeviceID'
         ParentColor = False
       end
     end

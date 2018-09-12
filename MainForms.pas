@@ -29,11 +29,11 @@ type
     CleanBtn4: TButton;
     CleanBtn5: TButton;
     BackupFileNameEdit: TEdit;
+    BackupDeviceIDLbl: TLabel;
     DropBtn: TButton;
     CSProductsChk: TCheckBox;
     DBDirectoryChk: TCheckBox;
     DirectoryEdit: TEdit;
-    CurrentNameLbl: TLabel;
     RenameBtn: TButton;
     Label3: TLabel;
     NewPasswordEdit: TEdit;
@@ -76,6 +76,7 @@ type
     procedure BackupBtn1Click(Sender: TObject);
     procedure BackupBtn2Click(Sender: TObject);
     procedure BackupBtnClick(Sender: TObject);
+    procedure BackupDatabasesListClick(Sender: TObject);
     procedure CleanBtn1Click(Sender: TObject);
     procedure CleanBtn3Click(Sender: TObject);
     procedure CleanBtn4Click(Sender: TObject);
@@ -105,6 +106,8 @@ type
     PGPathBin: String;
     IniPath: String;
     Portable: Boolean;
+    procedure BringInfo;
+    function GetDBDirectory(DB: string): string;
     function GetCurrentDirectory: String;
     procedure EnumDatabases(vOld: Boolean);
     procedure DropDatabase(ADatabase: String);
@@ -168,6 +171,11 @@ begin
   begin
     BackupDatabase(BackupDatabasesList.Items[i]);
   end;
+end;
+
+procedure TMainForm.BackupDatabasesListClick(Sender: TObject);
+begin
+  BringInfo;
 end;
 
 procedure TMainForm.CleanBtn1Click(Sender: TObject);
@@ -480,9 +488,7 @@ begin
   o.Port := GetPort;
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
-  o.Directory := IncludeTrailingPathDelimiter(DirectoryEdit.Text);
-  if DBDirectoryChk.Checked then
-    o.Directory := IncludeTrailingPathDelimiter(o.Directory + DB);
+  o.Directory := GetDBDirectory(o.Database);
   o.Overwrite := Overwrite;
   if filename = '' then
   begin
@@ -504,9 +510,7 @@ begin
   o.Port := GetPort;
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
-  o.Directory := IncludeTrailingPathDelimiter(DirectoryEdit.Text);
-  if DBDirectoryChk.Checked then
-    o.Directory := IncludeTrailingPathDelimiter(o.Directory + DB);
+  o.Directory := GetDBDirectory(o.Database);
   //o.Overwrite := Overwrite;
   //"SET PGPASSWORD=<password>"
   filename := o.Directory + DB + '.backup';
@@ -634,6 +638,30 @@ begin
     Log('Error look the log', lgMessage);
   FreeAndNil(ConsoleThread);
   Resume;
+end;
+
+procedure TMainForm.BringInfo;
+var
+  db: string;
+  ini: TIniFile;
+begin
+  if BackupDatabasesList.ItemIndex >= 0 then
+  begin
+      db := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
+      ini := TIniFile.Create(GetDBDirectory(db) + db+ '.ini');
+      try
+         BackupDeviceIDLbl.Caption := ini.ReadString('info', 'id', '');
+      finally
+        ini.Free;
+      end;
+  end;
+end;
+
+function TMainForm.GetDBDirectory(DB: string): string;
+begin
+  Result := IncludeTrailingPathDelimiter(DirectoryEdit.Text);
+  if DBDirectoryChk.Checked then
+    Result := IncludeTrailingPathDelimiter(Result + DB);
 end;
 
 function TMainForm.GetCurrentDirectory: String;
@@ -790,7 +818,7 @@ var
   s: String;
 begin
   inherited;
-  CurrentNameLbl.Caption := GetLocalName;
+  Log('This Device: ' + GetLocalName);
   PoolThread := TObjectList.Create;
   ini := TIniFile.Create(Application.Location + 'pgtools.ini');
   Portable := ini.ReadBool('options', 'portable', True);
