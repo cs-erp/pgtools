@@ -23,7 +23,7 @@
       <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="2"/>
       <RevisionNr Value="3"/>
-      <BuildNr Value="45"/>
+      <BuildNr Value="47"/>
       <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools" ProductVersion="1.2.3"/>
     </VersionInfo>
     <BuildModes Count="2">
@@ -95,7 +95,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="2">
+    <Units Count="3">
       <Unit0>
         <Filename Value="pgtools.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -107,6 +107,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit1>
+      <Unit2>
+        <Filename Value="M:\home\pascal\lib\minilib\lazarus\lib\GUIMsgBox.pp"/>
+        <IsPartOfProject Value="True"/>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

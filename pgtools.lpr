@@ -14,7 +14,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces,
-  Forms, MainForms;
+  Forms, GUIMsgBox, MainForms;
 
 {$R *.res}
 

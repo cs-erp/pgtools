@@ -2,10 +2,10 @@ object MainForm: TMainForm
   Left = 394
   Height = 512
   Top = 187
-  Width = 547
+  Width = 534
   Caption = 'Creative Solutions PG backup tool'
   ClientHeight = 512
-  ClientWidth = 547
+  ClientWidth = 534
   Constraints.MinWidth = 500
   OnCreate = FormCreate
   ShowHint = True
@@ -14,7 +14,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 124
     Top = 359
-    Width = 547
+    Width = 534
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 60
     Font.Height = -13
@@ -578,7 +578,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 30
     Top = 482
-    Width = 547
+    Width = 534
     Align = alBottom
     Alignment = taLeftJustify
     BevelInner = bvLowered
@@ -595,6 +595,7 @@ object MainForm: TMainForm
     Width = 181
     ItemHeight = 0
     OnClick = BackupDatabasesListClick
+    OnDblClick = BackupDatabasesListDblClick
     TabOrder = 2
   end
   object DatabasesCbo: TComboBox
@@ -606,20 +607,20 @@ object MainForm: TMainForm
     Style = csDropDownList
     TabOrder = 0
   end
-  object CleanBtn3: TButton
+  object GetBtn: TButton
     Left = 191
     Height = 24
     Top = 128
     Width = 91
-    Caption = 'Get'
-    OnClick = CleanBtn3Click
+    Caption = 'List'
+    OnClick = GetBtnClick
     TabOrder = 1
   end
   object PGPageControl: TPageControl
     Left = 192
     Height = 199
     Top = 154
-    Width = 350
+    Width = 337
     ActivePage = TabSheet1
     Anchors = [akTop, akLeft, akRight]
     TabIndex = 0
@@ -627,21 +628,22 @@ object MainForm: TMainForm
     object TabSheet1: TTabSheet
       Caption = 'Database'
       ClientHeight = 171
-      ClientWidth = 342
+      ClientWidth = 329
       object BackupBtn1: TButton
         Left = 6
         Height = 25
-        Top = 53
+        Top = 52
         Width = 91
         Caption = 'Backup'
         OnClick = BackupBtn1Click
         TabOrder = 0
       end
       object RestoreBtn1: TButton
-        Left = 6
+        Left = 231
         Height = 25
-        Top = 79
+        Top = 52
         Width = 91
+        Anchors = [akTop, akRight]
         Caption = 'Restore'
         OnClick = RestoreBtn1Click
         TabOrder = 1
@@ -663,16 +665,36 @@ object MainForm: TMainForm
         Caption = 'BackupDeviceID'
         ParentColor = False
       end
+      object SavePointBtn: TButton
+        Left = 6
+        Height = 25
+        Hint = 'Backup to named file'
+        Top = 78
+        Width = 91
+        Caption = 'Save Point'
+        OnClick = SavePointBtnClick
+        TabOrder = 3
+      end
+      object RestorePointBtn: TButton
+        Left = 231
+        Height = 25
+        Top = 78
+        Width = 91
+        Anchors = [akTop, akRight]
+        Caption = 'Restore Point'
+        OnClick = RestorePointBtnClick
+        TabOrder = 4
+      end
     end
     object TabSheet2: TTabSheet
       Caption = 'Restore File'
       ClientHeight = 171
-      ClientWidth = 342
+      ClientWidth = 340
       object BackupFileNameEdit: TEdit
         Left = 6
         Height = 23
         Top = 35
-        Width = 330
+        Width = 328
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 0
       end
@@ -685,10 +707,11 @@ object MainForm: TMainForm
         ParentColor = False
       end
       object RestoreBtn2: TButton
-        Left = 6
+        Left = 243
         Height = 25
-        Top = 104
+        Top = 59
         Width = 91
+        Anchors = [akTop, akRight]
         Caption = 'Restore'
         OnClick = RestoreBtn2Click
         TabOrder = 1
@@ -868,7 +891,7 @@ object MainForm: TMainForm
     Left = 6
     Height = 90
     Top = 37
-    Width = 538
+    Width = 525
     ActivePage = TabSheet3
     Anchors = [akTop, akLeft, akRight]
     TabIndex = 0
@@ -876,7 +899,7 @@ object MainForm: TMainForm
     object TabSheet3: TTabSheet
       Caption = 'Postgre'
       ClientHeight = 62
-      ClientWidth = 530
+      ClientWidth = 517
       object UserNameEdit: TEdit
         Left = 72
         Height = 23
@@ -915,7 +938,7 @@ object MainForm: TMainForm
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
         Top = 35
-        Width = 249
+        Width = 236
         Anchors = [akTop, akLeft, akRight]
         Caption = 'Save password (saved uncrypted)'
         TabOrder = 2
@@ -1025,11 +1048,11 @@ object MainForm: TMainForm
     Left = 285
     Height = 25
     Top = 128
-    Width = 257
+    Width = 244
     Anchors = [akTop, akLeft, akRight]
     BevelOuter = bvNone
     ClientHeight = 25
-    ClientWidth = 257
+    ClientWidth = 244
     TabOrder = 9
     Visible = False
     object DropBtn: TButton
