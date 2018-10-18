@@ -9,6 +9,7 @@ Portable backup tools with one click, to exports backup all databases you added 
 - Save point, backup your database to special file to restore it in future
 - Rename password of pg user [expertmode]
 - Backup all databases at one click, or restore it all [expertmode]
+- Rename, Copy, Drop databases
 
 You need to have PostgreSQL installed to you computer and added the directory of PG "bin" to the PATH in enviroments, or select the bin folder of PG in folders options.
 
