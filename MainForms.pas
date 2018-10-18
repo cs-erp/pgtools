@@ -24,6 +24,7 @@ type
     BackupBtn: TButton;
     BackupBtn1: TButton;
     BackupBtn2: TButton;
+    CopyBtn: TButton;
     RestorePointBtn: TButton;
     SavePointBtn: TButton;
     CleanBtn: TButton;
@@ -81,6 +82,7 @@ type
     procedure BackupDatabasesListClick(Sender: TObject);
     procedure BackupDatabasesListDblClick(Sender: TObject);
     procedure CleanBtn1Click(Sender: TObject);
+    procedure CopyBtnClick(Sender: TObject);
     procedure GetBtnClick(Sender: TObject);
     procedure CleanBtn4Click(Sender: TObject);
     procedure CleanBtn5Click(Sender: TObject);
@@ -118,6 +120,7 @@ type
     procedure EnumDatabases(vOld: Boolean);
     procedure DropDatabase(ADatabase: String);
     procedure RenameDatabase(ADatabase, AToName: String);
+    procedure CopyDatabase(ADatabase, AToName: String);
     procedure OpenPG(vDatabase: String = 'postgres'; StartSession: Boolean = True);
     procedure ClosePG(StopSession: Boolean = True);
     procedure Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject = nil);
@@ -207,6 +210,32 @@ begin
       end;
     finally
       ClosePG;
+    end;
+  end;
+end;
+
+procedure TMainForm.CopyBtnClick(Sender: TObject);
+var
+  DB, ToName: string;
+begin
+  if DatabasesCbo.ItemIndex >= 0 then
+  begin
+    DB := DatabasesCbo.Items[DatabasesCbo.ItemIndex];
+    ToName := DB;
+    if Msg.Input(ToName, 'You want copy: ' + DB + ' to?') then
+    begin
+      if DB = ToName then
+        Msg.Show('you cant copy on same database')
+      else
+      begin
+        OpenPG('postgres', False);
+        try
+          RenameDatabase(DB, ToName);
+          DatabasesCbo.Items[DatabasesCbo.ItemIndex] := ToName;
+        finally
+          ClosePG(False);
+        end;
+      end;
     end;
   end;
 end;
@@ -812,6 +841,13 @@ begin
   InfoPanel.Caption := 'Renaming database ' + AToName;
   PGConn.Execute('alter database "' + ADatabase + '" rename to "' + AToName + '"');
   Log('Database Renames: "' + ADatabase + '"', lgStatus);
+end;
+
+procedure TMainForm.CopyDatabase(ADatabase, AToName: String);
+begin
+  InfoPanel.Caption := 'Copying database ' + ADatabase + ' to ' + AToName;
+  PGConn.Execute('CREATE DATABASE "' + AToName + '" TEMPLATE "' + ADatabase + '"');
+  Log('Database copied: "' + ADatabase + ' to ' + AToName + '"', lgStatus);
 end;
 
 procedure TMainForm.OpenPG(vDatabase: String; StartSession: Boolean);
