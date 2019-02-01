@@ -230,7 +230,7 @@ begin
       begin
         OpenPG('postgres', False);
         try
-          RenameDatabase(DB, ToName);
+          CopyDatabase(DB, ToName);
           DatabasesCbo.Items[DatabasesCbo.ItemIndex] := ToName;
         finally
           ClosePG(False);
@@ -840,7 +840,7 @@ procedure TMainForm.RenameDatabase(ADatabase, AToName: String);
 begin
   InfoPanel.Caption := 'Renaming database ' + AToName;
   PGConn.Execute('alter database "' + ADatabase + '" rename to "' + AToName + '"');
-  Log('Database Renames: "' + ADatabase + '"', lgStatus);
+  Log('Database Renamed: "' + ADatabase + '"', lgStatus);
 end;
 
 procedure TMainForm.CopyDatabase(ADatabase, AToName: String);

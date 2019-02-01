@@ -612,7 +612,7 @@ object MainForm: TMainForm
     Height = 24
     Top = 128
     Width = 80
-    Caption = 'List'
+    Caption = '&List'
     OnClick = GetBtnClick
     TabOrder = 1
   end
@@ -621,9 +621,9 @@ object MainForm: TMainForm
     Height = 199
     Top = 154
     Width = 369
-    ActivePage = TabSheet1
+    ActivePage = AdminSheet
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 3
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Database'
@@ -634,7 +634,7 @@ object MainForm: TMainForm
         Height = 25
         Top = 52
         Width = 91
-        Caption = 'Backup'
+        Caption = '&Backup'
         OnClick = BackupBtn1Click
         TabOrder = 0
       end
@@ -644,7 +644,7 @@ object MainForm: TMainForm
         Top = 52
         Width = 91
         Anchors = [akTop, akRight]
-        Caption = 'Restore'
+        Caption = '&Restore'
         OnClick = RestoreBtn1Click
         TabOrder = 1
       end
@@ -653,7 +653,7 @@ object MainForm: TMainForm
         Height = 25
         Top = 10
         Width = 91
-        Caption = 'Info'
+        Caption = '&Info'
         OnClick = BackupBtn2Click
         TabOrder = 2
       end
@@ -671,7 +671,7 @@ object MainForm: TMainForm
         Hint = 'Backup to named file'
         Top = 78
         Width = 91
-        Caption = 'Save Point'
+        Caption = '&Save Point'
         OnClick = SavePointBtnClick
         TabOrder = 3
       end
@@ -681,7 +681,7 @@ object MainForm: TMainForm
         Top = 78
         Width = 91
         Anchors = [akTop, akRight]
-        Caption = 'Restore Point'
+        Caption = 'Restore &Point'
         OnClick = RestorePointBtnClick
         TabOrder = 4
       end
@@ -689,12 +689,12 @@ object MainForm: TMainForm
     object TabSheet2: TTabSheet
       Caption = 'Restore File'
       ClientHeight = 171
-      ClientWidth = 340
+      ClientWidth = 361
       object BackupFileNameEdit: TEdit
         Left = 6
         Height = 23
         Top = 35
-        Width = 328
+        Width = 349
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 0
       end
@@ -707,7 +707,7 @@ object MainForm: TMainForm
         ParentColor = False
       end
       object RestoreBtn2: TButton
-        Left = 243
+        Left = 264
         Height = 25
         Top = 59
         Width = 91
@@ -729,14 +729,14 @@ object MainForm: TMainForm
     object ExportTab: TTabSheet
       Caption = 'Expert'
       ClientHeight = 171
-      ClientWidth = 342
+      ClientWidth = 361
       TabVisible = False
       object BackupBtn: TButton
         Left = 3
         Height = 25
         Top = 8
         Width = 110
-        Caption = 'Backup all'
+        Caption = 'Backup a&ll'
         OnClick = BackupBtnClick
         TabOrder = 0
       end
@@ -763,7 +763,7 @@ object MainForm: TMainForm
     object AdminSheet: TTabSheet
       Caption = 'Admin'
       ClientHeight = 171
-      ClientWidth = 342
+      ClientWidth = 361
       TabVisible = False
       object Label3: TLabel
         Left = 16
@@ -804,7 +804,7 @@ object MainForm: TMainForm
     Height = 25
     Top = 154
     Width = 91
-    Caption = 'Add'
+    Caption = '&Add'
     OnClick = CleanBtn4Click
     TabOrder = 6
   end
@@ -813,7 +813,7 @@ object MainForm: TMainForm
     Height = 25
     Top = 154
     Width = 91
-    Caption = 'Remove'
+    Caption = 'Re&move'
     OnClick = CleanBtn5Click
     TabOrder = 7
   end
