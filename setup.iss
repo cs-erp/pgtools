@@ -37,7 +37,7 @@ Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription
 
 [Files]
 Source: pgtools32.exe; DestDir: {app}; Flags: ignoreversion
-Source: pgtools64.exe; DestDir: {app}; Flags: ignoreversion
+;Source: pgtools64.exe; DestDir: {app}; Flags: ignoreversion
 Source: setup\*.dll; DestDir: {app}; Flags: ignoreversion
 Source: setup\*.exe; DestDir: {app}; Flags: ignoreversion
 Source: setup\*.ini; DestDir: {app}; Flags: ignoreversion
