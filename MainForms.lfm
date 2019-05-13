@@ -23,7 +23,7 @@ object MainForm: TMainForm
     Font.Quality = fqNonAntialiased
     ParentColor = False
     ParentFont = False
-    PopupMenu = PopupMenu1
+    PopupMenu = LogPopupMenu
     TabOrder = 3
     Gutter.RightOffset = 2
     Gutter.Width = 21
@@ -590,8 +590,8 @@ object MainForm: TMainForm
   end
   object BackupDatabasesList: TListBox
     Left = 6
-    Height = 170
-    Top = 183
+    Height = 151
+    Top = 202
     Width = 181
     ItemHeight = 0
     OnClick = BackupDatabasesListClick
@@ -601,7 +601,7 @@ object MainForm: TMainForm
   object DatabasesCbo: TComboBox
     Left = 6
     Height = 23
-    Top = 129
+    Top = 151
     Width = 181
     ItemHeight = 15
     Style = csDropDownList
@@ -610,7 +610,7 @@ object MainForm: TMainForm
   object GetBtn: TButton
     Left = 191
     Height = 24
-    Top = 128
+    Top = 151
     Width = 80
     Caption = '&List'
     OnClick = GetBtnClick
@@ -618,8 +618,8 @@ object MainForm: TMainForm
   end
   object PGPageControl: TPageControl
     Left = 192
-    Height = 199
-    Top = 154
+    Height = 173
+    Top = 179
     Width = 369
     ActivePage = AdminSheet
     Anchors = [akTop, akLeft, akRight]
@@ -627,7 +627,7 @@ object MainForm: TMainForm
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Database'
-      ClientHeight = 171
+      ClientHeight = 167
       ClientWidth = 361
       object BackupBtn1: TButton
         Left = 6
@@ -688,7 +688,7 @@ object MainForm: TMainForm
     end
     object TabSheet2: TTabSheet
       Caption = 'Restore File'
-      ClientHeight = 171
+      ClientHeight = 167
       ClientWidth = 361
       object BackupFileNameEdit: TEdit
         Left = 6
@@ -728,7 +728,7 @@ object MainForm: TMainForm
     end
     object ExportTab: TTabSheet
       Caption = 'Expert'
-      ClientHeight = 171
+      ClientHeight = 167
       ClientWidth = 361
       TabVisible = False
       object BackupBtn: TButton
@@ -762,15 +762,14 @@ object MainForm: TMainForm
     end
     object AdminSheet: TTabSheet
       Caption = 'Admin'
-      ClientHeight = 171
+      ClientHeight = 145
       ClientWidth = 361
       TabVisible = False
       object Label3: TLabel
         Left = 16
         Height = 15
-        Top = 20
+        Top = 16
         Width = 77
-        Anchors = [akLeft, akBottom]
         AutoSize = False
         Caption = 'New Password'
         ParentColor = False
@@ -778,21 +777,19 @@ object MainForm: TMainForm
       object NewPasswordEdit: TEdit
         Left = 104
         Height = 23
-        Top = 17
+        Top = 13
         Width = 112
-        Anchors = [akLeft, akBottom]
         AutoSize = False
         EchoMode = emPassword
         PasswordChar = '*'
         TabOrder = 0
       end
       object CleanBtn1: TButton
-        Left = 222
+        Left = 221
         Height = 25
         Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
-        Top = 16
+        Top = 12
         Width = 81
-        Anchors = [akLeft, akBottom]
         Caption = 'Change'
         OnClick = CleanBtn1Click
         TabOrder = 1
@@ -802,7 +799,7 @@ object MainForm: TMainForm
   object CleanBtn4: TButton
     Left = 6
     Height = 25
-    Top = 154
+    Top = 176
     Width = 91
     Caption = '&Add'
     OnClick = CleanBtn4Click
@@ -811,7 +808,7 @@ object MainForm: TMainForm
   object CleanBtn5: TButton
     Left = 96
     Height = 25
-    Top = 154
+    Top = 176
     Width = 91
     Caption = 'Re&move'
     OnClick = CleanBtn5Click
@@ -889,8 +886,8 @@ object MainForm: TMainForm
   end
   object OptionsPageControl: TPageControl
     Left = 6
-    Height = 90
-    Top = 37
+    Height = 115
+    Top = 34
     Width = 557
     ActivePage = TabSheet3
     Anchors = [akTop, akLeft, akRight]
@@ -898,7 +895,7 @@ object MainForm: TMainForm
     TabOrder = 8
     object TabSheet3: TTabSheet
       Caption = 'Postgre'
-      ClientHeight = 62
+      ClientHeight = 87
       ClientWidth = 549
       object UserNameEdit: TEdit
         Left = 72
@@ -926,7 +923,7 @@ object MainForm: TMainForm
         ParentColor = False
       end
       object Label2: TLabel
-        Left = 14
+        Left = 7
         Height = 15
         Top = 37
         Width = 50
@@ -953,76 +950,42 @@ object MainForm: TMainForm
       object Label5: TLabel
         Left = 170
         Height = 15
-        Top = 13
+        Top = 10
         Width = 22
         Caption = 'Port'
         ParentColor = False
       end
-    end
-    object TabSheet4: TTabSheet
-      Caption = 'Folders'
-      ClientHeight = 62
-      ClientWidth = 549
-      object SelectPGFolderBtn: TButton
-        Left = 483
-        Height = 25
-        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
-        Top = 6
-        Width = 62
-        Anchors = [akTop, akRight]
-        Caption = 'PG Folder'
-        OnClick = SelectPGFolderBtnClick
-        TabOrder = 0
-      end
-      object Label4: TLabel
+      object BackFolderLbl: TLabel
         Left = 7
         Height = 15
-        Top = 37
-        Width = 65
-        Caption = 'Backup Files'
+        Top = 64
+        Width = 75
+        Caption = 'Backup Folder'
         ParentColor = False
       end
       object DirectoryEdit: TEdit
-        Left = 83
+        Left = 91
         Height = 23
-        Top = 35
+        Top = 62
         Width = 268
         Anchors = [akTop, akLeft, akRight]
-        TabOrder = 1
+        TabOrder = 4
         Text = './'
       end
-      object PGDirectoryEdit: TEdit
-        Left = 83
-        Height = 23
-        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
-        Top = 7
-        Width = 393
-        Anchors = [akTop, akLeft, akRight]
-        TabOrder = 2
-      end
-      object Label9: TLabel
-        Left = 7
-        Height = 15
-        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
-        Top = 11
-        Width = 71
-        Caption = 'PG bin Folder'
-        ParentColor = False
-      end
       object DBDirectoryChk: TCheckBox
-        Left = 363
+        Left = 381
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 37
+        Top = 64
         Width = 132
         Anchors = [akTop, akRight]
         Caption = 'Directory for each DB'
-        TabOrder = 3
+        TabOrder = 5
       end
     end
     object TabSheet5: TTabSheet
       Caption = 'Options'
-      ClientHeight = 62
+      ClientHeight = 87
       ClientWidth = 549
       object CSProductsChk: TCheckBox
         Left = 8
@@ -1042,12 +1005,41 @@ object MainForm: TMainForm
         Caption = 'Public Schema only'
         TabOrder = 1
       end
+      object PGBinFolderLbl: TLabel
+        Left = 7
+        Height = 15
+        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
+        Top = 65
+        Width = 71
+        Caption = 'PG bin Folder'
+        ParentColor = False
+      end
+      object PGDirectoryEdit: TEdit
+        Left = 83
+        Height = 23
+        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
+        Top = 61
+        Width = 393
+        Anchors = [akTop, akLeft, akRight]
+        TabOrder = 2
+      end
+      object SelectPGFolderBtn: TButton
+        Left = 483
+        Height = 25
+        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
+        Top = 60
+        Width = 62
+        Anchors = [akTop, akRight]
+        Caption = 'PG Folder'
+        OnClick = SelectPGFolderBtnClick
+        TabOrder = 3
+      end
     end
   end
   object AdminPanel: TPanel
     Left = 285
     Height = 25
-    Top = 128
+    Top = 151
     Width = 276
     Anchors = [akTop, akLeft, akRight]
     BevelOuter = bvNone
@@ -1087,9 +1079,9 @@ object MainForm: TMainForm
       TabOrder = 2
     end
   end
-  object PopupMenu1: TPopupMenu
-    left = 293
-    top = 364
+  object LogPopupMenu: TPopupMenu
+    left = 223
+    top = 372
     object MenuItem1: TMenuItem
       Caption = 'Clear'
       OnClick = MenuItem1Click

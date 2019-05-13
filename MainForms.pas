@@ -15,16 +15,21 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
   ComCtrls, Menus, IniFiles, Contnrs, SynEdit, mncPostgre, MsgBox, GUIMsgBox,
-  ConsoleProcess, FileUtil, mnUtils;
+  ConsoleProcess, FileUtil, mnUtils, LazFileUtils;
 
 type
   { TMainForm }
 
   TMainForm = class(TForm)
+    BackFolderLbl: TLabel;
     BackupBtn: TButton;
     BackupBtn1: TButton;
     BackupBtn2: TButton;
     CopyBtn: TButton;
+    DBDirectoryChk: TCheckBox;
+    DirectoryEdit: TEdit;
+    PGBinFolderLbl: TLabel;
+    PGDirectoryEdit: TEdit;
     RestorePointBtn: TButton;
     SavePointBtn: TButton;
     CleanBtn: TButton;
@@ -35,26 +40,21 @@ type
     BackupDeviceIDLbl: TLabel;
     DropBtn: TButton;
     CSProductsChk: TCheckBox;
-    DBDirectoryChk: TCheckBox;
-    DirectoryEdit: TEdit;
     RenameBtn: TButton;
     Label3: TLabel;
     NewPasswordEdit: TEdit;
     AdminPanel: TPanel;
-    PGDirectoryEdit: TEdit;
     Image1: TImage;
     Label1: TLabel;
     Label2: TLabel;
-    Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
-    Label9: TLabel;
     MenuItem1: TMenuItem;
     OptionsPageControl: TPageControl;
     PasswordEdit: TEdit;
     PGPageControl: TPageControl;
-    PopupMenu1: TPopupMenu;
+    LogPopupMenu: TPopupMenu;
     GetBtn: TButton;
     DatabasesCbo: TComboBox;
     InfoPanel: TPanel;
@@ -72,7 +72,6 @@ type
     ExportTab: TTabSheet;
     LogEdit: TSynEdit;
     TabSheet3: TTabSheet;
-    TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
     AdminSheet: TTabSheet;
     UserNameEdit: TEdit;
