@@ -227,12 +227,14 @@ begin
         Msg.Show('you cant copy on same database')
       else
       begin
+        Msg.ShowStatus(Self, 'Coping ' + DB + ' to ' + ToName);
         OpenPG('postgres', False);
         try
           CopyDatabase(DB, ToName);
           DatabasesCbo.Items[DatabasesCbo.ItemIndex] := ToName;
         finally
           ClosePG(False);
+          Msg.HideStatus(Self);
         end;
       end;
     end;
@@ -305,11 +307,13 @@ begin
     if not Msg.No('Are you sure you want to drop: ' + DB + '?') then
     begin
       OpenPG('postgres', False);
+      Msg.ShowStatus(Self, 'Dropping ' + DB);
       try
         DropDatabase(DB);
         DatabasesCbo.Items.Delete(DatabasesCbo.ItemIndex);
       finally
         ClosePG(False);
+        Msg.HideStatus(Self);
       end;
     end;
   end;
@@ -625,12 +629,14 @@ begin
       else
       begin
         OpenPG('postgres', False);
+        Msg.ShowStatus(Self, 'Dropping ' + DB + ' to ' + ToName);
         try
           RenameDatabase(DB, ToName);
           DatabasesCbo.Items[DatabasesCbo.ItemIndex] := ToName;
         finally
           ClosePG(False);
         end;
+        Msg.HideStatus(Self);
       end;
     end;
   end;

@@ -8,6 +8,9 @@ if errorlevel 1 goto erroroccurred
 lazbuild --build-mode=Release64 pgtools.lpr -r -B
 if errorlevel 1 goto erroroccurred
 
+upx pgtools32.exe
+upx pgtools64.exe
+
 7z a "pgtools-%DATE:~-4%-%DATE:~4,2%-%DATE:~7,2%.7z" pgtools32.exe pgtools64.exe
 goto noerrors
 
