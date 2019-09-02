@@ -28,6 +28,7 @@ type
     CopyBtn: TButton;
     DBDirectoryChk: TCheckBox;
     DirectoryEdit: TEdit;
+    ScrollMnu: TMenuItem;
     PGBinFolderLbl: TLabel;
     PGDirectoryEdit: TEdit;
     RestorePointBtn: TButton;
@@ -753,7 +754,8 @@ begin
     lgMessage: Msg.Show(S);
   end;
   LogEdit.Lines.Add(S);
-  LogEdit.CaretY := LogEdit.Lines.Count;
+  if ScrollMnu.Checked then
+    LogEdit.CaretY := LogEdit.Lines.Count;
 end;
 
 procedure TMainForm.ConsoleTerminated(Sender: TObject);
