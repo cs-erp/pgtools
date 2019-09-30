@@ -621,9 +621,9 @@ object MainForm: TMainForm
     Height = 173
     Top = 179
     Width = 369
-    ActivePage = TabSheet1
+    ActivePage = ExportTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 2
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Database'
@@ -889,9 +889,9 @@ object MainForm: TMainForm
     Height = 115
     Top = 34
     Width = 557
-    ActivePage = TabSheet3
+    ActivePage = TabSheet5
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 8
     object TabSheet3: TTabSheet
       Caption = 'Postgre'
@@ -1077,6 +1077,16 @@ object MainForm: TMainForm
       Caption = 'Copy'
       OnClick = CopyBtnClick
       TabOrder = 2
+    end
+    object StopBtn: TButton
+      Left = 223
+      Height = 25
+      Top = 0
+      Width = 54
+      Anchors = [akTop, akRight]
+      Caption = 'Stop'
+      OnClick = StopBtnClick
+      TabOrder = 3
     end
   end
   object LogPopupMenu: TPopupMenu

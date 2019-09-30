@@ -6,6 +6,8 @@ unit MainForms;
  * @license   mit(https://opensource.org/licenses/MIT)
  *
  * @author    Zaher Dirkey <zaher at parmaja dot com>
+ *
+ *  TODO: add clean with : --clean --if-exists
  *}
 
 {$mode objfpc}{$H+}
@@ -26,6 +28,7 @@ type
     BackupBtn1: TButton;
     BackupBtn2: TButton;
     CopyBtn: TButton;
+    StopBtn: TButton;
     DBDirectoryChk: TCheckBox;
     DirectoryEdit: TEdit;
     ScrollMnu: TMenuItem;
@@ -98,6 +101,7 @@ type
     procedure RestorePointBtnClick(Sender: TObject);
     procedure SavePointBtnClick(Sender: TObject);
     procedure SelectPGFolderBtnClick(Sender: TObject);
+    procedure StopBtnClick(Sender: TObject);
   private
     PoolThread: TObjectList;
     ConsoleThread: TmnConsoleThread;
@@ -108,6 +112,7 @@ type
     procedure Log(S: String; Kind: TmnLogKind = lgLog);
     procedure ConsoleTerminated(Sender: TObject);
   protected
+    FStop: Boolean;
     PGConn: TmncPGConnection;
     PGSession: TmncPGSession;
     Databases: TStringList;
@@ -276,7 +281,7 @@ procedure TMainForm.GetBtnClick(Sender: TObject);
 begin
   OpenPG('postgres');
   try
-    EnumDatabases(False);
+    EnumDatabases(GetKeyShiftState = [ssCtrl]);
     DatabasesCbo.Items.Assign(Databases);
     if DatabasesCbo.Items.Count > 0 then
       DatabasesCbo.ItemIndex := 0;
@@ -740,6 +745,11 @@ begin
     PGDirectoryEdit.Text := S;
 end;
 
+procedure TMainForm.StopBtnClick(Sender: TObject);
+begin
+  FStop := True;
+end;
+
 function TMainForm.GetPort: String;
 begin
   Result := PortEdit.Text;
@@ -765,7 +775,10 @@ begin
   else
     Log('Error look the log', lgMessage);
   FreeAndNil(ConsoleThread);
-  Resume;
+  if not FStop then
+    FStop := False
+  else
+    Resume;
 end;
 
 procedure TMainForm.BringInfo;
@@ -905,6 +918,7 @@ end;
 
 procedure TMainForm.Resume;
 begin
+  FStop := False;
   if (PoolThread.Count > 0) then
   begin
     if (ConsoleThread = nil) then
