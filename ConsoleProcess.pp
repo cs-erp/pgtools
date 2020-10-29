@@ -12,7 +12,7 @@ unit ConsoleProcess;
 interface
 
 uses
-  Forms, Classes, SysUtils, process, pipes,
+  Forms, Classes, SysUtils, process,
   mnUtils, mnStreams;
 
 type
@@ -49,6 +49,7 @@ type
     Message: string;
     constructor Create(vExecutable, vCurrentDirectory, vParameters: string; vOnLog: TmnOnLog = nil);
     destructor Destroy; override;
+    procedure Kill;
     procedure Execute; override;
     procedure Read; virtual;
     procedure ReadPrompt; virtual;
@@ -97,7 +98,7 @@ begin
   FProcess.CurrentDirectory := vCurrentDirectory;
   FProcess.Executable := vExecutable;
   CommandToList(vParameters, FProcess.Parameters);
-  FProcess.Options := [poUsePipes, poStderrToOutPut, poNoConsole];
+  FProcess.Options := [poUsePipes, poStderrToOutPut, poNoConsole, poDetached];
   FProcess.ShowWindow := swoHide;
   FProcess.ConsoleTitle := 'PG Console';
   FProcess.InheritHandles := True;
@@ -114,6 +115,12 @@ begin
   end;
   FreeAndNil(FExecuteObject);
   inherited Destroy;
+end;
+
+procedure TmnConsoleThread.Kill;
+begin
+  if FProcess <> nil then
+    FProcess.Terminate(1);
 end;
 
 procedure TmnConsoleThread.Read;
@@ -215,7 +222,7 @@ begin
       Log(FProcess.Executable + ' ' + StringReplace(FProcess.Parameters.Text, #13#10, ' ', [rfReplaceAll]));
       FProcess.Execute;
       ReadPrompt;
-      if (FProcess.Input <> nil) and (Password <> '') then
+      if FProcess.Running and (FProcess.Input <> nil) and (Password <> '') then
         StreamWriteLn(Password);
       //FProcess.CloseInput;
       ReadStream;
@@ -224,7 +231,7 @@ begin
       if (Status = 0) and (FExecuteObject <> nil) then
         FExecuteObject.Execute(Self);
     except
-      on E:Exception do
+      on E: Exception do
       begin
         Log(E.Message, lgMessage);
         raise;

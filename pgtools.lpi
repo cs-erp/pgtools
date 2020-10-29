@@ -28,7 +28,7 @@
       <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="6"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="89"/>
+      <BuildNr Value="92"/>
       <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools" ProductVersion="1.3.1"/>
     </VersionInfo>
     <BuildModes Count="2">
@@ -38,7 +38,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="pgtools64"/>
+            <Filename Value="./bin/pgtools64"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -121,7 +121,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="pgtools32"/>
+      <Filename Value="./bin/pgtools32"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>

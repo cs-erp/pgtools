@@ -28,6 +28,8 @@ type
     BackupBtn1: TButton;
     BackupBtn2: TButton;
     CopyBtn: TButton;
+    RestoreByDateBtn: TButton;
+    RestorFromFileBtn: TButton;
     StopBtn: TButton;
     DBDirectoryChk: TCheckBox;
     DirectoryEdit: TEdit;
@@ -84,6 +86,7 @@ type
     procedure BackupBtnClick(Sender: TObject);
     procedure BackupDatabasesListClick(Sender: TObject);
     procedure BackupDatabasesListDblClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
     procedure CleanBtn1Click(Sender: TObject);
     procedure CopyBtnClick(Sender: TObject);
     procedure GetBtnClick(Sender: TObject);
@@ -97,7 +100,9 @@ type
     procedure RestoreBtn1Click(Sender: TObject);
     procedure RestoreBtn2Click(Sender: TObject);
     procedure RestoreBtn3Click(Sender: TObject);
+    procedure RestoreByDateBtnClick(Sender: TObject);
     procedure RestoreBtnClick(Sender: TObject);
+    procedure RestorFromFileBtnClick(Sender: TObject);
     procedure RestorePointBtnClick(Sender: TObject);
     procedure SavePointBtnClick(Sender: TObject);
     procedure SelectPGFolderBtnClick(Sender: TObject);
@@ -112,6 +117,7 @@ type
     procedure Log(S: String; Kind: TmnLogKind = lgLog);
     procedure ConsoleTerminated(Sender: TObject);
   protected
+    FDestroying: Boolean;
     FStop: Boolean;
     PGConn: TmncPGConnection;
     PGSession: TmncPGSession;
@@ -132,6 +138,7 @@ type
     procedure Resume;
     procedure LoadIni;
   public
+    ExportMode: Boolean;
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
   end;
@@ -195,6 +202,10 @@ end;
 procedure TMainForm.BackupDatabasesListDblClick(Sender: TObject);
 begin
 
+end;
+
+procedure TMainForm.Button1Click(Sender: TObject);
+begin
 end;
 
 procedure TMainForm.CleanBtn1Click(Sender: TObject);
@@ -661,7 +672,7 @@ var
 begin
   DB := ExtractFileNameWithoutExt(ExtractFileName(BackupFileNameEdit.Text));
   if Msg.Input(DB, 'Enter then name of new Database to restore') then
-    RestoreDatabaseFile(DB, BackupFileNameEdit.Text, False);
+    RestoreDatabaseFile(DB, BackupFileNameEdit.Text, ExportMode);
 end;
 
 procedure TMainForm.RestoreBtn3Click(Sender: TObject);
@@ -676,6 +687,30 @@ begin
   end;
 end;
 
+procedure TMainForm.RestoreByDateBtnClick(Sender: TObject);
+var
+  files: TStringList;
+  i: Integer;
+  DB: string;
+begin
+  if BackupDatabasesList.ItemIndex >= 0 then
+  begin
+    files := TStringList.Create;
+    try
+      DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
+      i := -1;
+      EnumFiles(files, GetDBDirectory(DB) + 'points', '*.backup');
+      if Msg.List(i, 'Select a point to restore', files) then
+      begin
+        RestoreDatabase(DB, files[i]);
+        files.CommaText
+      end;
+    finally
+      files.Free;
+    end;
+  end;
+end;
+
 procedure TMainForm.RestoreBtnClick(Sender: TObject);
 var
   i: Integer;
@@ -685,6 +720,34 @@ begin
     begin
       RestoreDatabase(BackupDatabasesList.Items[i]);
     end;
+end;
+
+procedure TMainForm.RestorFromFileBtnClick(Sender: TObject);
+var
+  DB, Selected: String;
+begin
+  with TOpenDialog.Create(Self) do
+  begin
+    Filter := '*.backup';
+    FileName := '*.backup';
+    if Execute then
+    begin
+      DB := ExtractFileNameWithoutExt(ExtractFileName(BackupFileNameEdit.Text));
+
+      if BackupDatabasesList.ItemIndex >= 0 then
+      begin
+        Selected := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
+        if not SameText(DB, Selected) then
+          Msg.Error('Please select backup file with same name of database selected')
+        else if not Msg.No('Are you sure you want to restore database?') then
+          RestoreDatabaseFile(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], FileName, True);
+      end
+      else
+        if Msg.Input(DB, 'Enter then name of new Database to restore') then
+          RestoreDatabaseFile(DB, FileName, True);
+    end;
+    Free;
+  end;
 end;
 
 procedure EnumFiles(AList: TStrings; const SearchPath: String; SearchMask: String; SearchSubDirs: Boolean);
@@ -770,15 +833,18 @@ end;
 
 procedure TMainForm.ConsoleTerminated(Sender: TObject);
 begin
-  if ConsoleThread.Status = 0 then
-    Log(ConsoleThread.Message + ' Done', lgStatus)
-  else
-    Log('Error look the log', lgMessage);
-  FreeAndNil(ConsoleThread);
-  if not FStop then
-    FStop := False
-  else
-    Resume;
+  if not FDestroying then
+  begin
+    if ConsoleThread.Status = 0 then
+      Log(ConsoleThread.Message + ' Done', lgStatus)
+    else
+      Log('Error look the log', lgMessage);
+    FreeAndNil(ConsoleThread);
+    if not FStop then
+      FStop := False
+    else
+      Resume;
+  end;
 end;
 
 procedure TMainForm.BringInfo;
@@ -952,11 +1018,13 @@ begin
   PortEdit.Text := ini.ReadString('options', 'port', '');
   DirectoryEdit.Text := ini.ReadString('options', 'directory', './');
   PGDirectoryEdit.Text := ini.ReadString('options', 'PGDirecotry', '');
-  ExportTab.TabVisible := ini.ReadBool('options', 'expert', False);
-  if ExportTab.TabVisible then
+  ExportMode := ini.ReadBool('options', 'expert', False);
+  if ExportMode then
   begin
+    ExportTab.TabVisible := True;
     AdminSheet.TabVisible := True;
     AdminPanel.Visible := True;
+    RestorFromFileBtn.Visible := True;
   end;
   DBDirectoryChk.Checked := ini.ReadBool('options', 'DBDirectory', False);
   PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
@@ -1001,12 +1069,14 @@ var
   i: Integer;
   ini: TIniFile;
 begin
+  FDestroying := True;
   PoolThread.Clear;
   if ConsoleThread <> nil then
   begin
+    ConsoleThread.Kill;
     ConsoleThread.Terminate;
     ConsoleThread.WaitFor;
-    ConsoleThread.Free;
+    FreeAndNil(ConsoleThread);
   end;
   ClosePG;
   FreeAndNil(Databases);

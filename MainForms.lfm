@@ -542,6 +542,10 @@ object MainForm: TMainForm
     SelectedColor.ItalicPriority = 50
     SelectedColor.UnderlinePriority = 50
     SelectedColor.StrikeOutPriority = 50
+    ScrollOnEditLeftOptions.ScrollExtraPercent = 20
+    ScrollOnEditLeftOptions.ScrollExtraMax = 10
+    ScrollOnEditRightOptions.ScrollExtraPercent = 30
+    ScrollOnEditRightOptions.ScrollExtraMax = 25
     BracketHighlightStyle = sbhsBoth
     BracketMatchColor.Background = clNone
     BracketMatchColor.Foreground = clNone
@@ -621,9 +625,9 @@ object MainForm: TMainForm
     Height = 173
     Top = 179
     Width = 369
-    ActivePage = ExportTab
+    ActivePage = TabSheet1
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Database'
@@ -633,16 +637,16 @@ object MainForm: TMainForm
         Left = 6
         Height = 25
         Top = 52
-        Width = 91
+        Width = 100
         Caption = '&Backup'
         OnClick = BackupBtn1Click
         TabOrder = 0
       end
       object RestoreBtn1: TButton
-        Left = 263
+        Left = 251
         Height = 25
         Top = 52
-        Width = 91
+        Width = 100
         Anchors = [akTop, akRight]
         Caption = '&Restore'
         OnClick = RestoreBtn1Click
@@ -652,7 +656,7 @@ object MainForm: TMainForm
         Left = 6
         Height = 25
         Top = 10
-        Width = 91
+        Width = 100
         Caption = '&Info'
         OnClick = BackupBtn2Click
         TabOrder = 2
@@ -670,20 +674,31 @@ object MainForm: TMainForm
         Height = 25
         Hint = 'Backup to named file'
         Top = 78
-        Width = 91
+        Width = 100
         Caption = '&Save Point'
         OnClick = SavePointBtnClick
         TabOrder = 3
       end
       object RestorePointBtn: TButton
-        Left = 263
+        Left = 251
         Height = 25
         Top = 78
-        Width = 91
+        Width = 100
         Anchors = [akTop, akRight]
         Caption = 'Restore &Point'
         OnClick = RestorePointBtnClick
         TabOrder = 4
+      end
+      object RestorFromFileBtn: TButton
+        Left = 251
+        Height = 25
+        Top = 10
+        Width = 100
+        Anchors = [akTop, akRight]
+        Caption = 'Restore File'
+        OnClick = RestorFromFileBtnClick
+        TabOrder = 5
+        Visible = False
       end
     end
     object TabSheet2: TTabSheet
@@ -702,8 +717,8 @@ object MainForm: TMainForm
         Left = 6
         Height = 15
         Top = 14
-        Width = 169
-        Caption = 'Restore this file to new database'
+        Width = 144
+        Caption = 'Restore this file to database'
         ParentColor = False
       end
       object RestoreBtn2: TButton
@@ -753,11 +768,20 @@ object MainForm: TMainForm
         Left = 3
         Height = 25
         Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
-        Top = 74
+        Top = 114
         Width = 110
         Caption = 'Clean all'
         OnClick = CleanBtnClick
         TabOrder = 2
+      end
+      object RestoreByDateBtn: TButton
+        Left = 3
+        Height = 25
+        Top = 60
+        Width = 110
+        Caption = 'Restore By Date'
+        OnClick = RestoreByDateBtnClick
+        TabOrder = 3
       end
     end
     object AdminSheet: TTabSheet
@@ -1090,8 +1114,8 @@ object MainForm: TMainForm
     end
   end
   object LogPopupMenu: TPopupMenu
-    left = 223
-    top = 372
+    Left = 223
+    Top = 372
     object MenuItem1: TMenuItem
       Caption = 'Clear'
       OnClick = MenuItem1Click
