@@ -18,3 +18,8 @@ Do not check "Creative Soultion products" to backup any databases, this check on
 If you need to enable Expert mode, open pgtools.ini, change expert to 1, expert=1
 
 If you do not want it portable application, disable it by add option in pgtools.ini portable=0
+
+## Compile
+
+Use FPC 3.3 snapshot from date 2020-10
+Lazarus from SVN, version 2.1 or later

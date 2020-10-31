@@ -1,10 +1,10 @@
 object MainForm: TMainForm
   Left = 269
-  Height = 512
+  Height = 562
   Top = 165
   Width = 566
   Caption = 'Creative Solutions PG backup tool'
-  ClientHeight = 512
+  ClientHeight = 562
   ClientWidth = 566
   Constraints.MinWidth = 500
   OnCreate = FormCreate
@@ -12,8 +12,8 @@ object MainForm: TMainForm
   LCLVersion = '2.1.0.0'
   inline LogEdit: TSynEdit
     Left = 0
-    Height = 124
-    Top = 359
+    Height = 142
+    Top = 380
     Width = 566
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 60
@@ -581,7 +581,7 @@ object MainForm: TMainForm
   object InfoPanel: TPanel
     Left = 0
     Height = 30
-    Top = 482
+    Top = 532
     Width = 566
     Align = alBottom
     Alignment = taLeftJustify
@@ -594,7 +594,7 @@ object MainForm: TMainForm
   end
   object BackupDatabasesList: TListBox
     Left = 6
-    Height = 151
+    Height = 173
     Top = 202
     Width = 181
     ItemHeight = 0
@@ -622,7 +622,7 @@ object MainForm: TMainForm
   end
   object PGPageControl: TPageControl
     Left = 192
-    Height = 173
+    Height = 197
     Top = 179
     Width = 369
     ActivePage = TabSheet1
@@ -631,31 +631,31 @@ object MainForm: TMainForm
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Database'
-      ClientHeight = 145
+      ClientHeight = 169
       ClientWidth = 361
       object BackupBtn1: TButton
         Left = 6
         Height = 25
-        Top = 52
+        Top = 76
         Width = 100
         Caption = '&Backup'
         OnClick = BackupBtn1Click
         TabOrder = 0
       end
-      object RestoreBtn1: TButton
+      object RestoreLastBtn: TButton
         Left = 251
         Height = 25
-        Top = 52
+        Top = 76
         Width = 100
         Anchors = [akTop, akRight]
-        Caption = '&Restore'
-        OnClick = RestoreBtn1Click
+        Caption = '&Restore Last'
+        OnClick = RestoreLastBtnClick
         TabOrder = 1
       end
       object BackupBtn2: TButton
         Left = 6
         Height = 25
-        Top = 10
+        Top = 34
         Width = 100
         Caption = '&Info'
         OnClick = BackupBtn2Click
@@ -664,7 +664,7 @@ object MainForm: TMainForm
       object BackupDeviceIDLbl: TLabel
         Left = 110
         Height = 15
-        Top = 15
+        Top = 39
         Width = 85
         Caption = 'BackupDeviceID'
         ParentColor = False
@@ -673,7 +673,7 @@ object MainForm: TMainForm
         Left = 6
         Height = 25
         Hint = 'Backup to named file'
-        Top = 78
+        Top = 102
         Width = 100
         Caption = '&Save Point'
         OnClick = SavePointBtnClick
@@ -682,7 +682,7 @@ object MainForm: TMainForm
       object RestorePointBtn: TButton
         Left = 251
         Height = 25
-        Top = 78
+        Top = 102
         Width = 100
         Anchors = [akTop, akRight]
         Caption = 'Restore &Point'
@@ -692,7 +692,7 @@ object MainForm: TMainForm
       object RestorFromFileBtn: TButton
         Left = 251
         Height = 25
-        Top = 10
+        Top = 34
         Width = 100
         Anchors = [akTop, akRight]
         Caption = 'Restore File'
@@ -700,10 +700,28 @@ object MainForm: TMainForm
         TabOrder = 5
         Visible = False
       end
+      object Label8: TLabel
+        Left = 6
+        Height = 15
+        Top = 14
+        Width = 265
+        Caption = 'All this operations on selected database on the left'
+        ParentColor = False
+      end
+      object RestoreByDateBtn: TButton
+        Left = 251
+        Height = 25
+        Top = 128
+        Width = 100
+        Anchors = [akTop, akRight]
+        Caption = 'Restore Date'
+        OnClick = RestoreByDateBtnClick
+        TabOrder = 6
+      end
     end
     object TabSheet2: TTabSheet
       Caption = 'Restore File'
-      ClientHeight = 145
+      ClientHeight = 169
       ClientWidth = 361
       object BackupFileNameEdit: TEdit
         Left = 6
@@ -717,18 +735,18 @@ object MainForm: TMainForm
         Left = 6
         Height = 15
         Top = 14
-        Width = 144
-        Caption = 'Restore this file to database'
+        Width = 169
+        Caption = 'Restore this file to new database'
         ParentColor = False
       end
-      object RestoreBtn2: TButton
+      object RestoreNewFromFileBtn: TButton
         Left = 264
         Height = 25
         Top = 59
         Width = 91
         Anchors = [akTop, akRight]
         Caption = 'Restore'
-        OnClick = RestoreBtn2Click
+        OnClick = RestoreNewFromFileBtnClick
         TabOrder = 1
       end
       object RestoreBtn3: TButton
@@ -743,7 +761,7 @@ object MainForm: TMainForm
     end
     object ExportTab: TTabSheet
       Caption = 'Expert'
-      ClientHeight = 145
+      ClientHeight = 169
       ClientWidth = 361
       TabVisible = False
       object BackupBtn: TButton
@@ -773,15 +791,6 @@ object MainForm: TMainForm
         Caption = 'Clean all'
         OnClick = CleanBtnClick
         TabOrder = 2
-      end
-      object RestoreByDateBtn: TButton
-        Left = 3
-        Height = 25
-        Top = 60
-        Width = 110
-        Caption = 'Restore By Date'
-        OnClick = RestoreByDateBtnClick
-        TabOrder = 3
       end
     end
     object AdminSheet: TTabSheet
@@ -1114,8 +1123,8 @@ object MainForm: TMainForm
     end
   end
   object LogPopupMenu: TPopupMenu
-    Left = 223
-    Top = 372
+    Left = 154
+    Top = 392
     object MenuItem1: TMenuItem
       Caption = 'Clear'
       OnClick = MenuItem1Click
@@ -1125,5 +1134,12 @@ object MainForm: TMainForm
       Caption = 'Scroll'
       Checked = True
     end
+  end
+  object StatusTimer: TTimer
+    Enabled = False
+    Interval = 5000
+    OnTimer = StatusTimerTimer
+    Left = 287
+    Top = 421
   end
 end

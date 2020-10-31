@@ -27,7 +27,7 @@ type
     procedure Unprepare(const ConsoleThread: TmnConsoleThread); virtual;
   end;
 
-  TmnLogKind = (lgLog, lgStatus, lgMessage);
+  TmnLogKind = (lgLog, lgStatus, lgDone, lgMessage);
 
   TmnOnLog = procedure(S: String; Kind: TmnLogKind) of object;
 

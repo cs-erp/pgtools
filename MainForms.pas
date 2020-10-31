@@ -15,7 +15,7 @@ unit MainForms;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls, StrUtils,
   ComCtrls, Menus, IniFiles, Contnrs, SynEdit, mncPostgre, MsgBox, GUIMsgBox,
   ConsoleProcess, FileUtil, mnUtils, LazFileUtils;
 
@@ -28,6 +28,7 @@ type
     BackupBtn1: TButton;
     BackupBtn2: TButton;
     CopyBtn: TButton;
+    Label8: TLabel;
     RestoreByDateBtn: TButton;
     RestorFromFileBtn: TButton;
     StopBtn: TButton;
@@ -68,8 +69,8 @@ type
     PortEdit: TEdit;
     PublicSchemaChk: TCheckBox;
     RestoreBtn: TButton;
-    RestoreBtn1: TButton;
-    RestoreBtn2: TButton;
+    RestoreLastBtn: TButton;
+    RestoreNewFromFileBtn: TButton;
     RestoreBtn3: TButton;
     SavePasswordChk: TCheckBox;
     SelectPGFolderBtn: TButton;
@@ -80,6 +81,7 @@ type
     TabSheet3: TTabSheet;
     TabSheet5: TTabSheet;
     AdminSheet: TTabSheet;
+    StatusTimer: TTimer;
     UserNameEdit: TEdit;
     procedure BackupBtn1Click(Sender: TObject);
     procedure BackupBtn2Click(Sender: TObject);
@@ -97,8 +99,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure RenameBtnClick(Sender: TObject);
-    procedure RestoreBtn1Click(Sender: TObject);
-    procedure RestoreBtn2Click(Sender: TObject);
+    procedure RestoreLastBtnClick(Sender: TObject);
+    procedure RestoreNewFromFileBtnClick(Sender: TObject);
     procedure RestoreBtn3Click(Sender: TObject);
     procedure RestoreByDateBtnClick(Sender: TObject);
     procedure RestoreBtnClick(Sender: TObject);
@@ -106,6 +108,7 @@ type
     procedure RestorePointBtnClick(Sender: TObject);
     procedure SavePointBtnClick(Sender: TObject);
     procedure SelectPGFolderBtnClick(Sender: TObject);
+    procedure StatusTimerTimer(Sender: TObject);
     procedure StopBtnClick(Sender: TObject);
   private
     PoolThread: TObjectList;
@@ -180,7 +183,7 @@ begin
   finally
     ClosePG(False);
   end;
-  Log('Clean Done', lgStatus);
+  Log('Clean Done', lgDone);
   Databases.Clear;
 end;
 
@@ -578,7 +581,7 @@ begin
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
   o.Directory := GetDBDirectory(o.Database);
-  o.Overwrite := false;
+  o.Overwrite := Overwrite;
 
   cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + AFileName + '"';
   Launch('Restoring: ' + DB + ' file: ' + AFileName, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
@@ -659,20 +662,20 @@ begin
   end;
 end;
 
-procedure TMainForm.RestoreBtn1Click(Sender: TObject);
+procedure TMainForm.RestoreLastBtnClick(Sender: TObject);
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
     if not Msg.No('Are you sure you want to restore database?') then
       RestoreDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex]);
 end;
 
-procedure TMainForm.RestoreBtn2Click(Sender: TObject);
+procedure TMainForm.RestoreNewFromFileBtnClick(Sender: TObject);
 var
   DB: String;
 begin
   DB := ExtractFileNameWithoutExt(ExtractFileName(BackupFileNameEdit.Text));
   if Msg.Input(DB, 'Enter then name of new Database to restore') then
-    RestoreDatabaseFile(DB, BackupFileNameEdit.Text, ExportMode);
+    RestoreDatabaseFile(DB, BackupFileNameEdit.Text, False);
 end;
 
 procedure TMainForm.RestoreBtn3Click(Sender: TObject);
@@ -689,24 +692,40 @@ end;
 
 procedure TMainForm.RestoreByDateBtnClick(Sender: TObject);
 var
-  files: TStringList;
+  files, names: TStringList;
   i: Integer;
-  DB: string;
+  Dir, DB: string;
+  s, fname: string;
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
     files := TStringList.Create;
+    names := TStringList.Create;
     try
       DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
+      Dir := ExpandToPath(GetDBDirectory(DB), Application.Location);
       i := -1;
-      EnumFiles(files, GetDBDirectory(DB) + 'points', '*.backup');
-      if Msg.List(i, 'Select a point to restore', files) then
+      EnumFiles(files, Dir, DB + '.backup.*');
+      files.Sort;
+      for fname in files do
       begin
-        RestoreDatabase(DB, files[i]);
+        s := SubStr(fname, '.', 2);
+        if s = '' then
+          s := 'Last Backup'
+        else
+          //yyyymmddhhnnss
+          s := MidStr(s, 1, 4) + '-' + MidStr(s, 5, 2) + '-' + MidStr(s, 7, 2) + ' ' + MidStr(s, 9, 2) + ':' + MidStr(s, 11, 4) + ':' + MidStr(s, 13, 4);
+        names.Add(s);
+      end;
+
+      if Msg.List(i, 'Select a point to restore', names) then
+      begin
+        RestoreDatabaseFile(DB, Dir + files[i], True);
         files.CommaText
       end;
     finally
       files.Free;
+      names.Free;
     end;
   end;
 end;
@@ -744,7 +763,7 @@ begin
       end
       else
         if Msg.Input(DB, 'Enter then name of new Database to restore') then
-          RestoreDatabaseFile(DB, FileName, True);
+          RestoreDatabaseFile(DB, FileName, False);
     end;
     Free;
   end;
@@ -808,6 +827,12 @@ begin
     PGDirectoryEdit.Text := S;
 end;
 
+procedure TMainForm.StatusTimerTimer(Sender: TObject);
+begin
+  InfoPanel.Caption := '';
+  StatusTimer.Enabled := False;
+end;
+
 procedure TMainForm.StopBtnClick(Sender: TObject);
 begin
   FStop := True;
@@ -823,7 +848,17 @@ end;
 procedure TMainForm.Log(S: String; Kind: TmnLogKind);
 begin
   case Kind of
-    lgStatus: InfoPanel.Caption := S;
+    lgLog: ;
+    lgStatus:
+    begin
+      InfoPanel.Caption := S;
+    end;
+    lgDone:
+    begin
+      InfoPanel.Caption := S;
+      StatusTimer.Enabled := True;
+      LogEdit.Lines.Add('');
+    end;
     lgMessage: Msg.Show(S);
   end;
   LogEdit.Lines.Add(S);
@@ -836,7 +871,7 @@ begin
   if not FDestroying then
   begin
     if ConsoleThread.Status = 0 then
-      Log(ConsoleThread.Message + ' Done', lgStatus)
+      Log(ConsoleThread.Message + ' Done', lgDone)
     else
       Log('Error look the log', lgMessage);
     FreeAndNil(ConsoleThread);
@@ -885,33 +920,40 @@ var
   cmd: TmncPGCommand;
 begin
   Databases.Clear;
-  cmd := PGSession.CreateCommand as TmncPGCommand;
+  PGSession.Start;
   try
-    cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
-    cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
-    if CSProductsChk.Checked then
-      cmd.SQL.Add('and datname <> ''CreativeSolutions''');
-    if vOld then
-      cmd.SQL.Add('and ')
-    else
-      cmd.SQL.Add('and not ');
-    cmd.SQL.Add('(datname like ''%_old%''');
-    cmd.SQL.Add('or datname like ''%.old%''');
-    cmd.SQL.Add('or datname like ''%.temp%''');
-    cmd.SQL.Add('or datname like ''%_temp%'')');
-    cmd.SQL.Add('order by datname');
+    cmd := PGSession.CreateCommand as TmncPGCommand;
+    try
+      cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
+      cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
+      if CSProductsChk.Checked then
+        cmd.SQL.Add('and datname <> ''CreativeSolutions''');
+      if vOld then
+        cmd.SQL.Add('and ')
+      else
+        cmd.SQL.Add('and not ');
+      cmd.SQL.Add('(datname like ''%_old%''');
+      cmd.SQL.Add('or datname like ''%.old%''');
+      cmd.SQL.Add('or datname like ''%.temp%''');
+      cmd.SQL.Add('or datname like ''%_temp%'')');
+      cmd.SQL.Add('order by datname');
 
-    if cmd.Execute then
-    begin
-      while not cmd.Done do
+      if cmd.Execute then
       begin
-        Databases.Add(cmd.Field['name'].AsString);
-        //Log(cmd.Field['name'].AsString);
-        cmd.Next;
+        while not cmd.Done do
+        begin
+          Databases.Add(cmd.Field['name'].AsString);
+          //Log(cmd.Field['name'].AsString);
+          cmd.Next;
+        end;
       end;
+    finally
+      cmd.Free;
     end;
-  finally
-    cmd.Free;
+    PGSession.Commit;
+  except
+    PGSession.Rollback;
+    raise;
   end;
 end;
 
@@ -1025,6 +1067,7 @@ begin
     AdminSheet.TabVisible := True;
     AdminPanel.Visible := True;
     RestorFromFileBtn.Visible := True;
+    RestoreByDateBtn.Visible := True;
   end;
   DBDirectoryChk.Checked := ini.ReadBool('options', 'DBDirectory', False);
   PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
