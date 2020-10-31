@@ -2,10 +2,10 @@ object MainForm: TMainForm
   Left = 269
   Height = 578
   Top = 165
-  Width = 618
+  Width = 589
   Caption = 'Creative Solutions PG backup tool'
   ClientHeight = 578
-  ClientWidth = 618
+  ClientWidth = 589
   Constraints.MinWidth = 500
   OnCreate = FormCreate
   ShowHint = True
@@ -14,7 +14,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 158
     Top = 380
-    Width = 618
+    Width = 589
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 60
     Font.Height = -13
@@ -582,7 +582,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 30
     Top = 548
-    Width = 618
+    Width = 589
     Align = alBottom
     Alignment = taLeftJustify
     BevelInner = bvLowered
@@ -624,7 +624,7 @@ object MainForm: TMainForm
     Left = 192
     Height = 197
     Top = 179
-    Width = 421
+    Width = 392
     ActivePage = TabSheet1
     Anchors = [akTop, akLeft, akRight]
     TabIndex = 0
@@ -632,7 +632,7 @@ object MainForm: TMainForm
     object TabSheet1: TTabSheet
       Caption = 'Database'
       ClientHeight = 169
-      ClientWidth = 413
+      ClientWidth = 384
       object BackupBtn1: TButton
         Left = 6
         Height = 25
@@ -643,7 +643,7 @@ object MainForm: TMainForm
         TabOrder = 0
       end
       object RestoreLastBtn: TButton
-        Left = 303
+        Left = 274
         Height = 25
         Top = 76
         Width = 100
@@ -680,7 +680,7 @@ object MainForm: TMainForm
         TabOrder = 3
       end
       object RestorePointBtn: TButton
-        Left = 303
+        Left = 274
         Height = 25
         Top = 102
         Width = 100
@@ -690,7 +690,7 @@ object MainForm: TMainForm
         TabOrder = 4
       end
       object RestorFromFileBtn: TButton
-        Left = 303
+        Left = 274
         Height = 25
         Top = 34
         Width = 100
@@ -709,7 +709,7 @@ object MainForm: TMainForm
         ParentColor = False
       end
       object RestoreByDateBtn: TButton
-        Left = 303
+        Left = 274
         Height = 25
         Top = 128
         Width = 100
@@ -921,15 +921,15 @@ object MainForm: TMainForm
     Left = 6
     Height = 115
     Top = 34
-    Width = 609
-    ActivePage = TabSheet3
+    Width = 580
+    ActivePage = TabSheet5
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 8
     object TabSheet3: TTabSheet
       Caption = 'Postgre'
       ClientHeight = 87
-      ClientWidth = 601
+      ClientWidth = 572
       object UserNameEdit: TEdit
         Left = 72
         Height = 23
@@ -968,7 +968,7 @@ object MainForm: TMainForm
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
         Top = 35
-        Width = 320
+        Width = 291
         Anchors = [akTop, akLeft, akRight]
         Caption = 'Save password (saved uncrypted)'
         TabOrder = 2
@@ -1000,7 +1000,7 @@ object MainForm: TMainForm
         Left = 91
         Height = 23
         Top = 62
-        Width = 320
+        Width = 478
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 4
         Text = './'
@@ -1009,7 +1009,7 @@ object MainForm: TMainForm
     object TabSheet5: TTabSheet
       Caption = 'Options'
       ClientHeight = 87
-      ClientWidth = 601
+      ClientWidth = 572
       object CSProductsChk: TCheckBox
         Left = 8
         Height = 19
@@ -1042,12 +1042,12 @@ object MainForm: TMainForm
         Height = 23
         Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
         Top = 61
-        Width = 445
+        Width = 416
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 2
       end
       object SelectPGFolderBtn: TButton
-        Left = 535
+        Left = 506
         Height = 25
         Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
         Top = 60
@@ -1063,7 +1063,7 @@ object MainForm: TMainForm
     Left = 285
     Height = 25
     Top = 151
-    Width = 328
+    Width = 299
     Anchors = [akTop, akLeft, akRight]
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 3
@@ -1071,7 +1071,7 @@ object MainForm: TMainForm
     ChildSizing.Layout = cclTopToBottomThenLeftToRight
     ChildSizing.ControlsPerLine = 1
     ClientHeight = 25
-    ClientWidth = 328
+    ClientWidth = 299
     TabOrder = 9
     Visible = False
     object DropBtn: TButton
@@ -1102,7 +1102,7 @@ object MainForm: TMainForm
       TabOrder = 2
     end
     object StopBtn: TButton
-      Left = 275
+      Left = 246
       Height = 25
       Top = 0
       Width = 54

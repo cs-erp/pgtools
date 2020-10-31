@@ -6,10 +6,12 @@ Portable backup tools with one click, to exports backup all databases you added 
 
 - Portable application, put it in your flash disk
 - Backup and restore database with one click
-- Save point, backup your database to special file to restore it in future
+- Restore database the last one, or select it by date
+- Save point, backup your database to special name to restore it in future
 - Rename password of pg user [expertmode]
 - Backup all databases at one click, or restore it all [expertmode]
 - Rename, Copy, Drop databases
+- Clean all, it is special for Creative Solution, it is drop all databases with extension .old or .temp
 
 You need to have PostgreSQL installed to you computer and added the directory of PG "bin" to the PATH in enviroments, or select the bin folder of PG in folders options.
 
@@ -22,4 +24,6 @@ If you do not want it portable application, disable it by add option in pgtools.
 ## Compile
 
 Use FPC 3.3 snapshot from date 2020-10
+
 Lazarus from SVN, version 2.1 or later
+

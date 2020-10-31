@@ -930,40 +930,33 @@ var
   cmd: TmncPGCommand;
 begin
   Databases.Clear;
-  PGSession.Start;
+  cmd := PGSession.CreateCommand as TmncPGCommand;
   try
-    cmd := PGSession.CreateCommand as TmncPGCommand;
-    try
-      cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
-      cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
-      if CSProductsChk.Checked then
-        cmd.SQL.Add('and datname <> ''CreativeSolutions''');
-      if vOld then
-        cmd.SQL.Add('and ')
-      else
-        cmd.SQL.Add('and not ');
-      cmd.SQL.Add('(datname like ''%_old%''');
-      cmd.SQL.Add('or datname like ''%.old%''');
-      cmd.SQL.Add('or datname like ''%.temp%''');
-      cmd.SQL.Add('or datname like ''%_temp%'')');
-      cmd.SQL.Add('order by datname');
+    cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
+    cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
+    if CSProductsChk.Checked then
+      cmd.SQL.Add('and datname <> ''CreativeSolutions''');
+    if vOld then
+      cmd.SQL.Add('and ')
+    else
+      cmd.SQL.Add('and not ');
+    cmd.SQL.Add('(datname like ''%_old%''');
+    cmd.SQL.Add('or datname like ''%.old%''');
+    cmd.SQL.Add('or datname like ''%.temp%''');
+    cmd.SQL.Add('or datname like ''%_temp%'')');
+    cmd.SQL.Add('order by datname');
 
-      if cmd.Execute then
+    if cmd.Execute then
+    begin
+      while not cmd.Done do
       begin
-        while not cmd.Done do
-        begin
-          Databases.Add(cmd.Field['name'].AsString);
-          //Log(cmd.Field['name'].AsString);
-          cmd.Next;
-        end;
+        Databases.Add(cmd.Field['name'].AsString);
+        //Log(cmd.Field['name'].AsString);
+        cmd.Next;
       end;
-    finally
-      cmd.Free;
     end;
-    PGSession.Commit;
-  except
-    PGSession.Rollback;
-    raise;
+  finally
+    cmd.Free;
   end;
 end;
 
