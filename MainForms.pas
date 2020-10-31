@@ -32,7 +32,6 @@ type
     RestoreByDateBtn: TButton;
     RestorFromFileBtn: TButton;
     StopBtn: TButton;
-    DBDirectoryChk: TCheckBox;
     DirectoryEdit: TEdit;
     ScrollMnu: TMenuItem;
     PGBinFolderLbl: TLabel;
@@ -129,8 +128,9 @@ type
     IniPath: String;
     Portable: Boolean;
     procedure BringInfo;
-    function GetDBDirectory(DB: string): string;
-    function GetCurrentDirectory: String;
+    function GetBackupDBDirectory(DB: string): string;
+    function GetBackupDirectory: String;
+    function GetPGDirectory: String;
     procedure EnumDatabases(vOld: Boolean);
     procedure DropDatabase(ADatabase: String);
     procedure RenameDatabase(ADatabase, AToName: String);
@@ -140,7 +140,9 @@ type
     procedure Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject = nil);
     procedure Resume;
     procedure LoadIni;
+    procedure DetectPGDirectory;
   public
+    InternalPGDirectory: String;//detected when load
     ExportMode: Boolean;
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -556,7 +558,7 @@ begin
   o.Port := GetPort;
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
-  o.Directory := GetDBDirectory(o.Database);
+  o.Directory := GetBackupDBDirectory(o.Database);
   o.Overwrite := true;
 
   if APointName <> '' then
@@ -580,7 +582,7 @@ begin
   o.Port := GetPort;
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
-  o.Directory := GetDBDirectory(o.Database);
+  o.Directory := GetBackupDBDirectory(o.Database);
   o.Overwrite := Overwrite;
 
   cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + AFileName + '"';
@@ -600,7 +602,7 @@ begin
   o.Port := GetPort;
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
-  o.Directory := GetDBDirectory(o.Database);
+  o.Directory := GetBackupDBDirectory(o.Database);
   o.SaveInfo := APointName = '';
   if APointName <> '' then
     o.Directory := IncludeTrailingPathDelimiter(o.Directory + 'points');
@@ -703,7 +705,7 @@ begin
     names := TStringList.Create;
     try
       DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
-      Dir := ExpandToPath(GetDBDirectory(DB), Application.Location);
+      Dir := ExpandToPath(GetBackupDBDirectory(DB), Application.Location);
       i := -1;
       EnumFiles(files, Dir, DB + '.backup.*');
       files.Sort;
@@ -796,7 +798,7 @@ begin
     try
       DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
       i := -1;
-      EnumFiles(files, GetDBDirectory(DB) + 'points', '*.backup', false);
+      EnumFiles(files, GetBackupDBDirectory(DB) + 'points', '*.backup', false);
       if Msg.List(i, 'Select a point to restore', files) then
       begin
         RestoreDatabase(DB, files[i]);
@@ -890,7 +892,7 @@ begin
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
       db := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
-      ini := TIniFile.Create(GetDBDirectory(db) + db+ '.ini');
+      ini := TIniFile.Create(GetBackupDBDirectory(db) + db+ '.ini');
       try
          BackupDeviceIDLbl.Caption := ini.ReadString('info', 'id', '');
       finally
@@ -901,18 +903,26 @@ begin
     BackupDeviceIDLbl.Caption := '';
 end;
 
-function TMainForm.GetDBDirectory(DB: string): string;
+function TMainForm.GetBackupDBDirectory(DB: string): string;
 begin
-  Result := IncludeTrailingPathDelimiter(DirectoryEdit.Text);
-  if DBDirectoryChk.Checked then
-    Result := IncludeTrailingPathDelimiter(Result + DB);
+  Result := GetBackupDirectory;
+  Result := IncludeTrailingPathDelimiter(Result + DB);
 end;
 
-function TMainForm.GetCurrentDirectory: String;
+function TMainForm.GetBackupDirectory: String;
 begin
-  Result := IncludeTrailingPathDelimiter(PGDirectoryEdit.Text);
-  if Result = '' then
+  if DirectoryEdit.Text <> '' then
+    Result := ExpandToPath(IncludeTrailingPathDelimiter(DirectoryEdit.Text), Application.Location)
+  else
     Result := Application.Location;
+end;
+
+function TMainForm.GetPGDirectory: String;
+begin
+  if PGDirectoryEdit.Text <> '' then
+    Result := IncludeTrailingPathDelimiter(PGDirectoryEdit.Text)
+  else
+    Result := InternalPGDirectory;
 end;
 
 procedure TMainForm.EnumDatabases(vOld: Boolean);
@@ -1015,7 +1025,7 @@ var
 begin
   if PGDirectoryEdit.Text <> '' then
     vExecutable := IncludeTrailingPathDelimiter(PGDirectoryEdit.Text) + vExecutable;
-  aConsoleThread := TmnConsoleThread.Create(vExecutable, GetCurrentDirectory, vParameters, @Log);
+  aConsoleThread := TmnConsoleThread.Create(vExecutable, GetBackupDirectory, vParameters, @Log);
   aConsoleThread.OnTerminate := @ConsoleTerminated;
   aConsoleThread.Password := vPassword;
   aConsoleThread.Message := vMessage;
@@ -1069,8 +1079,25 @@ begin
     RestorFromFileBtn.Visible := True;
     RestoreByDateBtn.Visible := True;
   end;
-  DBDirectoryChk.Checked := ini.ReadBool('options', 'DBDirectory', False);
   PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
+end;
+
+procedure TMainForm.DetectPGDirectory;
+  function Check(f: string): Boolean;
+  begin
+    Result := FileExists(f);
+    if Result then
+      InternalPGDirectory := ExtractFilePath(f);
+  end;
+begin
+  if not Check(Application.Location + 'libpq.dll') then
+  {$ifdef win32}
+    Check(Application.Location + 'bin32\libpq.dll');
+  {$else}
+    {$ifdef win64}
+      Check(Application.Location + 'bin64\libpq.dll')
+    {$endif}
+  {$endif}
 end;
 
 constructor TMainForm.Create(TheOwner: TComponent);
@@ -1080,6 +1107,7 @@ var
   s: String;
 begin
   inherited;
+  DetectPGDirectory;
   Log('This Device: ' + GetLocalName);
   PoolThread := TObjectList.Create;
   ini := TIniFile.Create(Application.Location + 'pgtools.ini');
@@ -1105,6 +1133,8 @@ begin
     BackupDatabasesList.ItemIndex := 0;
   Databases := TStringList.Create;
   BringInfo;
+  if GetPGDirectory <> '' then
+    SetCurrentDir(GetPGDirectory);
 end;
 
 destructor TMainForm.Destroy;
@@ -1135,7 +1165,6 @@ begin
   ini.WriteString('options', 'directory', DirectoryEdit.Text);
   ini.WriteBool('options', 'expert', ExportTab.TabVisible);
   ini.WriteBool('options', 'portable', Portable);
-  ini.WriteBool('options', 'DBDirectory', DBDirectoryChk.Checked);
   ini.WriteBool('options', 'PublicSchema', PublicSchemaChk.Checked);
   ini.EraseSection('data');
   for i := 0 to BackupDatabasesList.Items.Count - 1 do
