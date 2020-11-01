@@ -919,8 +919,8 @@ object MainForm: TMainForm
   end
   object OptionsPageControl: TPageControl
     Left = 6
-    Height = 115
-    Top = 34
+    Height = 112
+    Top = 37
     Width = 580
     ActivePage = TabSheet5
     Anchors = [akTop, akLeft, akRight]
@@ -928,7 +928,7 @@ object MainForm: TMainForm
     TabOrder = 8
     object TabSheet3: TTabSheet
       Caption = 'Postgre'
-      ClientHeight = 87
+      ClientHeight = 84
       ClientWidth = 572
       object UserNameEdit: TEdit
         Left = 72
@@ -941,7 +941,7 @@ object MainForm: TMainForm
       object PasswordEdit: TEdit
         Left = 72
         Height = 23
-        Top = 34
+        Top = 33
         Width = 90
         EchoMode = emPassword
         PasswordChar = '*'
@@ -958,7 +958,7 @@ object MainForm: TMainForm
       object Label2: TLabel
         Left = 7
         Height = 15
-        Top = 37
+        Top = 36
         Width = 50
         Caption = 'Password'
         ParentColor = False
@@ -991,7 +991,7 @@ object MainForm: TMainForm
       object BackFolderLbl: TLabel
         Left = 7
         Height = 15
-        Top = 64
+        Top = 63
         Width = 75
         Caption = 'Backup Folder'
         ParentColor = False
@@ -999,7 +999,7 @@ object MainForm: TMainForm
       object DirectoryEdit: TEdit
         Left = 91
         Height = 23
-        Top = 62
+        Top = 59
         Width = 478
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 4
@@ -1008,7 +1008,7 @@ object MainForm: TMainForm
     end
     object TabSheet5: TTabSheet
       Caption = 'Options'
-      ClientHeight = 87
+      ClientHeight = 84
       ClientWidth = 572
       object CSProductsChk: TCheckBox
         Left = 8
@@ -1027,35 +1027,6 @@ object MainForm: TMainForm
         Width = 124
         Caption = 'Public Schema only'
         TabOrder = 1
-      end
-      object PGBinFolderLbl: TLabel
-        Left = 7
-        Height = 15
-        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
-        Top = 65
-        Width = 71
-        Caption = 'PG bin Folder'
-        ParentColor = False
-      end
-      object PGDirectoryEdit: TEdit
-        Left = 83
-        Height = 23
-        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
-        Top = 61
-        Width = 416
-        Anchors = [akTop, akLeft, akRight]
-        TabOrder = 2
-      end
-      object SelectPGFolderBtn: TButton
-        Left = 506
-        Height = 25
-        Hint = 'If it not in PATH env, Select "bin" postgre directory, it will be saved.'
-        Top = 60
-        Width = 62
-        Anchors = [akTop, akRight]
-        Caption = 'PG Folder'
-        OnClick = SelectPGFolderBtnClick
-        TabOrder = 3
       end
     end
   end

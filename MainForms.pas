@@ -34,8 +34,6 @@ type
     StopBtn: TButton;
     DirectoryEdit: TEdit;
     ScrollMnu: TMenuItem;
-    PGBinFolderLbl: TLabel;
-    PGDirectoryEdit: TEdit;
     RestorePointBtn: TButton;
     SavePointBtn: TButton;
     CleanBtn: TButton;
@@ -72,7 +70,6 @@ type
     RestoreNewFromFileBtn: TButton;
     RestoreBtn3: TButton;
     SavePasswordChk: TCheckBox;
-    SelectPGFolderBtn: TButton;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     ExportTab: TTabSheet;
@@ -106,7 +103,6 @@ type
     procedure RestorFromFileBtnClick(Sender: TObject);
     procedure RestorePointBtnClick(Sender: TObject);
     procedure SavePointBtnClick(Sender: TObject);
-    procedure SelectPGFolderBtnClick(Sender: TObject);
     procedure StatusTimerTimer(Sender: TObject);
     procedure StopBtnClick(Sender: TObject);
   private
@@ -821,14 +817,6 @@ begin
   end;
 end;
 
-procedure TMainForm.SelectPGFolderBtnClick(Sender: TObject);
-var
-  S: String;
-begin
-  if SelectDirectory('Select where PG bin folder', PGDirectoryEdit.Text, S) then
-    PGDirectoryEdit.Text := S;
-end;
-
 procedure TMainForm.StatusTimerTimer(Sender: TObject);
 begin
   InfoPanel.Caption := '';
@@ -919,10 +907,7 @@ end;
 
 function TMainForm.GetPGDirectory: String;
 begin
-  if PGDirectoryEdit.Text <> '' then
-    Result := IncludeTrailingPathDelimiter(PGDirectoryEdit.Text)
-  else
-    Result := InternalPGDirectory;
+  Result := InternalPGDirectory;
 end;
 
 procedure TMainForm.EnumDatabases(vOld: Boolean);
@@ -1016,8 +1001,8 @@ procedure TMainForm.Launch(vMessage, vExecutable, vParameters, vPassword: String
 var
   aConsoleThread: TmnConsoleThread;
 begin
-  if PGDirectoryEdit.Text <> '' then
-    vExecutable := IncludeTrailingPathDelimiter(PGDirectoryEdit.Text) + vExecutable;
+  if GetPGDirectory <> '' then
+    vExecutable := IncludeTrailingPathDelimiter(GetPGDirectory) + vExecutable;
   aConsoleThread := TmnConsoleThread.Create(vExecutable, GetBackupDirectory, vParameters, @Log);
   aConsoleThread.OnTerminate := @ConsoleTerminated;
   aConsoleThread.Password := vPassword;
@@ -1053,7 +1038,6 @@ var
   ini: TIniFile;
 begin
   ini := TIniFile.Create(IniPath + 'pgtools.ini');
-  CSProductsChk.Checked := ini.ReadBool('options', 'CSProducts', True);
   UserNameEdit.Text := ini.ReadString('options', 'username', 'postgres');
   SavePasswordChk.Checked := ini.ReadBool('options', 'savepassword', False);
   if SavePasswordChk.Checked then
@@ -1062,7 +1046,6 @@ begin
     PasswordEdit.Text := '';
   PortEdit.Text := ini.ReadString('options', 'port', '');
   DirectoryEdit.Text := ini.ReadString('options', 'directory', './');
-  PGDirectoryEdit.Text := ini.ReadString('options', 'PGDirecotry', '');
   ExportMode := ini.ReadBool('options', 'expert', False);
   if ExportMode then
   begin
@@ -1148,12 +1131,10 @@ begin
   FreeAndNil(Databases);
 
   ini := TIniFile.Create(IniPath + 'pgtools.ini');
-  ini.WriteBool('options', 'CSProducts', CSProductsChk.Checked);
   ini.WriteString('options', 'username', UserNameEdit.Text);
   ini.WriteBool('options', 'savepassword', SavePasswordChk.Checked);
   if SavePasswordChk.Checked then
     ini.WriteString('options', 'password', PasswordEdit.Text);
-  ini.WriteString('options', 'PGDirecotry', PGDirectoryEdit.Text);
   ini.WriteString('options', 'port', PortEdit.Text);
   ini.WriteString('options', 'directory', DirectoryEdit.Text);
   ini.WriteBool('options', 'expert', ExportTab.TabVisible);
