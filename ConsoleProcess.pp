@@ -46,6 +46,7 @@ type
     procedure DoOnLog; virtual; //To Sync
   public
     Status: Integer;
+    IgnoreError: Boolean;
     Message: string;
     constructor Create(vExecutable, vCurrentDirectory, vParameters: string; vOnLog: TmnOnLog = nil);
     destructor Destroy; override;
@@ -228,7 +229,7 @@ begin
       ReadStream;
       Status := FProcess.ExitStatus;
       FreeAndNil(FProcess);
-      if (Status = 0) and (FExecuteObject <> nil) then
+      if (IgnoreError or (Status = 0)) and (FExecuteObject <> nil) then
         FExecuteObject.Execute(Self);
     except
       on E: Exception do

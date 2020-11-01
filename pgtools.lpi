@@ -21,15 +21,16 @@
     </General>
     <i18n>
       <EnableI18N Value="True"/>
+      <OutDir Value="languages"/>
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <MinorVersionNr Value="7"/>
+      <MinorVersionNr Value="8"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="97"/>
-      <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools"/>
+      <BuildNr Value="98"/>
+      <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools" ProductName="PGTools"/>
     </VersionInfo>
     <BuildModes Count="2">
       <Item1 Name="Release32" Default="True"/>

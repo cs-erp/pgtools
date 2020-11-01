@@ -16,7 +16,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls, StrUtils,
-  ComCtrls, Menus, IniFiles, Contnrs, SynEdit, mncPostgre, MsgBox, GUIMsgBox,
+  ComCtrls, Menus, IniFiles, Contnrs, SynEdit, LCLTranslator,
+  mncPostgre, MsgBox, GUIMsgBox, process,
   ConsoleProcess, FileUtil, mnUtils, LazFileUtils;
 
 type
@@ -29,8 +30,11 @@ type
     BackupBtn2: TButton;
     CopyBtn: TButton;
     Label8: TLabel;
+    RestoreFileOverwriteChk: TCheckBox;
     RestoreByDateBtn: TButton;
+    RestoreFileIgnoreErrorChk: TCheckBox;
     RestorFromFileBtn: TButton;
+    OpenFolderBtn: TButton;
     StopBtn: TButton;
     DirectoryEdit: TEdit;
     ScrollMnu: TMenuItem;
@@ -94,6 +98,7 @@ type
     procedure CleanBtnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
+    procedure OpenFolderBtnClick(Sender: TObject);
     procedure RenameBtnClick(Sender: TObject);
     procedure RestoreLastBtnClick(Sender: TObject);
     procedure RestoreNewFromFileBtnClick(Sender: TObject);
@@ -111,7 +116,7 @@ type
     function GetPort: String;
     procedure BackupDatabase(DB: String; APointName: string = '');
     procedure RestoreDatabase(DB: String; APointName: String = '');
-    procedure RestoreDatabaseFile(DB: String; AFileName: String = ''; Overwrite: Boolean = True);
+    procedure RestoreDatabaseFile(DB: String; AFileName: String = ''; Overwrite: Boolean = True; IgnoreError: Boolean = False);
     procedure Log(S: String; Kind: TmnLogKind = lgLog);
     procedure ConsoleTerminated(Sender: TObject);
   protected
@@ -124,6 +129,7 @@ type
     IniPath: String;
     Portable: Boolean;
     procedure BringInfo;
+    function GetBackupDBDirectory: string;
     function GetBackupDBDirectory(DB: string): string;
     function GetBackupDirectory: String;
     function GetPGDirectory: String;
@@ -133,7 +139,7 @@ type
     procedure CopyDatabase(ADatabase, AToName: String);
     procedure OpenPG(vDatabase: String = 'postgres'; StartSession: Boolean = True);
     procedure ClosePG(StopSession: Boolean = True);
-    procedure Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject = nil);
+    procedure Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject = nil; IgnoreError: Boolean = False);
     procedure Resume;
     procedure LoadIni;
     procedure DetectPGDirectory;
@@ -152,6 +158,9 @@ function GetLocalName: string;
 implementation
 
 {$R *.lfm}
+
+resourcestring
+  sCleanDone = 'Clean Done';
 
 function GetLocalName: string;
 begin
@@ -181,7 +190,7 @@ begin
   finally
     ClosePG(False);
   end;
-  Log('Clean Done', lgDone);
+  Log(sCleanDone, lgDone);
   Databases.Clear;
 end;
 
@@ -351,9 +360,9 @@ type
     Database: String;
     Directory: String;
     Overwrite: Boolean;
+    IgnoreError: Boolean;
     Suffix: String;
     CSProducts: Boolean;
-    SaveInfo: Boolean;
     procedure OpenPG(vDatabase: String = 'postgres');
     procedure ClosePG;
     constructor Create;
@@ -363,6 +372,7 @@ type
 
   TBackupExecuteObject = class(TPGExecuteObject)
   public
+    FileName: String;
     procedure Prepare(const ConsoleThread: TmnConsoleThread); override;
     procedure Execute(const ConsoleThread: TmnConsoleThread); override;
   end;
@@ -380,12 +390,11 @@ type
 procedure TBackupExecuteObject.Prepare(const ConsoleThread: TmnConsoleThread);
 var
   cmd: TmncPGCommand;
-  filename: String;
 begin
-  filename := Directory + Database + '.backup';
-  filename := ExpandToPath(filename, Application.Location);
-  if FileExists(filename) then
-    RenameFile(filename, filename + '.' + Suffix);
+{  FileName := Directory + Database + '.backup.' + Suffix;
+  FileName := ExpandToPath(FileName, Application.Location);}
+  {if FileExists(FileName) then
+    RenameFile(FileName, FileName + '.' + Suffix);}
   if CSProducts then
   begin
     OpenPG(Database);
@@ -427,14 +436,13 @@ begin
       ClosePG;
     end;
   end;
-  if SaveInfo then
-  begin
-    ini := TIniFile.Create(Directory + Database + '.ini');
-    try
-      ini.WriteString('info', 'id', GetLocalName);
-    finally
-      ini.Free;
-    end;
+
+  ini := TIniFile.Create(Directory + Database + '.ini');
+  try
+    ini.WriteString('info', 'id', GetLocalName);
+    ini.WriteString('info', 'last', ExtractFileName(FileName));
+  finally
+    ini.Free;
   end;
 end;
 
@@ -546,6 +554,7 @@ procedure TMainForm.RestoreDatabase(DB: String; APointName: String);
 var
   o: TRestoreExecuteObject;
   cmd: String;
+  ini: TIniFile;
   filename: string;
 begin
   o := TRestoreExecuteObject.Create;
@@ -562,12 +571,25 @@ begin
   if APointName <> '' then
     filename := o.Directory + APointName +'.backup'
   else
-    filename := o.Directory + DB + '.backup';
-  cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + filename + '"';
+  begin
+    ini := TIniFile.Create(GetBackupDBDirectory(DB) + DB + '.ini');
+    try
+       filename := ini.ReadString('info', 'last', '');
+    finally
+      ini.Free;
+    end;
+    if filename = '' then
+    begin
+      Msg.Error('There is no last file to restore');
+      exit;
+    end;
+    filename := o.Directory + filename;
+  end;
+  cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + DB + '_temp_' + o.Suffix + '" --password --verbose "' + filename + '"';
   Launch('Restoring: ' + DB + ' file: ' + filename, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
 end;
 
-procedure TMainForm.RestoreDatabaseFile(DB: String; AFileName: String; Overwrite: Boolean);
+procedure TMainForm.RestoreDatabaseFile(DB: String; AFileName: String; Overwrite: Boolean; IgnoreError: Boolean);
 var
   o: TRestoreExecuteObject;
   cmd: String;
@@ -580,14 +602,15 @@ begin
   o.Database := DB;
   o.Directory := GetBackupDBDirectory(o.Database);
   o.Overwrite := Overwrite;
+  o.IgnoreError := IgnoreError;
 
-  cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + DB + '"_temp_' + o.Suffix + ' --password --verbose "' + AFileName + '"';
-  Launch('Restoring: ' + DB + ' file: ' + AFileName, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
+  cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + DB + '_temp_' + o.Suffix + '" --password --verbose "' + AFileName + '"';
+  Launch('Restoring: ' + DB + ' file: ' + AFileName, 'pg_restore.exe', cmd, PasswordEdit.Text, o, IgnoreError);
 end;
 
 procedure TMainForm.BackupDatabase(DB: String; APointName: string);
 var
-  filename, cmd: String;
+  cmd: String;
   o: TBackupExecuteObject;
 begin
   //o.Overwrite := Overwrite;
@@ -599,15 +622,14 @@ begin
   o.CSProducts := CSProductsChk.Checked;
   o.Database := DB;
   o.Directory := GetBackupDBDirectory(o.Database);
-  o.SaveInfo := APointName = '';
   if APointName <> '' then
     o.Directory := IncludeTrailingPathDelimiter(o.Directory + 'points');
   if APointName <> '' then
-    filename := o.Directory + APointName +'.backup'
+    o.FileName := o.Directory + APointName + '.backup'
   else
-    filename := o.Directory + DB + '.backup';
-  filename := ExpandToPath(filename, Application.Location);
-  ForceDirectories(ExtractFilePath(filename));
+    o.FileName := o.Directory + DB + '.' + o.Suffix + '.backup';
+  o.FileName := ExpandToPath(o.FileName, Application.Location);
+  ForceDirectories(ExtractFilePath(o.FileName));
   cmd := '';
   cmd := cmd + ' -v --host localhost --port ' + GetPort + ' --password --username "' + o.UserName + '"';
   if PublicSchemaChk.Checked then
@@ -616,10 +638,10 @@ begin
     cmd := cmd + ' --blobs';
   if CSProductsChk.Checked then
     cmd := cmd + ' -T "*.\"AppFiles\""';
-  cmd := cmd + ' --format custom --compress=9 --file "' + filename + '" "' + DB + '"';
+  cmd := cmd + ' --format custom --compress=9 --file "' + o.FileName + '" "' + DB + '"';
 
   //cmd := cmd + ' --format tar --blobs --file "' + filename + '" "' + DB + '"';
-  Launch('Backuping: ' + DB + ' file: ' + filename, 'pg_dump.exe', cmd, PasswordEdit.Text, o);
+  Launch('Backuping: ' + DB + ' file: ' + o.FileName, 'pg_dump.exe', cmd, PasswordEdit.Text, o);
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
@@ -630,6 +652,13 @@ end;
 procedure TMainForm.MenuItem1Click(Sender: TObject);
 begin
   LogEdit.Clear;
+end;
+
+procedure TMainForm.OpenFolderBtnClick(Sender: TObject);
+var
+  s: string;
+begin
+  RunCommand('Explorer', ['/root,"' + GetBackupDBDirectory + '"'], s);
 end;
 
 procedure TMainForm.RenameBtnClick(Sender: TObject);
@@ -661,10 +690,15 @@ begin
 end;
 
 procedure TMainForm.RestoreLastBtnClick(Sender: TObject);
+var
+  db: string;
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
+  begin
+    db := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
     if not Msg.No('Are you sure you want to restore database?') then
-      RestoreDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex]);
+      RestoreDatabase(db);
+   end;
 end;
 
 procedure TMainForm.RestoreNewFromFileBtnClick(Sender: TObject);
@@ -673,7 +707,7 @@ var
 begin
   DB := ExtractFileNameWithoutExt(ExtractFileName(BackupFileNameEdit.Text));
   if Msg.Input(DB, 'Enter then name of new Database to restore') then
-    RestoreDatabaseFile(DB, BackupFileNameEdit.Text, False);
+    RestoreDatabaseFile(DB, BackupFileNameEdit.Text, RestoreFileOverwriteChk.Checked, RestoreFileIgnoreErrorChk.Checked);
 end;
 
 procedure TMainForm.RestoreBtn3Click(Sender: TObject);
@@ -703,11 +737,11 @@ begin
       DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
       Dir := ExpandToPath(GetBackupDBDirectory(DB), Application.Location);
       i := -1;
-      EnumFiles(files, Dir, DB + '.backup.*');
+      EnumFiles(files, Dir, DB + '.*.backup');
       files.Sort;
       for fname in files do
       begin
-        s := SubStr(fname, '.', 2);
+        s := SubStr(fname, '.', 1);
         if s = '' then
           s := 'Last Backup'
         else
@@ -891,6 +925,14 @@ begin
     BackupDeviceIDLbl.Caption := '';
 end;
 
+function TMainForm.GetBackupDBDirectory: string;
+begin
+  if BackupDatabasesList.ItemIndex >=0 then
+    Result := GetBackupDBDirectory(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex])
+  else
+    Result := GetBackupDirectory;
+end;
+
 function TMainForm.GetBackupDBDirectory(DB: string): string;
 begin
   Result := GetBackupDirectory;
@@ -997,7 +1039,7 @@ begin
   end;
 end;
 
-procedure TMainForm.Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject);
+procedure TMainForm.Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject; IgnoreError: Boolean);
 var
   aConsoleThread: TmnConsoleThread;
 begin
@@ -1008,6 +1050,7 @@ begin
   aConsoleThread.Password := vPassword;
   aConsoleThread.Message := vMessage;
   aConsoleThread.ExecuteObject := vExecuteObject;
+  aConsoleThread.IgnoreError := IgnoreError;
   PoolThread.Add(aConsoleThread);
   Resume;
 end;
@@ -1056,6 +1099,7 @@ begin
     RestoreByDateBtn.Visible := True;
   end;
   PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
+  RestoreFileOverwriteChk.Checked := ini.ReadBool('options', 'RestoreFileOverwriteChk', False);
 end;
 
 procedure TMainForm.DetectPGDirectory;
@@ -1140,6 +1184,7 @@ begin
   ini.WriteBool('options', 'expert', ExportTab.TabVisible);
   ini.WriteBool('options', 'portable', Portable);
   ini.WriteBool('options', 'PublicSchema', PublicSchemaChk.Checked);
+  ini.WriteBool('options', 'RestoreFileOverwrite', RestoreFileOverwriteChk.Checked);
   ini.EraseSection('data');
   for i := 0 to BackupDatabasesList.Items.Count - 1 do
     ini.WriteString('data', 'data' + IntToStr(i), BackupDatabasesList.Items[i]);
