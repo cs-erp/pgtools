@@ -783,7 +783,9 @@ begin
     FileName := '*.backup';
     if Execute then
     begin
-      DB := ExtractFileNameWithoutExt(ExtractFileName(BackupFileNameEdit.Text));
+      DB := ExtractFileNameWithoutExt(ExtractFileName(FileName));
+      if Pos('.', DB) > 0 then
+        DB := ExtractFileNameWithoutExt(DB);
 
       if BackupDatabasesList.ItemIndex >= 0 then
       begin

@@ -625,9 +625,9 @@ object MainForm: TMainForm
     Height = 197
     Top = 179
     Width = 392
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Database'
