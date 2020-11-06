@@ -1,13 +1,14 @@
 object MainForm: TMainForm
-  Left = 269
+  Left = 673
   Height = 578
-  Top = 165
+  Top = 178
   Width = 589
   Caption = 'Creative Solutions PG backup tool'
   ClientHeight = 578
   ClientWidth = 589
   Constraints.MinWidth = 500
   OnCreate = FormCreate
+  Position = poDefaultPosOnly
   ShowHint = True
   LCLVersion = '2.1.0.0'
   inline LogEdit: TSynEdit
@@ -611,25 +612,25 @@ object MainForm: TMainForm
     Style = csDropDownList
     TabOrder = 0
   end
-  object GetBtn: TButton
+  object ListDatabasesBtn: TButton
     Left = 191
     Height = 24
     Top = 151
     Width = 80
     Caption = '&List'
-    OnClick = GetBtnClick
+    OnClick = ListDatabasesBtnClick
     TabOrder = 1
   end
-  object PGPageControl: TPageControl
+  object RestoreFilePageControl: TPageControl
     Left = 192
     Height = 197
     Top = 179
     Width = 392
-    ActivePage = TabSheet1
+    ActivePage = AdminTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 3
     TabOrder = 5
-    object TabSheet1: TTabSheet
+    object DatabaseTab: TTabSheet
       Caption = 'Database'
       ClientHeight = 169
       ClientWidth = 384
@@ -721,7 +722,6 @@ object MainForm: TMainForm
       object OpenFolderBtn: TButton
         Left = 6
         Height = 25
-        Hint = 'Backup to named file'
         Top = 128
         Width = 100
         Caption = 'Open Folder'
@@ -729,7 +729,7 @@ object MainForm: TMainForm
         TabOrder = 7
       end
     end
-    object TabSheet2: TTabSheet
+    object RestoreFileTab: TTabSheet
       Caption = 'Restore File'
       ClientHeight = 169
       ClientWidth = 384
@@ -741,7 +741,7 @@ object MainForm: TMainForm
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 0
       end
-      object Label6: TLabel
+      object RestoreFileToNewDatabaseLbl: TLabel
         Left = 6
         Height = 15
         Top = 14
@@ -759,13 +759,13 @@ object MainForm: TMainForm
         OnClick = RestoreNewFromFileBtnClick
         TabOrder = 1
       end
-      object RestoreBtn3: TButton
+      object BrowseBackupBtn: TButton
         Left = 6
         Height = 25
         Top = 60
         Width = 91
         Caption = 'Browse'
-        OnClick = RestoreBtn3Click
+        OnClick = BrowseBackupBtnClick
         TabOrder = 2
       end
       object RestoreFileOverwriteChk: TCheckBox
@@ -792,41 +792,42 @@ object MainForm: TMainForm
       ClientHeight = 169
       ClientWidth = 384
       TabVisible = False
-      object BackupBtn: TButton
+      object BackupAllBtn: TButton
         Left = 3
         Height = 25
         Top = 8
         Width = 110
         Caption = 'Backup a&ll'
-        OnClick = BackupBtnClick
+        OnClick = BackupAllBtnClick
         TabOrder = 0
       end
-      object RestoreBtn: TButton
+      object RestoreAllBtn: TButton
         Left = 3
         Height = 25
         Top = 34
         Width = 110
         Caption = 'Restore all'
-        OnClick = RestoreBtnClick
+        OnClick = RestoreAllBtnClick
         TabOrder = 1
       end
-      object CleanBtn: TButton
+      object DropAllTempsBtn: TButton
         Left = 3
         Height = 25
         Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
-        Top = 114
+        Top = 141
         Width = 110
+        Anchors = [akLeft, akBottom]
         Caption = 'Drop all temps'
-        OnClick = CleanBtnClick
+        OnClick = DropAllTempsBtnClick
         TabOrder = 2
       end
     end
-    object AdminSheet: TTabSheet
+    object AdminTab: TTabSheet
       Caption = 'Admin'
       ClientHeight = 169
       ClientWidth = 384
       TabVisible = False
-      object Label3: TLabel
+      object NewPasswordLbl: TLabel
         Left = 16
         Height = 15
         Top = 16
@@ -836,7 +837,7 @@ object MainForm: TMainForm
         ParentColor = False
       end
       object NewPasswordEdit: TEdit
-        Left = 104
+        Left = 142
         Height = 23
         Top = 13
         Width = 112
@@ -845,34 +846,33 @@ object MainForm: TMainForm
         PasswordChar = '*'
         TabOrder = 0
       end
-      object CleanBtn1: TButton
-        Left = 221
+      object ChangeBtn: TButton
+        Left = 259
         Height = 25
-        Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
         Top = 12
         Width = 81
         Caption = 'Change'
-        OnClick = CleanBtn1Click
+        OnClick = ChangeBtnClick
         TabOrder = 1
       end
     end
   end
-  object CleanBtn4: TButton
+  object AddDatabaseBtn: TButton
     Left = 6
     Height = 25
     Top = 176
     Width = 91
     Caption = '&Add'
-    OnClick = CleanBtn4Click
+    OnClick = AddDatabaseBtnClick
     TabOrder = 6
   end
-  object CleanBtn5: TButton
+  object RemoveDatabaseBtn: TButton
     Left = 96
     Height = 25
     Top = 176
     Width = 91
     Caption = 'Re&move'
-    OnClick = CleanBtn5Click
+    OnClick = RemoveDatabaseBtnClick
     TabOrder = 7
   end
   object Image1: TImage
@@ -937,37 +937,37 @@ object MainForm: TMainForm
       4D5E10C2D4043E8DFE0313DF6EFE8FA9DD8F0000000049454E44AE426082
     }
   end
-  object Label7: TLabel
+  object LogoTestLbl: TLabel
     Left = 49
     Height = 15
     Top = 11
     Width = 201
     Caption = 'Creative Solution tools www.cserp.org'
+    ParentBidiMode = False
     ParentColor = False
   end
-  object OptionsPageControl: TPageControl
-    Left = 6
+  object OptionsTab: TPageControl
+    Left = 5
     Height = 112
     Top = 37
     Width = 580
-    ActivePage = TabSheet5
+    ActivePage = ConnectionInfoTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 8
-    object TabSheet3: TTabSheet
-      Caption = 'Postgre'
+    object ConnectionInfoTab: TTabSheet
+      Caption = 'Database'
       ClientHeight = 84
       ClientWidth = 572
       object UserNameEdit: TEdit
-        Left = 72
+        Left = 91
         Height = 23
         Top = 7
         Width = 90
         TabOrder = 0
-        Text = 'postgres'
       end
       object PasswordEdit: TEdit
-        Left = 72
+        Left = 91
         Height = 23
         Top = 33
         Width = 90
@@ -975,7 +975,7 @@ object MainForm: TMainForm
         PasswordChar = '*'
         TabOrder = 1
       end
-      object Label1: TLabel
+      object DBUserNameLbl: TLabel
         Left = 7
         Height = 15
         Top = 10
@@ -983,7 +983,7 @@ object MainForm: TMainForm
         Caption = 'User name'
         ParentColor = False
       end
-      object Label2: TLabel
+      object DBPasswordLbl: TLabel
         Left = 7
         Height = 15
         Top = 36
@@ -992,7 +992,7 @@ object MainForm: TMainForm
         ParentColor = False
       end
       object SavePasswordChk: TCheckBox
-        Left = 168
+        Left = 187
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
         Top = 35
@@ -1002,14 +1002,14 @@ object MainForm: TMainForm
         TabOrder = 2
       end
       object PortEdit: TEdit
-        Left = 209
+        Left = 240
         Height = 23
         Top = 7
         Width = 89
         TabOrder = 3
       end
-      object Label5: TLabel
-        Left = 170
+      object DBPortLbl: TLabel
+        Left = 189
         Height = 15
         Top = 10
         Width = 22
@@ -1019,7 +1019,7 @@ object MainForm: TMainForm
       object BackFolderLbl: TLabel
         Left = 7
         Height = 15
-        Top = 63
+        Top = 61
         Width = 75
         Caption = 'Backup Folder'
         ParentColor = False
@@ -1031,10 +1031,9 @@ object MainForm: TMainForm
         Width = 478
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 4
-        Text = './'
       end
     end
-    object TabSheet5: TTabSheet
+    object SpecialOptionsTab: TTabSheet
       Caption = 'Options'
       ClientHeight = 84
       ClientWidth = 572
@@ -1111,12 +1110,30 @@ object MainForm: TMainForm
       TabOrder = 3
     end
   end
+  object LangListCbo: TComboBox
+    Left = 502
+    Height = 23
+    Top = 5
+    Width = 82
+    Anchors = [akTop, akRight]
+    ItemHeight = 15
+    ItemIndex = 0
+    Items.Strings = (
+      'English'
+      'Arabic'
+    )
+    OnChange = LangListCboChange
+    OnSelect = LangListCboSelect
+    Style = csDropDownList
+    TabOrder = 10
+    Text = 'English'
+  end
   object LogPopupMenu: TPopupMenu
     Left = 154
     Top = 392
-    object MenuItem1: TMenuItem
+    object ClearLogMnu: TMenuItem
       Caption = 'Clear'
-      OnClick = MenuItem1Click
+      OnClick = ClearLogMnuClick
     end
     object ScrollMnu: TMenuItem
       AutoCheck = True

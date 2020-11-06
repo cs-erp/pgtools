@@ -16,8 +16,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls, StrUtils,
-  ComCtrls, Menus, IniFiles, Contnrs, SynEdit, LCLTranslator,
-  mncPostgre, MsgBox, GUIMsgBox, process,
+  ComCtrls, Menus, IniFiles, Contnrs, SynEdit,
+  LCLTranslator,
+  mncPostgre, mnMsgBox, GUIMsgBox, process,
   ConsoleProcess, FileUtil, mnUtils, LazFileUtils;
 
 type
@@ -25,9 +26,10 @@ type
 
   TMainForm = class(TForm)
     BackFolderLbl: TLabel;
-    BackupBtn: TButton;
+    BackupAllBtn: TButton;
     BackupBtn1: TButton;
     BackupBtn2: TButton;
+    LangListCbo: TComboBox;
     CopyBtn: TButton;
     Label8: TLabel;
     RestoreFileOverwriteChk: TCheckBox;
@@ -40,71 +42,73 @@ type
     ScrollMnu: TMenuItem;
     RestorePointBtn: TButton;
     SavePointBtn: TButton;
-    CleanBtn: TButton;
-    CleanBtn1: TButton;
-    CleanBtn4: TButton;
-    CleanBtn5: TButton;
+    DropAllTempsBtn: TButton;
+    ChangeBtn: TButton;
+    AddDatabaseBtn: TButton;
+    RemoveDatabaseBtn: TButton;
     BackupFileNameEdit: TEdit;
     BackupDeviceIDLbl: TLabel;
     DropBtn: TButton;
     CSProductsChk: TCheckBox;
     RenameBtn: TButton;
-    Label3: TLabel;
+    NewPasswordLbl: TLabel;
     NewPasswordEdit: TEdit;
     AdminPanel: TPanel;
     Image1: TImage;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
-    Label7: TLabel;
-    MenuItem1: TMenuItem;
-    OptionsPageControl: TPageControl;
+    DBUserNameLbl: TLabel;
+    DBPasswordLbl: TLabel;
+    DBPortLbl: TLabel;
+    RestoreFileToNewDatabaseLbl: TLabel;
+    LogoTestLbl: TLabel;
+    ClearLogMnu: TMenuItem;
+    OptionsTab: TPageControl;
     PasswordEdit: TEdit;
-    PGPageControl: TPageControl;
+    RestoreFilePageControl: TPageControl;
     LogPopupMenu: TPopupMenu;
-    GetBtn: TButton;
+    ListDatabasesBtn: TButton;
     DatabasesCbo: TComboBox;
     InfoPanel: TPanel;
     BackupDatabasesList: TListBox;
     PortEdit: TEdit;
     PublicSchemaChk: TCheckBox;
-    RestoreBtn: TButton;
+    RestoreAllBtn: TButton;
     RestoreLastBtn: TButton;
     RestoreNewFromFileBtn: TButton;
-    RestoreBtn3: TButton;
+    BrowseBackupBtn: TButton;
     SavePasswordChk: TCheckBox;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
+    DatabaseTab: TTabSheet;
+    RestoreFileTab: TTabSheet;
     ExportTab: TTabSheet;
     LogEdit: TSynEdit;
-    TabSheet3: TTabSheet;
-    TabSheet5: TTabSheet;
-    AdminSheet: TTabSheet;
+    ConnectionInfoTab: TTabSheet;
+    SpecialOptionsTab: TTabSheet;
+    AdminTab: TTabSheet;
     StatusTimer: TTimer;
     UserNameEdit: TEdit;
     procedure BackupBtn1Click(Sender: TObject);
     procedure BackupBtn2Click(Sender: TObject);
-    procedure BackupBtnClick(Sender: TObject);
+    procedure BackupAllBtnClick(Sender: TObject);
     procedure BackupDatabasesListClick(Sender: TObject);
     procedure BackupDatabasesListDblClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
-    procedure CleanBtn1Click(Sender: TObject);
+    procedure ChangeBtnClick(Sender: TObject);
     procedure CopyBtnClick(Sender: TObject);
-    procedure GetBtnClick(Sender: TObject);
-    procedure CleanBtn4Click(Sender: TObject);
-    procedure CleanBtn5Click(Sender: TObject);
+    procedure LangListCboChange(Sender: TObject);
+    procedure LangListCboSelect(Sender: TObject);
+    procedure ListDatabasesBtnClick(Sender: TObject);
+    procedure AddDatabaseBtnClick(Sender: TObject);
+    procedure RemoveDatabaseBtnClick(Sender: TObject);
     procedure DropBtnClick(Sender: TObject);
-    procedure CleanBtnClick(Sender: TObject);
+    procedure DropAllTempsBtnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure MenuItem1Click(Sender: TObject);
+    procedure ClearLogMnuClick(Sender: TObject);
     procedure OpenFolderBtnClick(Sender: TObject);
     procedure RenameBtnClick(Sender: TObject);
     procedure RestoreLastBtnClick(Sender: TObject);
     procedure RestoreNewFromFileBtnClick(Sender: TObject);
-    procedure RestoreBtn3Click(Sender: TObject);
+    procedure BrowseBackupBtnClick(Sender: TObject);
     procedure RestoreByDateBtnClick(Sender: TObject);
-    procedure RestoreBtnClick(Sender: TObject);
+    procedure RestoreAllBtnClick(Sender: TObject);
     procedure RestorFromFileBtnClick(Sender: TObject);
     procedure RestorePointBtnClick(Sender: TObject);
     procedure SavePointBtnClick(Sender: TObject);
@@ -113,6 +117,7 @@ type
   private
     PoolThread: TObjectList;
     ConsoleThread: TmnConsoleThread;
+    procedure CheckLanguage;
     function GetPort: String;
     procedure BackupDatabase(DB: String; APointName: string = '');
     procedure RestoreDatabase(DB: String; APointName: String = '');
@@ -169,7 +174,7 @@ end;
 
 { TMainForm }
 
-procedure TMainForm.CleanBtnClick(Sender: TObject);
+procedure TMainForm.DropAllTempsBtnClick(Sender: TObject);
 var
   i: Integer;
 begin
@@ -194,7 +199,7 @@ begin
   Databases.Clear;
 end;
 
-procedure TMainForm.BackupBtnClick(Sender: TObject);
+procedure TMainForm.BackupAllBtnClick(Sender: TObject);
 var
   i: Integer;
 begin
@@ -216,9 +221,10 @@ end;
 
 procedure TMainForm.Button1Click(Sender: TObject);
 begin
+
 end;
 
-procedure TMainForm.CleanBtn1Click(Sender: TObject);
+procedure TMainForm.ChangeBtnClick(Sender: TObject);
 var
   cmd: TmncPGCommand;
 begin
@@ -230,7 +236,7 @@ begin
       try
         cmd.SQL.Text := 'ALTER ROLE ' + UserNameEdit.Text + ' WITH PASSWORD ''' + NewPasswordEdit.Text + '''';
         cmd.Execute;
-        Msg.Show('Password changed successfully');
+        MsgBox.Show('Password changed successfully');
       finally
         cmd.Free;
       end;
@@ -248,22 +254,54 @@ begin
   begin
     DB := DatabasesCbo.Items[DatabasesCbo.ItemIndex];
     ToName := DB;
-    if Msg.Input(ToName, 'You want copy: ' + DB + ' to?') then
+    if MsgBox.Input(ToName, 'You want copy: ' + DB + ' to?') then
     begin
       if DB = ToName then
-        Msg.Show('you cant copy on same database')
+        MsgBox.Show('you cant copy on same database')
       else
       begin
-        Msg.ShowStatus(Self, 'Coping ' + DB + ' to ' + ToName);
+        MsgBox.ShowStatus(Self, 'Coping ' + DB + ' to ' + ToName);
         OpenPG('postgres', False);
         try
           CopyDatabase(DB, ToName);
           DatabasesCbo.Items[DatabasesCbo.ItemIndex] := ToName;
         finally
           ClosePG(False);
-          Msg.HideStatus(Self);
+          MsgBox.HideStatus(Self);
         end;
       end;
+    end;
+  end;
+end;
+
+procedure TMainForm.LangListCboChange(Sender: TObject);
+begin
+
+end;
+
+procedure TMainForm.LangListCboSelect(Sender: TObject);
+begin
+  CheckLanguage;
+end;
+
+procedure TMainForm.CheckLanguage;
+begin
+  if LangListCbo.ItemIndex = 1 then
+  begin
+    SetDefaultLang('ar');
+    if BiDiMode = bdLeftToRight then
+    begin
+      FlipChildren(True);
+      BiDiMode := bdRightToLeft;
+    end;
+  end
+  else
+  begin
+    SetDefaultLang('en');
+    if BiDiMode = bdRightToLeft then
+    begin
+      FlipChildren(True);
+      BiDiMode := bdLeftToRight;
     end;
   end;
 end;
@@ -298,7 +336,7 @@ begin
   end;
 end;
 
-procedure TMainForm.GetBtnClick(Sender: TObject);
+procedure TMainForm.ListDatabasesBtnClick(Sender: TObject);
 begin
   OpenPG('postgres');
   try
@@ -312,13 +350,13 @@ begin
   end;
 end;
 
-procedure TMainForm.CleanBtn4Click(Sender: TObject);
+procedure TMainForm.AddDatabaseBtnClick(Sender: TObject);
 begin
   if DatabasesCbo.ItemIndex >= 0 then
     BackupDatabasesList.Items.Add(DatabasesCbo.Items[DatabasesCbo.ItemIndex]);
 end;
 
-procedure TMainForm.CleanBtn5Click(Sender: TObject);
+procedure TMainForm.RemoveDatabaseBtnClick(Sender: TObject);
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
     BackupDatabasesList.Items.Delete(BackupDatabasesList.ItemIndex);
@@ -331,16 +369,16 @@ begin
   if DatabasesCbo.ItemIndex >= 0 then
   begin
     DB := DatabasesCbo.Items[DatabasesCbo.ItemIndex];
-    if not Msg.No('Are you sure you want to drop: ' + DB + '?') then
+    if not MsgBox.No('Are you sure you want to drop: ' + DB + '?') then
     begin
       OpenPG('postgres', False);
-      Msg.ShowStatus(Self, 'Dropping ' + DB);
+      MsgBox.ShowStatus(Self, 'Dropping ' + DB);
       try
         DropDatabase(DB);
         DatabasesCbo.Items.Delete(DatabasesCbo.ItemIndex);
       finally
         ClosePG(False);
-        Msg.HideStatus(Self);
+        MsgBox.HideStatus(Self);
       end;
     end;
   end;
@@ -580,7 +618,7 @@ begin
     end;
     if filename = '' then
     begin
-      Msg.Error('There is no last file to restore');
+      MsgBox.Error('There is no last file to restore');
       exit;
     end;
     filename := o.Directory + filename;
@@ -646,10 +684,10 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
-  OptionsPageControl.PageIndex := 0;
+  OptionsTab.PageIndex := 0;
 end;
 
-procedure TMainForm.MenuItem1Click(Sender: TObject);
+procedure TMainForm.ClearLogMnuClick(Sender: TObject);
 begin
   LogEdit.Clear;
 end;
@@ -669,21 +707,21 @@ begin
   begin
     DB := DatabasesCbo.Items[DatabasesCbo.ItemIndex];
     ToName := DB;
-    if Msg.Input(ToName, 'You want to rename: ' + DB + ' to?') then
+    if MsgBox.Input(ToName, 'You want to rename: ' + DB + ' to?') then
     begin
       if DB = ToName then
-        Msg.Show('Nothing to do')
+        MsgBox.Show('Nothing to do')
       else
       begin
         OpenPG('postgres', False);
-        Msg.ShowStatus(Self, 'Dropping ' + DB + ' to ' + ToName);
+        MsgBox.ShowStatus(Self, 'Dropping ' + DB + ' to ' + ToName);
         try
           RenameDatabase(DB, ToName);
           DatabasesCbo.Items[DatabasesCbo.ItemIndex] := ToName;
         finally
           ClosePG(False);
         end;
-        Msg.HideStatus(Self);
+        MsgBox.HideStatus(Self);
       end;
     end;
   end;
@@ -696,7 +734,7 @@ begin
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
     db := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
-    if not Msg.No('Are you sure you want to restore database?') then
+    if not MsgBox.No('Are you sure you want to restore database?') then
       RestoreDatabase(db);
    end;
 end;
@@ -706,11 +744,11 @@ var
   DB: String;
 begin
   DB := ExtractFileNameWithoutExt(ExtractFileName(BackupFileNameEdit.Text));
-  if Msg.Input(DB, 'Enter then name of new Database to restore') then
+  if MsgBox.Input(DB, 'Enter then name of new Database to restore') then
     RestoreDatabaseFile(DB, BackupFileNameEdit.Text, RestoreFileOverwriteChk.Checked, RestoreFileIgnoreErrorChk.Checked);
 end;
 
-procedure TMainForm.RestoreBtn3Click(Sender: TObject);
+procedure TMainForm.BrowseBackupBtnClick(Sender: TObject);
 begin
   with TOpenDialog.Create(Self) do
   begin
@@ -750,7 +788,7 @@ begin
         names.Add(s);
       end;
 
-      if Msg.List(i, 'Select a point to restore', names) then
+      if MsgBox.List(i, 'Select a point to restore', names) then
       begin
         RestoreDatabaseFile(DB, Dir + files[i], True);
         files.CommaText
@@ -762,11 +800,11 @@ begin
   end;
 end;
 
-procedure TMainForm.RestoreBtnClick(Sender: TObject);
+procedure TMainForm.RestoreAllBtnClick(Sender: TObject);
 var
   i: Integer;
 begin
-  if not Msg.No('Are you sure you want to RESTORE all databases?') then
+  if not MsgBox.No('Are you sure you want to RESTORE all databases?') then
     for i := 0 to BackupDatabasesList.Items.Count - 1 do
     begin
       RestoreDatabase(BackupDatabasesList.Items[i]);
@@ -791,12 +829,12 @@ begin
       begin
         Selected := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
         if not SameText(DB, Selected) then
-          Msg.Error('Please select backup file with same name of database selected')
-        else if not Msg.No('Are you sure you want to restore database?') then
+          MsgBox.Error('Please select backup file with same name of database selected')
+        else if not MsgBox.No('Are you sure you want to restore database?') then
           RestoreDatabaseFile(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], FileName, True);
       end
       else
-        if Msg.Input(DB, 'Enter then name of new Database to restore') then
+        if MsgBox.Input(DB, 'Enter then name of new Database to restore') then
           RestoreDatabaseFile(DB, FileName, False);
     end;
     Free;
@@ -831,7 +869,7 @@ begin
       DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
       i := -1;
       EnumFiles(files, GetBackupDBDirectory(DB) + 'points', '*.backup', false);
-      if Msg.List(i, 'Select a point to restore', files) then
+      if MsgBox.List(i, 'Select a point to restore', files) then
       begin
         RestoreDatabase(DB, files[i]);
       end;
@@ -848,7 +886,7 @@ begin
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
     APoint := '';
-    if Msg.Input(APoint, 'Enter then name of new Database to restore') and (APoint <> '') then
+    if MsgBox.Input(APoint, 'Enter then name of new Database to restore') and (APoint <> '') then
       BackupDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], APoint);
   end;
 end;
@@ -885,7 +923,7 @@ begin
       StatusTimer.Enabled := True;
       LogEdit.Lines.Add('');
     end;
-    lgMessage: Msg.Show(S);
+    lgMessage: MsgBox.Show(S);
   end;
   LogEdit.Lines.Add(S);
   if ScrollMnu.Checked then
@@ -1083,6 +1121,8 @@ var
   ini: TIniFile;
 begin
   ini := TIniFile.Create(IniPath + 'pgtools.ini');
+  LangListCbo.Text := ini.ReadString('options', 'Language', 'English');
+  CheckLanguage;
   UserNameEdit.Text := ini.ReadString('options', 'username', 'postgres');
   SavePasswordChk.Checked := ini.ReadBool('options', 'savepassword', False);
   if SavePasswordChk.Checked then
@@ -1095,7 +1135,7 @@ begin
   if ExportMode then
   begin
     ExportTab.TabVisible := True;
-    AdminSheet.TabVisible := True;
+    AdminTab.TabVisible := True;
     AdminPanel.Visible := True;
     RestorFromFileBtn.Visible := True;
     RestoreByDateBtn.Visible := True;
@@ -1129,6 +1169,7 @@ var
   s: String;
 begin
   inherited;
+  UserNameEdit.Text := 'postgres';
   DetectPGDirectory;
   Log('This Device: ' + GetLocalName);
   PoolThread := TObjectList.Create;
@@ -1140,7 +1181,7 @@ begin
   else
     IniPath := GetAppConfigDir(False);
   LoadIni;
-  PGPageControl.TabIndex := 0;
+  RestoreFilePageControl.TabIndex := 0;
   i := 0;
   while True do
   begin
@@ -1177,6 +1218,7 @@ begin
   FreeAndNil(Databases);
 
   ini := TIniFile.Create(IniPath + 'pgtools.ini');
+  ini.WriteString('options', 'Language', LangListCbo.Text);
   ini.WriteString('options', 'username', UserNameEdit.Text);
   ini.WriteBool('options', 'savepassword', SavePasswordChk.Checked);
   if SavePasswordChk.Checked then
@@ -1195,4 +1237,5 @@ begin
   inherited;
 end;
 
+initialization
 end.

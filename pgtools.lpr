@@ -18,7 +18,19 @@ uses
 
 {$R *.res}
 
+{procedure TranslateLCL;
+var
+  PODirectory, Lang, FallbackLang: String;
 begin
+  PODirectory := Application.Location;
+  Lang:='en';
+  FallbackLang:='em';
+  LazGetLanguageIDs(Lang, FallbackLang); // in unit LazUTF8
+  Translations.TranslateUnitResourceStrings('LCLStrConsts', PODirectory + 'pgtools.%s.po', Lang, FallbackLang);
+end;}
+
+begin
+  //TranslateLCL;
   Application.Title :='PGTools';
   RequireDerivedFormResource:= True;
   Application.Scaled :=True;

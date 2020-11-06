@@ -21,7 +21,14 @@
     </General>
     <i18n>
       <EnableI18N Value="True"/>
-      <OutDir Value="languages"/>
+      <OutDir Value="bin\languages"/>
+      <ExcludedIdentifiers Count="5">
+        <Item1 Value="TMainForm.Caption"/>
+        <Item2 Value="TMainForm.LangListCbo.text"/>
+        <Item3 Value="TMainForm.BackupDeviceIDLbl.Caption"/>
+        <Item4 Value="TMainForm.LogoTestLbl.Caption"/>
+        <Item5 Value="TMainform.InfoPanel.Caption"/>
+      </ExcludedIdentifiers>
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
@@ -29,7 +36,7 @@
       <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="9"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="98"/>
+      <BuildNr Value="101"/>
       <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools" ProductName="PGTools"/>
     </VersionInfo>
     <BuildModes Count="2">

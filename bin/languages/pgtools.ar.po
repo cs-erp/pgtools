@@ -1,0 +1,225 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: mainforms.scleandone
+msgid "Clean Done"
+msgstr "تمت التنظيف"
+
+#: tmainform.adddatabasebtn.caption
+msgctxt "tmainform.adddatabasebtn.caption"
+msgid "&Add"
+msgstr "أ&ضف"
+
+#: tmainform.admintab.caption
+msgctxt "tmainform.admintab.caption"
+msgid "Admin"
+msgstr "مدير"
+
+#: tmainform.backfolderlbl.caption
+msgid "Backup Folder"
+msgstr "مسار النسخ"
+
+#: tmainform.backupallbtn.caption
+msgctxt "tmainform.backupallbtn.caption"
+msgid "Backup a&ll"
+msgstr "انسخ ال&كل"
+
+#: tmainform.backupbtn1.caption
+msgid "&Backup"
+msgstr "أن&سخ"
+
+#: tmainform.backupbtn2.caption
+msgid "&Info"
+msgstr "م&علومات"
+
+#: tmainform.browsebackupbtn.caption
+msgctxt "tmainform.browsebackupbtn.caption"
+msgid "Browse"
+msgstr "استعرض"
+
+#: tmainform.changebtn.caption
+msgctxt "tmainform.changebtn.caption"
+msgid "Change"
+msgstr "تغيير"
+
+#: tmainform.clearlogmnu.caption
+msgctxt "tmainform.clearlogmnu.caption"
+msgid "Clear"
+msgstr "اسمح"
+
+#: tmainform.connectioninfotab.caption
+msgctxt "tmainform.connectioninfotab.caption"
+msgid "Database"
+msgstr "القاعدة"
+
+#: tmainform.copybtn.caption
+msgid "Copy"
+msgstr "نسخ"
+
+#: tmainform.csproductschk.caption
+msgid "Creative Solution Database product"
+msgstr "قاعدة بيانات الحلول المبتكرة"
+
+#: tmainform.csproductschk.hint
+msgctxt "tmainform.csproductschk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
+
+#: tmainform.databasetab.caption
+msgctxt "tmainform.databasetab.caption"
+msgid "Database"
+msgstr "القاعدة"
+
+#: tmainform.dbpasswordlbl.caption
+msgctxt "tmainform.dbpasswordlbl.caption"
+msgid "Password"
+msgstr "كلمة الرور"
+
+#: tmainform.dbportlbl.caption
+msgctxt "tmainform.dbportlbl.caption"
+msgid "Port"
+msgstr "البوابة"
+
+#: tmainform.dbusernamelbl.caption
+msgctxt "tmainform.dbusernamelbl.caption"
+msgid "User name"
+msgstr "اسم المستخدم"
+
+#: tmainform.dropalltempsbtn.caption
+msgid "Drop all temps"
+msgstr "احذف جميع المؤقتة"
+
+#: tmainform.dropalltempsbtn.hint
+msgctxt "tmainform.dropalltempsbtn.hint"
+msgid "Drop all batabases ended with _temp... _old... .old... .temp..."
+msgstr "احذف كل قواعد البيانات التي تنتهي ب temp او old"
+
+#: tmainform.dropbtn.caption
+msgid "Drop"
+msgstr "احذف"
+
+#: tmainform.exporttab.caption
+msgid "Expert"
+msgstr "خبير"
+
+#: tmainform.label8.caption
+msgid "All this operations on selected database on the left"
+msgstr "كل هذه الأوامر على القواعد البيانات التي في القائمة"
+
+#: tmainform.listdatabasesbtn.caption
+msgctxt "tmainform.listdatabasesbtn.caption"
+msgid "&List"
+msgstr "ا&عرض"
+
+#: tmainform.newpasswordlbl.caption
+msgctxt "tmainform.newpasswordlbl.caption"
+msgid "New Password"
+msgstr "كلمة المرور الجديدة"
+
+#: tmainform.openfolderbtn.caption
+msgid "Open Folder"
+msgstr "افتح المجلد"
+
+#: tmainform.publicschemachk.caption
+msgid "Public Schema only"
+msgstr "البيانات العامة فقط"
+
+#: tmainform.publicschemachk.hint
+msgctxt "tmainform.publicschemachk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
+
+#: tmainform.removedatabasebtn.caption
+msgctxt "tmainform.removedatabasebtn.caption"
+msgid "Re&move"
+msgstr "إ&زالة"
+
+#: tmainform.renamebtn.caption
+msgid "Rename"
+msgstr "تسمية"
+
+#: tmainform.restoreallbtn.caption
+msgctxt "tmainform.restoreallbtn.caption"
+msgid "Restore all"
+msgstr "استرجع الكل"
+
+#: tmainform.restorebydatebtn.caption
+msgid "Restore Date"
+msgstr "استرجع بالتاريخ"
+
+#: tmainform.restorefileignoreerrorchk.caption
+msgid "Ignore Errors/Warning"
+msgstr "تجاهل الاخطاء و التنبيهات"
+
+#: tmainform.restorefileignoreerrorchk.hint
+msgctxt "tmainform.restorefileignoreerrorchk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
+
+#: tmainform.restorefileoverwritechk.caption
+msgid "Overwrite old database if exist (rename old)"
+msgstr "فوق القاعدة القديمة (بعد اعادة التسمية)"
+
+#: tmainform.restorefileoverwritechk.hint
+msgctxt "tmainform.restorefileoverwritechk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
+
+#: tmainform.restorefiletab.caption
+msgctxt "tmainform.restorefiletab.caption"
+msgid "Restore File"
+msgstr "استرجع ملف"
+
+#: tmainform.restorefiletonewdatabaselbl.caption
+msgctxt "tmainform.restorefiletonewdatabaselbl.caption"
+msgid "Restore this file to new database"
+msgstr "استرجع الملف لقاعدة بيانات جديدة"
+
+#: tmainform.restorelastbtn.caption
+msgid "&Restore Last"
+msgstr "ا&سترجع الاخيرة"
+
+#: tmainform.restorenewfromfilebtn.caption
+msgid "Restore"
+msgstr "استرجع"
+
+#: tmainform.restorepointbtn.caption
+msgid "Restore &Point"
+msgstr "استرجع نقطة"
+
+#: tmainform.restorfromfilebtn.caption
+msgctxt "tmainform.restorfromfilebtn.caption"
+msgid "Restore File"
+msgstr "استرجع ملف"
+
+#: tmainform.savepasswordchk.caption
+msgid "Save password (saved uncrypted)"
+msgstr "خزن كلمة المرور، غير مشفرة"
+
+#: tmainform.savepasswordchk.hint
+msgctxt "tmainform.savepasswordchk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
+
+#: tmainform.savepointbtn.caption
+msgid "&Save Point"
+msgstr "نسخ &نقطة"
+
+#: tmainform.savepointbtn.hint
+msgctxt "tmainform.savepointbtn.hint"
+msgid "Backup to named file"
+msgstr "انسخ الى اسم الملف"
+
+#: tmainform.scrollmnu.caption
+msgid "Scroll"
+msgstr "انزلاق"
+
+#: tmainform.specialoptionstab.caption
+msgctxt "tmainform.specialoptionstab.caption"
+msgid "Options"
+msgstr "خيارات"
+
+#: tmainform.stopbtn.caption
+msgid "Stop"
+msgstr "قف"
+

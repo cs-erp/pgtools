@@ -1,0 +1,212 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: mainforms.scleandone
+msgid "Clean Done"
+msgstr ""
+
+#: tmainform.adddatabasebtn.caption
+msgid "&Add"
+msgstr ""
+
+#: tmainform.admintab.caption
+msgctxt "tmainform.admintab.caption"
+msgid "Admin"
+msgstr ""
+
+#: tmainform.backfolderlbl.caption
+msgid "Backup Folder"
+msgstr ""
+
+#: tmainform.backupallbtn.caption
+msgid "Backup a&ll"
+msgstr ""
+
+#: tmainform.backupbtn1.caption
+msgid "&Backup"
+msgstr ""
+
+#: tmainform.backupbtn2.caption
+msgid "&Info"
+msgstr ""
+
+#: tmainform.browsebackupbtn.caption
+msgid "Browse"
+msgstr ""
+
+#: tmainform.changebtn.caption
+msgid "Change"
+msgstr ""
+
+#: tmainform.clearlogmnu.caption
+msgid "Clear"
+msgstr ""
+
+#: tmainform.connectioninfotab.caption
+msgctxt "tmainform.connectioninfotab.caption"
+msgid "Database"
+msgstr ""
+
+#: tmainform.copybtn.caption
+msgid "Copy"
+msgstr ""
+
+#: tmainform.csproductschk.caption
+msgid "Creative Solution Database product"
+msgstr ""
+
+#: tmainform.csproductschk.hint
+msgctxt "tmainform.csproductschk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr ""
+
+#: tmainform.databasetab.caption
+msgctxt "tmainform.databasetab.caption"
+msgid "Database"
+msgstr ""
+
+#: tmainform.dbpasswordlbl.caption
+msgid "Password"
+msgstr ""
+
+#: tmainform.dbportlbl.caption
+msgid "Port"
+msgstr ""
+
+#: tmainform.dbusernamelbl.caption
+msgid "User name"
+msgstr ""
+
+#: tmainform.dropalltempsbtn.caption
+msgid "Drop all temps"
+msgstr ""
+
+#: tmainform.dropalltempsbtn.hint
+msgctxt "tmainform.dropalltempsbtn.hint"
+msgid "Drop all batabases ended with _temp... _old... .old... .temp..."
+msgstr ""
+
+#: tmainform.dropbtn.caption
+msgid "Drop"
+msgstr ""
+
+#: tmainform.exporttab.caption
+msgid "Expert"
+msgstr ""
+
+#: tmainform.label8.caption
+msgid "All this operations on selected database on the left"
+msgstr ""
+
+#: tmainform.listdatabasesbtn.caption
+msgid "&List"
+msgstr ""
+
+#: tmainform.newpasswordlbl.caption
+msgid "New Password"
+msgstr ""
+
+#: tmainform.openfolderbtn.caption
+msgid "Open Folder"
+msgstr ""
+
+#: tmainform.publicschemachk.caption
+msgid "Public Schema only"
+msgstr ""
+
+#: tmainform.publicschemachk.hint
+msgctxt "tmainform.publicschemachk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr ""
+
+#: tmainform.removedatabasebtn.caption
+msgid "Re&move"
+msgstr ""
+
+#: tmainform.renamebtn.caption
+msgid "Rename"
+msgstr ""
+
+#: tmainform.restoreallbtn.caption
+msgid "Restore all"
+msgstr ""
+
+#: tmainform.restorebydatebtn.caption
+msgid "Restore Date"
+msgstr ""
+
+#: tmainform.restorefileignoreerrorchk.caption
+msgid "Ignore Errors/Warning"
+msgstr ""
+
+#: tmainform.restorefileignoreerrorchk.hint
+msgctxt "tmainform.restorefileignoreerrorchk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr ""
+
+#: tmainform.restorefileoverwritechk.caption
+msgid "Overwrite old database if exist (rename old)"
+msgstr ""
+
+#: tmainform.restorefileoverwritechk.hint
+msgctxt "tmainform.restorefileoverwritechk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr ""
+
+#: tmainform.restorefiletab.caption
+msgctxt "tmainform.restorefiletab.caption"
+msgid "Restore File"
+msgstr ""
+
+#: tmainform.restorefiletonewdatabaselbl.caption
+msgid "Restore this file to new database"
+msgstr ""
+
+#: tmainform.restorelastbtn.caption
+msgid "&Restore Last"
+msgstr ""
+
+#: tmainform.restorenewfromfilebtn.caption
+msgid "Restore"
+msgstr ""
+
+#: tmainform.restorepointbtn.caption
+msgid "Restore &Point"
+msgstr ""
+
+#: tmainform.restorfromfilebtn.caption
+msgctxt "tmainform.restorfromfilebtn.caption"
+msgid "Restore File"
+msgstr ""
+
+#: tmainform.savepasswordchk.caption
+msgid "Save password (saved uncrypted)"
+msgstr ""
+
+#: tmainform.savepasswordchk.hint
+msgctxt "tmainform.savepasswordchk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr ""
+
+#: tmainform.savepointbtn.caption
+msgid "&Save Point"
+msgstr ""
+
+#: tmainform.savepointbtn.hint
+msgctxt "tmainform.savepointbtn.hint"
+msgid "Backup to named file"
+msgstr ""
+
+#: tmainform.scrollmnu.caption
+msgid "Scroll"
+msgstr ""
+
+#: tmainform.specialoptionstab.caption
+msgctxt "tmainform.specialoptionstab.caption"
+msgid "Options"
+msgstr ""
+
+#: tmainform.stopbtn.caption
+msgid "Stop"
+msgstr ""
+
