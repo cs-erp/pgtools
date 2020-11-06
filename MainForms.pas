@@ -696,7 +696,7 @@ procedure TMainForm.OpenFolderBtnClick(Sender: TObject);
 var
   s: string;
 begin
-  RunCommand('Explorer', ['/root,"' + GetBackupDBDirectory + '"'], s);
+  RunCommand('Explorer', ['"' + GetBackupDBDirectory + '"'], s);
 end;
 
 procedure TMainForm.RenameBtnClick(Sender: TObject);

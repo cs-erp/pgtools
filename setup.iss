@@ -15,7 +15,7 @@ AppUpdatesURL=http://www.cserp.org
 DefaultDirName={pf}\Creative Solutions\PG Tools
 DefaultGroupName=Creative Solutions
 OutputBaseFilename=pgtools-setup-{#ApplicationVersion}
-OutputDir=..\pgtools\
+OutputDir=./setup
 VersionInfoTextVersion=pgtools-setup-{#ApplicationVersion}
 VersionInfoVersion={#ApplicationVersion}
 VersionInfoCompany=cserp.org
@@ -36,17 +36,20 @@ Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:Ad
 Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {cm:AdditionalIcons}; Flags: unchecked
 
 [Files]
-Source: pgtools32.exe; DestDir: {app}; Flags: ignoreversion
-;Source: pgtools64.exe; DestDir: {app}; Flags: ignoreversion
-Source: setup\*.dll; DestDir: {app}; Flags: ignoreversion
-Source: setup\*.exe; DestDir: {app}; Flags: ignoreversion
+Source: bin\pgtools32.exe; DestDir: {app}; Flags: ignoreversion
+Source: bin\bin32\*.dll; DestDir: {app}\bin32; Flags: ignoreversion
+Source: bin\pgtools64.exe; DestDir: {app}; Flags: ignoreversion
+Source: bin\bin64\*.dll; DestDir: {app}\bin64; Flags: ignoreversion
+Source: bin\languages\*.po; DestDir: {app}\languages; Flags: ignoreversion
 Source: setup\*.ini; DestDir: {app}; Flags: ignoreversion
 
 [INI]
 
 [Icons]
 Name: {group}\PG Tools 32; Filename: {app}\pgtools32.exe
+Name: {group}\PG Tools 64; Filename: {app}\pgtools64.exe
 Name: {group}\{cm:UninstallProgram,PG Tools}; Filename: {uninstallexe}
-Name: {commondesktop}\Creative Solutions PG Tools; Filename: {app}\pgtools32.exe; Tasks: desktopicon
+Name: {commondesktop}\Creative Solutions PG Tools 32; Filename: {app}\pgtools32.exe; Tasks: desktopicon
+Name: {commondesktop}\Creative Solutions PG Tools 64; Filename: {app}\pgtools64.exe; Tasks: desktopicon
 
 [UninstallDelete]

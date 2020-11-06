@@ -19,7 +19,18 @@ Do not check "Creative Soultion products" to backup any databases, this check on
 
 If you need to enable Expert mode, open pgtools.ini, change expert to 1, expert=1
 
-If you do not want it portable application, disable it by add option in pgtools.ini portable=0
+If you do not want it portable application, disable it by add option in pgtools.ini portable=0 , it save options in roaming folder instead of current folder
+
+if you want it in arabic add Language=Arabic
+
+For example if you want to distripute it with your application, add this ini to your pgtools.ini and distrupute it, this example with expert mode enabled
+
+```ini
+[Options]
+Portable=0
+Language=Arabic
+Expert=1
+```
 
 ## Compile
 
