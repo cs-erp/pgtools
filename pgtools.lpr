@@ -32,6 +32,7 @@ end;}
 begin
   //TranslateLCL;
   Application.Title :='PGTools';
+  Application.Name := 'pgtools';
   RequireDerivedFormResource:= True;
   Application.Scaled :=True;
   Application.Initialize;

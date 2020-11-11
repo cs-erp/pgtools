@@ -4,7 +4,7 @@
 ; @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
 ; @author    Zaher Dirkey <zaherdirkey at yahoo dot com>
 ;
-#define ApplicationVersion GetFileVersion('pgtools32.exe')
+#define ApplicationVersion GetFileVersion('.\bin\pgtools32.exe')
 [Setup]
 AppName=PG Tools
 AppVerName=PG Tools

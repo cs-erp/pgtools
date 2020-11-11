@@ -288,7 +288,7 @@ procedure TMainForm.CheckLanguage;
 begin
   if LangListCbo.ItemIndex = 1 then
   begin
-    SetDefaultLang('ar');
+    SetDefaultLang('ar', '', Application.Name);
     if BiDiMode = bdLeftToRight then
     begin
       FlipChildren(True);
@@ -297,7 +297,7 @@ begin
   end
   else
   begin
-    SetDefaultLang('en');
+    SetDefaultLang('en', '', Application.Name);
     if BiDiMode = bdRightToLeft then
     begin
       FlipChildren(True);
