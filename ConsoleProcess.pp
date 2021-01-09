@@ -228,7 +228,7 @@ begin
       ReadPrompt;
       if FProcess.Running and (FProcess.Input <> nil) and (Password <> '') then
         StreamWriteLn(Password);
-      //FProcess.CloseInput;
+      FProcess.CloseInput;
       ReadStream;
       Status := FProcess.ExitStatus;
       FreeAndNil(FProcess);
