@@ -35,6 +35,9 @@ type
 
   TmnConsoleThread = class(TThread)
   private
+    FExecutable: string;
+    FCurrentDirectory: string;
+    FParameters: string;
     FExecuteObject: TExecuteObject;
     FOnLog: TmnOnLog;
     FPassword: string;
@@ -94,26 +97,15 @@ end;
 constructor TmnConsoleThread.Create(vExecutable, vCurrentDirectory, vParameters: string; vOnLog: TmnOnLog);
 begin
   inherited Create(True);
+  FreeOnTerminate := True;
   FOnLog := vOnLog;
-  FProcess := TProcess.Create(nil);
-  FProcess.CurrentDirectory := vCurrentDirectory;
-  FProcess.Executable := vExecutable;
-  CommandToList(vParameters, FProcess.Parameters);
-  FProcess.Options := [poUsePipes, poStderrToOutPut, poNoConsole, poDetached];
-  FProcess.ShowWindow := swoHide;
-  FProcess.ConsoleTitle := 'PG Console';
-  FProcess.InheritHandles := True;
-  FProcess.CurrentDirectory := Application.Location;
-  FProcess.StartupOptions := [suoUseShowWindow]; //<- need it in linux to show window
+  FExecutable:= vExecutable;
+  FCurrentDirectory := vCurrentDirectory;
+  FParameters := vParameters;
 end;
 
 destructor TmnConsoleThread.Destroy;
 begin
-  if FProcess <> nil then
-  begin
-    FProcess.WaitOnExit;
-    FreeAndNil(FProcess);
-  end;
   FreeAndNil(FExecuteObject);
   inherited Destroy;
 end;
@@ -213,6 +205,17 @@ var
   end;
 
 begin
+  FProcess := TProcess.Create(nil);
+  FProcess.CurrentDirectory := FCurrentDirectory;
+  FProcess.Executable := FExecutable;
+  CommandToList(FParameters, FProcess.Parameters);
+  FProcess.Options := [poUsePipes, poStderrToOutPut, poNoConsole, poDetached];
+  FProcess.ShowWindow := swoHide;
+  FProcess.ConsoleTitle := 'PG Console';
+  FProcess.InheritHandles := True;
+  FProcess.CurrentDirectory := Application.Location;
+  FProcess.StartupOptions := [suoUseShowWindow]; //<- need it in linux to show window
+
   Status := 0;
   d := GetTickCount64;
   try
@@ -240,6 +243,12 @@ begin
     end;
   finally
     Log('Execute Time: "' + TicksToString(GetTickCount64 - d) + '" with Status: ' + IntToStr(Status) );
+  end;
+
+  if FProcess <> nil then
+  begin
+    FProcess.WaitOnExit;
+    FreeAndNil(FProcess);
   end;
 end;
 

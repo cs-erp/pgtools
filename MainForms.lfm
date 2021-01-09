@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 673
+  Left = 507
   Height = 578
-  Top = 178
+  Top = 122
   Width = 589
   Caption = 'Creative Solutions PG backup tool'
   ClientHeight = 578
@@ -626,9 +626,9 @@ object MainForm: TMainForm
     Height = 197
     Top = 179
     Width = 392
-    ActivePage = DatabaseTab
+    ActivePage = ExportTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 2
     TabOrder = 5
     object DatabaseTab: TTabSheet
       Caption = 'Database'
@@ -781,10 +781,19 @@ object MainForm: TMainForm
         Left = 16
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 116
+        Top = 140
         Width = 137
         Caption = 'Ignore Errors/Warning'
         TabOrder = 4
+      end
+      object RestoreCleanErrorChk: TCheckBox
+        Left = 16
+        Height = 19
+        Hint = 'Use this only for Creative Solutions databases'
+        Top = 117
+        Width = 92
+        Caption = 'Restore Clean'
+        TabOrder = 5
       end
     end
     object ExportTab: TTabSheet
@@ -1049,10 +1058,10 @@ object MainForm: TMainForm
       object PublicSchemaChk: TCheckBox
         Left = 8
         Height = 19
-        Hint = 'Use this only for Creative Solutions databases'
+        Hint = 'Use this only for big databases, and you are expert'
         Top = 36
-        Width = 124
-        Caption = 'Public Schema only'
+        Width = 241
+        Caption = 'Backup `Public` Schema only (expert only)'
         TabOrder = 1
       end
     end

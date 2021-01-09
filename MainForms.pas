@@ -16,7 +16,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls, StrUtils,
-  ComCtrls, Menus, IniFiles, Contnrs, SynEdit,
+  ComCtrls, Menus, IniFiles, Contnrs, SynEdit, SynHighlighterAny,
   LCLTranslator,
   mncPostgre, mnMsgBox, GUIMsgBox, process,
   ConsoleProcess, FileUtil, mnUtils, LazFileUtils;
@@ -32,6 +32,7 @@ type
     LangListCbo: TComboBox;
     CopyBtn: TButton;
     Label8: TLabel;
+    RestoreCleanErrorChk: TCheckBox;
     RestoreFileOverwriteChk: TCheckBox;
     RestoreByDateBtn: TButton;
     RestoreFileIgnoreErrorChk: TCheckBox;
@@ -527,7 +528,7 @@ begin
       end;
 
       ConsoleThread.Log('Creating new Database ' + Database, lgStatus);
-      cmd.SQL.Text := 'create database "' + Database + '_temp_' + Suffix + '"';
+      cmd.SQL.Text := 'create database "' + Database + '_temp_' + Suffix + '" OWNER = postgres ENCODING = ''UTF8'' CONNECTION LIMIT = -1';
       cmd.Execute;
     finally
       cmd.Free;
@@ -630,6 +631,7 @@ end;
 procedure TMainForm.RestoreDatabaseFile(DB: String; AFileName: String; Overwrite: Boolean; IgnoreError: Boolean);
 var
   o: TRestoreExecuteObject;
+  aClean: string;
   cmd: String;
 begin
   o := TRestoreExecuteObject.Create;
@@ -642,7 +644,11 @@ begin
   o.Overwrite := Overwrite;
   o.IgnoreError := IgnoreError;
 
-  cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + DB + '_temp_' + o.Suffix + '" --password --verbose "' + AFileName + '"';
+  if RestoreCleanErrorChk.Checked then
+    aClean := '--clean --if-exists'
+  else
+    aClean := '';
+  cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" ' + aClean + ' --dbname "' + DB + '_temp_' + o.Suffix + '" --password --verbose "' + AFileName + '"';
   Launch('Restoring: ' + DB + ' file: ' + AFileName, 'pg_restore.exe', cmd, PasswordEdit.Text, o, IgnoreError);
 end;
 
@@ -900,6 +906,13 @@ end;
 procedure TMainForm.StopBtnClick(Sender: TObject);
 begin
   FStop := True;
+  if ConsoleThread <> nil then
+  begin
+    ConsoleThread.Kill;
+    ConsoleThread.Terminate;
+    //ConsoleThread.WaitFor;
+    //FreeAndNil(ConsoleThread);
+  end;
 end;
 
 function TMainForm.GetPort: String;
@@ -925,7 +938,7 @@ begin
     end;
     lgMessage: MsgBox.Show(S);
   end;
-  LogEdit.Lines.Add(S);
+  LogEdit.Lines.Add(Trim(S));
   if ScrollMnu.Checked then
     LogEdit.CaretY := LogEdit.Lines.Count;
 end;
@@ -938,10 +951,9 @@ begin
       Log(ConsoleThread.Message + ' Done', lgDone)
     else
       Log('Error look the log', lgMessage);
-    FreeAndNil(ConsoleThread);
+    ConsoleThread := nil;
+    //FreeAndNil(ConsoleThread); //nop
     if not FStop then
-      FStop := False
-    else
       Resume;
   end;
 end;
@@ -1097,12 +1109,11 @@ end;
 
 procedure TMainForm.Resume;
 begin
-  FStop := False;
   if (PoolThread.Count > 0) then
   begin
     if (ConsoleThread = nil) then
     begin
-      ConsoleThread := PoolThread.Extract(PoolThread.Last) as TmnConsoleThread;
+      ConsoleThread := PoolThread.Extract(PoolThread.First) as TmnConsoleThread;
       //Log(ConsoleThread.Message);
       InfoPanel.Caption := ConsoleThread.Message;
       Application.ProcessMessages;
@@ -1140,7 +1151,7 @@ begin
     RestorFromFileBtn.Visible := True;
     RestoreByDateBtn.Visible := True;
   end;
-  PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
+  //PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
   RestoreFileOverwriteChk.Checked := ini.ReadBool('options', 'RestoreFileOverwriteChk', False);
 end;
 
@@ -1206,13 +1217,14 @@ var
   ini: TIniFile;
 begin
   FDestroying := True;
+  FStop := True;
   PoolThread.Clear;
   if ConsoleThread <> nil then
   begin
     ConsoleThread.Kill;
     ConsoleThread.Terminate;
-    ConsoleThread.WaitFor;
-    FreeAndNil(ConsoleThread);
+    //ConsoleThread.WaitFor;
+    //FreeAndNil(ConsoleThread);
   end;
   ClosePG;
   FreeAndNil(Databases);
@@ -1227,7 +1239,7 @@ begin
   ini.WriteString('options', 'directory', DirectoryEdit.Text);
   ini.WriteBool('options', 'expert', ExportTab.TabVisible);
   ini.WriteBool('options', 'portable', Portable);
-  ini.WriteBool('options', 'PublicSchema', PublicSchemaChk.Checked);
+  //ini.WriteBool('options', 'PublicSchema', PublicSchemaChk.Checked); //do not save it, it is for special
   ini.WriteBool('options', 'RestoreFileOverwrite', RestoreFileOverwriteChk.Checked);
   ini.EraseSection('data');
   for i := 0 to BackupDatabasesList.Items.Count - 1 do

@@ -111,12 +111,12 @@ msgid "Open Folder"
 msgstr ""
 
 #: tmainform.publicschemachk.caption
-msgid "Public Schema only"
+msgid "Backup `Public` Schema only (expert only)"
 msgstr ""
 
 #: tmainform.publicschemachk.hint
 msgctxt "tmainform.publicschemachk.hint"
-msgid "Use this only for Creative Solutions databases"
+msgid "Use this only for big databases, and you are expert"
 msgstr ""
 
 #: tmainform.removedatabasebtn.caption
@@ -133,6 +133,15 @@ msgstr ""
 
 #: tmainform.restorebydatebtn.caption
 msgid "Restore Date"
+msgstr ""
+
+#: tmainform.restorecleanerrorchk.caption
+msgid "Restore Clean"
+msgstr ""
+
+#: tmainform.restorecleanerrorchk.hint
+msgctxt "tmainform.restorecleanerrorchk.hint"
+msgid "Use this only for Creative Solutions databases"
 msgstr ""
 
 #: tmainform.restorefileignoreerrorchk.caption
