@@ -113,12 +113,14 @@ type
     procedure RestorFromFileBtnClick(Sender: TObject);
     procedure RestorePointBtnClick(Sender: TObject);
     procedure SavePointBtnClick(Sender: TObject);
+    procedure ScrollMnuClick(Sender: TObject);
     procedure StatusTimerTimer(Sender: TObject);
     procedure StopBtnClick(Sender: TObject);
   private
     PoolThread: TObjectList;
     ConsoleThread: TmnConsoleThread;
     procedure CheckLanguage;
+    procedure ExploreFolder(AFolder, FileName: string);
     function GetPort: String;
     procedure BackupDatabase(DB: String; APointName: string = '');
     procedure RestoreDatabase(DB: String; APointName: String = '');
@@ -698,11 +700,36 @@ begin
   LogEdit.Clear;
 end;
 
-procedure TMainForm.OpenFolderBtnClick(Sender: TObject);
+procedure TMainForm.ExploreFolder(AFolder, FileName: string);
 var
   s: string;
 begin
-  RunCommand('Explorer', ['"' + GetBackupDBDirectory + '"'], s);
+  s := '';
+{$ifdef WINDOWS}
+  //ShellExecute(0, 'open', 'explorer.exe', PChar('/select,"' + Engine.Files.Current.Name + '"'), nil, SW_SHOW);
+  RunCommand('Explorer', ['/select,"' + AFolder + FileName + '"'], s);
+{$else}
+  RunCommand('xdg-open', [aDirectory + FileName], s);
+{$endif}
+end;
+
+procedure TMainForm.OpenFolderBtnClick(Sender: TObject);
+var
+  aDatabase, aDirectory, s: string;
+  ini: TIniFile;
+begin
+  if BackupDatabasesList.ItemIndex >= 0 then
+  begin
+    aDatabase := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
+    aDirectory := GetBackupDBDirectory(aDatabase);
+    ini := TIniFile.Create(aDirectory + aDatabase + '.ini');
+    try
+      s := ini.ReadString('info', 'last', '');
+    finally
+      ini.Free;
+    end;
+    ExploreFolder(aDirectory, s);
+  end;
 end;
 
 procedure TMainForm.RenameBtnClick(Sender: TObject);
@@ -897,6 +924,11 @@ begin
   end;
 end;
 
+procedure TMainForm.ScrollMnuClick(Sender: TObject);
+begin
+
+end;
+
 procedure TMainForm.StatusTimerTimer(Sender: TObject);
 begin
   InfoPanel.Caption := '';
@@ -947,14 +979,17 @@ procedure TMainForm.ConsoleTerminated(Sender: TObject);
 begin
   if not FDestroying then
   begin
-    if ConsoleThread.Status = 0 then
-      Log(ConsoleThread.Message + ' Done', lgDone)
-    else
-      Log('Error look the log', lgMessage);
-    ConsoleThread := nil;
-    //FreeAndNil(ConsoleThread); //nop
-    if not FStop then
-      Resume;
+    if ConsoleThread <> nil then
+    begin
+      if ConsoleThread.Status = 0 then
+        Log(ConsoleThread.Message + ' Done', lgDone)
+      else
+        Log('Error look the log', lgMessage);
+      ConsoleThread := nil;
+      //FreeAndNil(ConsoleThread); //nop
+      if not FStop then
+        Resume;
+    end;
   end;
 end;
 

@@ -543,10 +543,6 @@ object MainForm: TMainForm
     SelectedColor.ItalicPriority = 50
     SelectedColor.UnderlinePriority = 50
     SelectedColor.StrikeOutPriority = 50
-    ScrollOnEditLeftOptions.ScrollExtraPercent = 20
-    ScrollOnEditLeftOptions.ScrollExtraMax = 10
-    ScrollOnEditRightOptions.ScrollExtraPercent = 30
-    ScrollOnEditRightOptions.ScrollExtraMax = 25
     BracketHighlightStyle = sbhsBoth
     BracketMatchColor.Background = clNone
     BracketMatchColor.Foreground = clNone
@@ -626,9 +622,9 @@ object MainForm: TMainForm
     Height = 197
     Top = 179
     Width = 392
-    ActivePage = ExportTab
+    ActivePage = DatabaseTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 5
     object DatabaseTab: TTabSheet
       Caption = 'Database'
