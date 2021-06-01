@@ -401,6 +401,7 @@ type
     Database: String;
     Directory: String;
     Overwrite: Boolean;
+    PointName: string;
     IgnoreError: Boolean;
     Suffix: String;
     CSProducts: Boolean;
@@ -480,8 +481,12 @@ begin
 
   ini := TIniFile.Create(Directory + Database + '.ini');
   try
-    ini.WriteString('info', 'id', GetLocalName);
-    ini.WriteString('info', 'last', ExtractFileName(FileName));
+    if PointName = '' then
+    begin
+      ini.WriteString('info', 'id', GetLocalName);
+      ini.WriteString('info', 'last', ExtractFileName(FileName))
+    end;
+    ini.WriteString('info', 'lastfile', ExtractFileName(FileName))
   finally
     ini.Free;
   end;
@@ -606,6 +611,7 @@ begin
   o.Database := DB;
   o.Directory := GetBackupDBDirectory(o.Database);
   o.Overwrite := true;
+  o.PointName := APointName;
 
   if APointName <> '' then
     o.Directory := IncludeTrailingPathDelimiter(o.Directory + 'points');
@@ -724,7 +730,7 @@ begin
     aDirectory := GetBackupDBDirectory(aDatabase);
     ini := TIniFile.Create(aDirectory + aDatabase + '.ini');
     try
-      s := ini.ReadString('info', 'last', '');
+      s := ini.ReadString('info', 'lastfile', '');
     finally
       ini.Free;
     end;

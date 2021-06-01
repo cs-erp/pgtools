@@ -153,7 +153,7 @@ msgstr "استرجع بالتاريخ"
 
 #: tmainform.restorecleanerrorchk.caption
 msgid "Restore Clean"
-msgstr ""
+msgstr "تنظيف قبل الاسترجاع"
 
 #: tmainform.restorecleanerrorchk.hint
 #, fuzzy

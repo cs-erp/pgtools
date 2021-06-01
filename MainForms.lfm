@@ -833,10 +833,10 @@ object MainForm: TMainForm
       ClientWidth = 384
       TabVisible = False
       object NewPasswordLbl: TLabel
-        Left = 16
+        Left = 7
         Height = 15
         Top = 16
-        Width = 77
+        Width = 123
         AutoSize = False
         Caption = 'New Password'
         ParentColor = False
@@ -956,9 +956,9 @@ object MainForm: TMainForm
     Height = 112
     Top = 37
     Width = 580
-    ActivePage = ConnectionInfoTab
+    ActivePage = SpecialOptionsTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 8
     object ConnectionInfoTab: TTabSheet
       Caption = 'Database'
