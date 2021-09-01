@@ -12,7 +12,7 @@ unit ConsoleProcess;
 interface
 
 uses
-  Forms, Classes, SysUtils, process,
+  Forms, Classes, SysUtils, Process,
   mnUtils, mnStreams;
 
 type

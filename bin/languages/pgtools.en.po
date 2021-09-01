@@ -5,6 +5,10 @@ msgstr "Content-Type: text/plain; charset=UTF-8"
 msgid "Clean Done"
 msgstr ""
 
+#: mainforms.sexcludetables
+msgid "\"*.\\\"AppFiles\\\"\""
+msgstr ""
+
 #: tmainform.adddatabasebtn.caption
 msgid "&Add"
 msgstr ""
@@ -51,6 +55,15 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
+#: tmainform.createmissedmetadatachk.caption
+msgid "Create missed metadata"
+msgstr ""
+
+#: tmainform.createmissedmetadatachk.hint
+msgctxt "tmainform.createmissedmetadatachk.hint"
+msgid "Needed to restore quick backup, only for Creative Solutions databases"
+msgstr ""
+
 #: tmainform.csproductschk.caption
 msgid "Creative Solution Database product"
 msgstr ""
@@ -90,6 +103,15 @@ msgstr ""
 msgid "Drop"
 msgstr ""
 
+#: tmainform.droppublicschemachk.caption
+msgid "Drop public schema"
+msgstr ""
+
+#: tmainform.droppublicschemachk.hint
+msgctxt "tmainform.droppublicschemachk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr ""
+
 #: tmainform.exporttab.caption
 msgid "Expert"
 msgstr ""
@@ -119,6 +141,15 @@ msgctxt "tmainform.publicschemachk.hint"
 msgid "Use this only for big databases, and you are expert"
 msgstr ""
 
+#: tmainform.quickbackupchk.caption
+msgid "Quick backup (execlude huge tables)"
+msgstr ""
+
+#: tmainform.quickbackupchk.hint
+msgctxt "tmainform.quickbackupchk.hint"
+msgid "Use this only for big databases, and you are expert"
+msgstr ""
+
 #: tmainform.removedatabasebtn.caption
 msgid "Re&move"
 msgstr ""
@@ -141,6 +172,15 @@ msgstr ""
 
 #: tmainform.restorecleanerrorchk.hint
 msgctxt "tmainform.restorecleanerrorchk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr ""
+
+#: tmainform.restoredataonlychk.caption
+msgid "Restore data only"
+msgstr ""
+
+#: tmainform.restoredataonlychk.hint
+msgctxt "tmainform.restoredataonlychk.hint"
 msgid "Use this only for Creative Solutions databases"
 msgstr ""
 
@@ -172,6 +212,12 @@ msgid "Restore this file to new database"
 msgstr ""
 
 #: tmainform.restorelastbtn.caption
+msgctxt "tmainform.restorelastbtn.caption"
+msgid "&Restore Last"
+msgstr ""
+
+#: tmainform.restorelastbtn1.caption
+msgctxt "tmainform.restorelastbtn1.caption"
 msgid "&Restore Last"
 msgstr ""
 
@@ -181,6 +227,15 @@ msgstr ""
 
 #: tmainform.restorepointbtn.caption
 msgid "Restore &Point"
+msgstr ""
+
+#: tmainform.restorepublicschemaonlychk.caption
+msgid "Restore public schema only"
+msgstr ""
+
+#: tmainform.restorepublicschemaonlychk.hint
+msgctxt "tmainform.restorepublicschemaonlychk.hint"
+msgid "Use this only for Creative Solutions databases"
 msgstr ""
 
 #: tmainform.restorfromfilebtn.caption

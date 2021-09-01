@@ -5,6 +5,10 @@ msgstr "Content-Type: text/plain; charset=UTF-8"
 msgid "Clean Done"
 msgstr "تمت التنظيف"
 
+#: mainforms.sexcludetables
+msgid "\"*.\\\"AppFiles\\\"\""
+msgstr ""
+
 #: tmainform.adddatabasebtn.caption
 msgctxt "tmainform.adddatabasebtn.caption"
 msgid "&Add"
@@ -56,6 +60,15 @@ msgstr "القاعدة"
 msgid "Copy"
 msgstr "نسخ"
 
+#: tmainform.createmissedmetadatachk.caption
+msgid "Create missed metadata"
+msgstr "انشاء  التوصيفات  المفقودة"
+
+#: tmainform.createmissedmetadatachk.hint
+msgctxt "tmainform.createmissedmetadatachk.hint"
+msgid "Needed to restore quick backup, only for Creative Solutions databases"
+msgstr ""
+
 #: tmainform.csproductschk.caption
 msgid "Creative Solution Database product"
 msgstr "قاعدة بيانات الحلول المبتكرة"
@@ -98,6 +111,16 @@ msgstr "احذف كل قواعد البيانات التي تنتهي ب temp ا
 msgid "Drop"
 msgstr "احذف"
 
+#: tmainform.droppublicschemachk.caption
+msgid "Drop public schema"
+msgstr "ازل سكيما ال public"
+
+#: tmainform.droppublicschemachk.hint
+#, fuzzy
+msgctxt "tmainform.droppublicschemachk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
+
 #: tmainform.exporttab.caption
 msgid "Expert"
 msgstr "خبير"
@@ -133,6 +156,15 @@ msgctxt "tmainform.publicschemachk.hint"
 msgid "Use this only for big databases, and you are expert"
 msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
 
+#: tmainform.quickbackupchk.caption
+msgid "Quick backup (execlude huge tables)"
+msgstr "نسخ احتياطي سريع(استثناء الجداول الضخمة)"
+
+#: tmainform.quickbackupchk.hint
+msgctxt "tmainform.quickbackupchk.hint"
+msgid "Use this only for big databases, and you are expert"
+msgstr "استعملها عند الخبرة فقط"
+
 #: tmainform.removedatabasebtn.caption
 msgctxt "tmainform.removedatabasebtn.caption"
 msgid "Re&move"
@@ -158,6 +190,16 @@ msgstr "تنظيف قبل الاسترجاع"
 #: tmainform.restorecleanerrorchk.hint
 #, fuzzy
 msgctxt "tmainform.restorecleanerrorchk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
+
+#: tmainform.restoredataonlychk.caption
+msgid "Restore data only"
+msgstr "استرجاع البيانات فقط"
+
+#: tmainform.restoredataonlychk.hint
+#, fuzzy
+msgctxt "tmainform.restoredataonlychk.hint"
 msgid "Use this only for Creative Solutions databases"
 msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
 
@@ -190,6 +232,13 @@ msgid "Restore this file to new database"
 msgstr "استرجع الملف لقاعدة بيانات جديدة"
 
 #: tmainform.restorelastbtn.caption
+msgctxt "tmainform.restorelastbtn.caption"
+msgid "&Restore Last"
+msgstr "ا&سترجع الاخيرة"
+
+#: tmainform.restorelastbtn1.caption
+#, fuzzy
+msgctxt "tmainform.restorelastbtn1.caption"
 msgid "&Restore Last"
 msgstr "ا&سترجع الاخيرة"
 
@@ -200,6 +249,16 @@ msgstr "استرجع"
 #: tmainform.restorepointbtn.caption
 msgid "Restore &Point"
 msgstr "استرجع نقطة"
+
+#: tmainform.restorepublicschemaonlychk.caption
+msgid "Restore public schema only"
+msgstr "استرجاع البيانات العامة فقط"
+
+#: tmainform.restorepublicschemaonlychk.hint
+#, fuzzy
+msgctxt "tmainform.restorepublicschemaonlychk.hint"
+msgid "Use this only for Creative Solutions databases"
+msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
 
 #: tmainform.restorfromfilebtn.caption
 msgctxt "tmainform.restorfromfilebtn.caption"
@@ -236,4 +295,3 @@ msgstr "خيارات"
 #: tmainform.stopbtn.caption
 msgid "Stop"
 msgstr "قف"
-

@@ -52,4 +52,6 @@ Name: {group}\{cm:UninstallProgram,PG Tools}; Filename: {uninstallexe}
 Name: {commondesktop}\Creative Solutions PG Tools 32; Filename: {app}\pgtools32.exe; Tasks: desktopicon
 Name: {commondesktop}\Creative Solutions PG Tools 64; Filename: {app}\pgtools64.exe; Tasks: desktopicon
 
+[run]
+
 [UninstallDelete]
