@@ -24,12 +24,12 @@ uses
 type
   TRestoreOption = (
     roOverwrite,
+    roDirectDatabase,
     roIgnoreError,
     roCreateMissedMetaData,
     roDropPublicSchema,
     roRestorePublicSchemaOnly,
     roRestroreDataOnly,
-    roDirectDatabase,
     roCreativeSolutions
   );
 
@@ -549,6 +549,7 @@ procedure TRestoreExecuteObject.Prepare(const ConsoleThread: TmnConsoleThread);
 var
   cmd: TmncPGCommand;
   aDatabase: string;
+  CreateIt: Boolean;
 begin
   if roDirectDatabase in Options then
     aDatabase := Database
@@ -564,9 +565,12 @@ begin
       begin
         if not (roOverwrite in Options) then
           raise Exception.Create('Can''t restore, database is exists ' + Database);
-      end;
+        CreateIt := not (roDirectDatabase in Options);
+      end
+      else
+        CreateIt := True;
 
-      if not (roDirectDatabase in Options) then
+      if CreateIt then
       begin
         ConsoleThread.Log('Creating new Database ' + Database, lgStatus);
         cmd.SQL.Text := 'create database "' + aDatabase + '" OWNER = postgres ENCODING = ''UTF8'' CONNECTION LIMIT = -1';
@@ -658,7 +662,7 @@ begin
 
   if roCreativeSolutions in Options then
   begin
-    OpenPG(Database);
+    OpenPG(aDatabase);
     try
       cmd := PGSession.CreateCommand as TmncPGCommand;
       try
@@ -739,7 +743,7 @@ begin
   o.Port := GetPort;
   o.Database := DB;
   o.Directory := GetBackupDBDirectory(o.Database);
-  o.Options := Options + [roDirectDatabase] + RO(CSProductsChk.Checked, roCreativeSolutions);
+  o.Options := Options + RO(CSProductsChk.Checked, roCreativeSolutions);
 
   if AFileName = '' then
   begin

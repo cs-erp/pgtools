@@ -157,7 +157,9 @@ msgid "Use this only for big databases, and you are expert"
 msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
 
 #: tmainform.quickbackupchk.caption
-msgid "Quick backup (execlude huge tables)"
+#, fuzzy
+#| msgid "Quick backup (execlude huge tables)"
+msgid "Quick backup (execlude huge tables) TODO"
 msgstr "نسخ احتياطي سريع(استثناء الجداول الضخمة)"
 
 #: tmainform.quickbackupchk.hint
@@ -295,3 +297,4 @@ msgstr "خيارات"
 #: tmainform.stopbtn.caption
 msgid "Stop"
 msgstr "قف"
+

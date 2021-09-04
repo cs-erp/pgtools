@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 157
+  Left = 388
   Height = 578
-  Top = 116
+  Top = 127
   Width = 582
   Caption = 'Creative Solutions PG backup tool'
   ClientHeight = 578
@@ -12,10 +12,10 @@ object MainForm: TMainForm
   ShowHint = True
   LCLVersion = '2.3.0.0'
   inline LogEdit: TSynEdit
-    Left = 0
-    Height = 126
-    Top = 412
-    Width = 582
+    Left = 5
+    Height = 106
+    Top = 432
+    Width = 572
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 60
     Font.Height = -13
@@ -591,8 +591,8 @@ object MainForm: TMainForm
   end
   object BackupDatabasesList: TListBox
     Left = 6
-    Height = 206
-    Top = 202
+    Height = 223
+    Top = 204
     Width = 181
     ItemHeight = 0
     OnClick = BackupDatabasesListClick
@@ -619,16 +619,16 @@ object MainForm: TMainForm
   end
   object RestoreFilePageControl: TPageControl
     Left = 192
-    Height = 230
+    Height = 249
     Top = 179
     Width = 385
-    ActivePage = RestoreFileTab
+    ActivePage = DatabaseTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 5
     object DatabaseTab: TTabSheet
       Caption = 'Database'
-      ClientHeight = 202
+      ClientHeight = 221
       ClientWidth = 377
       object BackupBtn1: TButton
         Left = 6
@@ -725,7 +725,7 @@ object MainForm: TMainForm
     end
     object RestoreFileTab: TTabSheet
       Caption = 'Restore File'
-      ClientHeight = 202
+      ClientHeight = 221
       ClientWidth = 377
       object BackupFileNameEdit: TEdit
         Left = 6
@@ -763,74 +763,74 @@ object MainForm: TMainForm
         TabOrder = 2
       end
       object RestoreFileOverwriteChk: TCheckBox
-        Left = 16
+        Left = 14
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 56
+        Top = 65
         Width = 248
         Caption = 'Overwrite old database if exist (rename old)'
         TabOrder = 3
       end
       object RestoreFileIgnoreErrorChk: TCheckBox
-        Left = 16
+        Left = 14
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 182
+        Top = 191
         Width = 137
         Caption = 'Ignore Errors/Warning'
-        TabOrder = 8
+        TabOrder = 9
       end
       object RestoreCleanErrorChk: TCheckBox
-        Left = 16
+        Left = 14
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 76
+        Top = 86
         Width = 92
         Caption = 'Restore Clean'
         TabOrder = 4
       end
       object CreateMissedMetaDataChk: TCheckBox
-        Left = 16
+        Left = 14
         Height = 19
         Hint = 'Needed to restore quick backup, only for Creative Solutions databases'
-        Top = 160
+        Top = 169
         Width = 147
         Caption = 'Create missed metadata'
-        TabOrder = 7
+        TabOrder = 8
       end
       object RestoreLastBtn1: TButton
         Left = 271
         Height = 25
-        Top = 175
+        Top = 194
         Width = 100
         Anchors = [akRight, akBottom]
         Caption = '&Restore Last'
         OnClick = RestoreLastBtn1Click
-        TabOrder = 9
-      end
-      object DropPublicSchemaChk: TCheckBox
-        Left = 16
-        Height = 19
-        Hint = 'Use this only for Creative Solutions databases'
-        Top = 139
-        Width = 126
-        Caption = 'Drop public schema'
-        TabOrder = 5
-      end
-      object RestorePublicSchemaOnlyChk: TCheckBox
-        Left = 16
-        Height = 19
-        Hint = 'Use this only for Creative Solutions databases'
-        Top = 118
-        Width = 165
-        Caption = 'Restore public schema only'
         TabOrder = 10
       end
-      object RestoreDataOnlyChk: TCheckBox
-        Left = 16
+      object DropPublicSchemaChk: TCheckBox
+        Left = 14
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 97
+        Top = 148
+        Width = 126
+        Caption = 'Drop public schema'
+        TabOrder = 7
+      end
+      object RestorePublicSchemaOnlyChk: TCheckBox
+        Left = 14
+        Height = 19
+        Hint = 'Use this only for Creative Solutions databases'
+        Top = 107
+        Width = 165
+        Caption = 'Restore public schema only'
+        TabOrder = 5
+      end
+      object RestoreDataOnlyChk: TCheckBox
+        Left = 14
+        Height = 19
+        Hint = 'Use this only for Creative Solutions databases'
+        Top = 127
         Width = 111
         Caption = 'Restore data only'
         TabOrder = 6
@@ -838,7 +838,7 @@ object MainForm: TMainForm
     end
     object ExportTab: TTabSheet
       Caption = 'Expert'
-      ClientHeight = 202
+      ClientHeight = 221
       ClientWidth = 377
       TabVisible = False
       object BackupAllBtn: TButton
@@ -863,7 +863,7 @@ object MainForm: TMainForm
         Left = 3
         Height = 25
         Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
-        Top = 174
+        Top = 193
         Width = 110
         Anchors = [akLeft, akBottom]
         Caption = 'Drop all temps'
@@ -873,7 +873,7 @@ object MainForm: TMainForm
     end
     object AdminTab: TTabSheet
       Caption = 'Admin'
-      ClientHeight = 202
+      ClientHeight = 221
       ClientWidth = 377
       TabVisible = False
       object NewPasswordLbl: TLabel
@@ -1103,8 +1103,8 @@ object MainForm: TMainForm
         Height = 19
         Hint = 'Use this only for big databases, and you are expert'
         Top = 60
-        Width = 214
-        Caption = 'Quick backup (execlude huge tables)'
+        Width = 250
+        Caption = 'Quick backup (execlude huge tables) TODO'
         TabOrder = 2
       end
     end
@@ -1181,8 +1181,8 @@ object MainForm: TMainForm
     Text = 'English'
   end
   object LogPopupMenu: TPopupMenu
-    Left = 154
-    Top = 392
+    Left = 172
+    Top = 448
     object ClearLogMnu: TMenuItem
       Caption = 'Clear'
       OnClick = ClearLogMnuClick
@@ -1197,7 +1197,7 @@ object MainForm: TMainForm
     Enabled = False
     Interval = 5000
     OnTimer = StatusTimerTimer
-    Left = 287
-    Top = 421
+    Left = 292
+    Top = 460
   end
 end
