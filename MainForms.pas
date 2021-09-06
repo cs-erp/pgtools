@@ -10,30 +10,24 @@ unit MainForms;
  *  TODO: add clean with : --clean --if-exists
  *}
 
-{$mode objfpc}{$H+}
+{$ifdef FPC}
+{$mode delphi}
+{$endif}
+{$H+}
 
 interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls, StrUtils,
   ComCtrls, Menus, IniFiles, Contnrs, SynEdit, SynHighlighterAny,
-  LCLTranslator,
+  LCLTranslator, PGToolsUtils,
   mncPostgre, mnMsgBox, GUIMsgBox, process,
   ConsoleProcess, FileUtil, mnUtils, LazFileUtils;
 
 type
-  TRestoreOption = (
-    roOverwrite,
-    roDirectDatabase,
-    roIgnoreError,
-    roCreateMissedMetaData,
-    roDropPublicSchema,
-    roRestorePublicSchemaOnly,
-    roRestroreDataOnly,
-    roCreativeSolutions
-  );
-
-  TRestoreOptions = set of TRestoreOption;
+  TMyPGTool = class(TPGTool)
+  public
+  end;
 
   { TMainForm }
 
@@ -55,7 +49,7 @@ type
     RestoreByDateBtn: TButton;
     RestoreFileIgnoreErrorChk: TCheckBox;
     RestoreLastBtn1: TButton;
-    RestorFromFileBtn: TButton;
+    RestoreFromFileBtn: TButton;
     OpenFolderBtn: TButton;
     StopBtn: TButton;
     DirectoryEdit: TEdit;
@@ -130,50 +124,30 @@ type
     procedure BrowseBackupBtnClick(Sender: TObject);
     procedure RestoreByDateBtnClick(Sender: TObject);
     procedure RestoreAllBtnClick(Sender: TObject);
-    procedure RestorFromFileBtnClick(Sender: TObject);
+    procedure RestoreFromFileBtnClick(Sender: TObject);
     procedure RestorePointBtnClick(Sender: TObject);
     procedure SavePointBtnClick(Sender: TObject);
     procedure ScrollMnuClick(Sender: TObject);
     procedure StatusTimerTimer(Sender: TObject);
     procedure StopBtnClick(Sender: TObject);
   private
-    PoolThread: TObjectList;
-    ConsoleThread: TmnConsoleThread;
     procedure CheckLanguage;
     procedure ExploreFolder(AFolder, FileName: string);
     function GetPort: String;
-    procedure BackupDatabase(DB: String; APointName: string = '');
-    procedure RestoreDatabase(DB: String; APointName: String = '');
-    procedure RestoreDatabaseFile(DB: String; AFileName: String = ''; Options: TRestoreOptions = [roOverwrite]);
     procedure Log(S: String; Kind: TmnLogKind = lgLog);
-    procedure ConsoleTerminated(Sender: TObject);
   protected
-    FDestroying: Boolean;
-    FStop: Boolean;
-    PGConn: TmncPGConnection;
-    PGSession: TmncPGSession;
+    PGObject: TPGTool;
     Databases: TStringList;
-    PGPathBin: String;
-    IniPath: String;
-    Portable: Boolean;
+    procedure SetInfo;
     procedure BringInfo;
-    function GetBackupDBDirectory: string;
-    function GetBackupDBDirectory(DB: string): string;
-    function GetBackupDirectory: String;
-    function GetPGDirectory: String;
-    procedure EnumDatabases(vOld: Boolean);
-    procedure DropDatabase(ADatabase: String);
-    procedure RenameDatabase(ADatabase, AToName: String);
-    procedure CopyDatabase(ADatabase, AToName: String);
-    procedure OpenPG(vDatabase: String = 'postgres'; StartSession: Boolean = True);
-    procedure ClosePG(StopSession: Boolean = True);
-    procedure Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject = nil; IgnoreError: Boolean = False);
-    procedure Resume;
+    function GetRestoreOptions: TRestoreOptions;
+    function GetRestoreFileOptions: TRestoreOptions;
     procedure LoadIni;
     procedure DetectPGDirectory;
   public
-    InternalPGDirectory: String;//detected when load
+    IniPath: String;
     ExportMode: Boolean;
+    Portable: Boolean;
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
   end;
@@ -181,15 +155,9 @@ type
 var
   MainForm: TMainForm;
 
-function GetLocalName: string;
-
 implementation
 
 {$R *.lfm}
-
-resourcestring
-  sCleanDone = 'Clean Done';
-  sExcludeTables = '"*.\"AppFiles\""';
 
 function RO(B: Boolean; O: TRestoreOption): TRestoreOptions;
 begin
@@ -199,35 +167,12 @@ begin
     Result := [];
 end;
 
-function GetLocalName: string;
-begin
-  Result := Application.EnvironmentVariable['USERNAME']+'_'+Application.EnvironmentVariable['COMPUTERNAME'];
-end;
-
 { TMainForm }
 
 procedure TMainForm.DropAllTempsBtnClick(Sender: TObject);
-var
-  i: Integer;
 begin
-  OpenPG('postgres', False);
-  try
-    EnumDatabases(True);
-    for i := 0 to Databases.Count - 1 do
-    begin
-      InfoPanel.Caption := 'Dropping database ' + Databases[i];
-      PGConn.Execute('drop database "' + Databases[i] + '"');
-      //if PGConn.Execute('drop database "' + Databases[i]+'"') then
-      Log('Database Dropped: "' + Databases[i] + '"', lgStatus);
-      //else
-      //  Log('Database Dropped: "' + Databases[i]+'"');
-      LogEdit.CaretY := LogEdit.Lines.Count - 1;
-      Application.ProcessMessages;
-    end;
-  finally
-    ClosePG(False);
-  end;
-  Log(sCleanDone, lgDone);
+  SetInfo;
+  PGObject.DropAllTemps(GetRestoreOptions);
   Databases.Clear;
 end;
 
@@ -237,7 +182,8 @@ var
 begin
   for i := 0 to BackupDatabasesList.Items.Count - 1 do
   begin
-    BackupDatabase(BackupDatabasesList.Items[i]);
+    SetInfo;
+    PGObject.BackupDatabase(BackupDatabasesList.Items[i], RO(CSProductsChk.Checked, roCreativeSolutions));
   end;
 end;
 
@@ -261,7 +207,9 @@ var
   cmd: TmncPGCommand;
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
+  with PGObject do
   begin
+    SetInfo;
     OpenPG('postgres');
     try
       cmd := PGSession.CreateCommand as TmncPGCommand;
@@ -283,6 +231,7 @@ var
   DB, ToName: string;
 begin
   if DatabasesCbo.ItemIndex >= 0 then
+  with PGObject do
   begin
     DB := DatabasesCbo.Items[DatabasesCbo.ItemIndex];
     ToName := DB;
@@ -341,7 +290,10 @@ end;
 procedure TMainForm.BackupBtn1Click(Sender: TObject);
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
-    BackupDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex]);
+  begin
+    SetInfo;
+    PGObject.BackupDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], GetRestoreOptions);
+  end;
 end;
 
 procedure TMainForm.BackupBtn2Click(Sender: TObject);
@@ -350,6 +302,7 @@ var
   DB: String;
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
+  with PGObject do
   begin
     DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
     OpenPG(DB);
@@ -370,15 +323,18 @@ end;
 
 procedure TMainForm.ListDatabasesBtnClick(Sender: TObject);
 begin
-  OpenPG('postgres');
-  try
-    EnumDatabases(GetKeyShiftState = [ssCtrl]);
-    DatabasesCbo.Items.Assign(Databases);
-    if DatabasesCbo.Items.Count > 0 then
-      DatabasesCbo.ItemIndex := 0;
-    Databases.Clear;
-  finally
-    ClosePG;
+  with PGObject do
+  begin
+    OpenPG('postgres');
+    try
+      EnumDatabases(Databases, GetRestoreOptions, GetKeyShiftState = [ssCtrl]);
+      DatabasesCbo.Items.Assign(Databases);
+      if DatabasesCbo.Items.Count > 0 then
+        DatabasesCbo.ItemIndex := 0;
+      Databases.Clear;
+    finally
+      ClosePG;
+    end;
   end;
 end;
 
@@ -403,416 +359,16 @@ begin
     DB := DatabasesCbo.Items[DatabasesCbo.ItemIndex];
     if not MsgBox.No('Are you sure you want to drop: ' + DB + '?') then
     begin
-      OpenPG('postgres', False);
+      SetInfo;
       MsgBox.ShowStatus(Self, 'Dropping ' + DB);
       try
-        DropDatabase(DB);
+        PGObject.DropDatabase(DB);
         DatabasesCbo.Items.Delete(DatabasesCbo.ItemIndex);
       finally
-        ClosePG(False);
         MsgBox.HideStatus(Self);
       end;
     end;
   end;
-end;
-
-type
-
-  { TPGExecuteObject }
-
-  TPGExecuteObject = class(TExecuteObject)
-  public
-    PGConn: TmncPGConnection;
-    PGSession: TmncPGSession;
-    UserName: String;
-    Password: String;
-    Port: String;
-    Database: String;
-    Directory: String;
-    PointName: string;
-    Suffix: String;
-    Options: TRestoreOptions;
-    procedure OpenPG(vDatabase: String = 'postgres');
-    procedure ClosePG;
-    constructor Create;
-  end;
-
-  { TBackupExecuteObject }
-
-  TBackupExecuteObject = class(TPGExecuteObject)
-  public
-    FileName: String;
-    procedure Prepare(const ConsoleThread: TmnConsoleThread); override;
-    procedure Execute(const ConsoleThread: TmnConsoleThread); override;
-  end;
-
-  { TRestoreExecuteObject }
-
-  TRestoreExecuteObject = class(TPGExecuteObject)
-  public
-    procedure Prepare(const ConsoleThread: TmnConsoleThread); override;
-    procedure Execute(const ConsoleThread: TmnConsoleThread); override;
-  end;
-
-{ TBackupExecuteObject }
-
-procedure TBackupExecuteObject.Prepare(const ConsoleThread: TmnConsoleThread);
-var
-  cmd: TmncPGCommand;
-begin
-{  FileName := Directory + Database + '.backup.' + Suffix;
-  FileName := ExpandToPath(FileName, Application.Location);}
-  {if FileExists(FileName) then
-    RenameFile(FileName, FileName + '.' + Suffix);}
-  if roCreativeSolutions in Options then
-  begin
-    OpenPG(Database);
-    try
-      cmd := PGSession.CreateCommand as TmncPGCommand;
-      try
-        cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBeforeBackupDate'', ?SysValue)';
-        cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
-        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now) +  ' at ' + GetLocalName;
-        cmd.Execute;
-      finally
-        cmd.Free;
-      end;
-    finally
-      ClosePG;
-    end;
-  end;
-end;
-
-procedure TBackupExecuteObject.Execute(const ConsoleThread: TmnConsoleThread);
-var
-  cmd: TmncPGCommand;
-  ini: TIniFile;
-begin
-  if roCreativeSolutions in Options then
-  begin
-    OpenPG(Database);
-    try
-      cmd := PGSession.CreateCommand as TmncPGCommand;
-      try
-        cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBackupDate'', ?SysValue)';
-        cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") DO UPDATE SET "SysValue" = ?SysValue');
-        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now) +  ' at ' + GetLocalName;
-        cmd.Execute;
-      finally
-        cmd.Free;
-      end;
-    finally
-      ClosePG;
-    end;
-  end;
-
-  ini := TIniFile.Create(Directory + Database + '.ini');
-  try
-    if PointName = '' then
-    begin
-      ini.WriteString('info', 'id', GetLocalName);
-      ini.WriteString('info', 'last', ExtractFileName(FileName))
-    end;
-    ini.WriteString('info', 'lastfile', ExtractFileName(FileName))
-  finally
-    ini.Free;
-  end;
-end;
-
-{ TPGExecuteObject }
-
-procedure TPGExecuteObject.OpenPG(vDatabase: String);
-begin
-  if PGConn = nil then
-    PGConn := TmncPGConnection.Create;
-  PGConn.UserName := UserName;
-  PGConn.Password := Password;
-  PGConn.Port := Port;
-  PGConn.Resource := vDatabase;
-  PGConn.Connect;
-  PGSession := PGConn.CreateSession as TmncPGSession;
-end;
-
-procedure TPGExecuteObject.ClosePG;
-begin
-  FreeAndNil(PGSession);
-  FreeAndNil(PGConn);
-end;
-
-constructor TPGExecuteObject.Create;
-begin
-  inherited;
-  Suffix := FormatDateTime('yyyymmddhhnnss', Now);
-end;
-
-procedure TRestoreExecuteObject.Prepare(const ConsoleThread: TmnConsoleThread);
-var
-  cmd: TmncPGCommand;
-  aDatabase: string;
-  CreateIt: Boolean;
-begin
-  if roDirectDatabase in Options then
-    aDatabase := Database
-  else
-    aDatabase := Database + '_temp_' + Suffix;
-  OpenPG('postgres');
-  try
-    cmd := PGSession.CreateCommand as TmncPGCommand;
-    try
-      cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
-      cmd.SQL.Add('WHERE datistemplate = false and datname = ''' + Database + '''');
-      if cmd.Execute then
-      begin
-        if not (roOverwrite in Options) then
-          raise Exception.Create('Can''t restore, database is exists ' + Database);
-        CreateIt := not (roDirectDatabase in Options);
-      end
-      else
-        CreateIt := True;
-
-      if CreateIt then
-      begin
-        ConsoleThread.Log('Creating new Database ' + Database, lgStatus);
-        cmd.SQL.Text := 'create database "' + aDatabase + '" OWNER = postgres ENCODING = ''UTF8'' CONNECTION LIMIT = -1';
-        cmd.Execute;
-      end;
-
-    finally
-      cmd.Free;
-    end;
-  finally
-    ClosePG;
-  end;
-
-  if (roCreateMissedMetaData in Options) or (roDropPublicSchema in Options) then
-  begin
-    OpenPG(aDatabase);
-    try
-      cmd := PGSession.CreateCommand as TmncPGCommand;
-      try
-        if (roDropPublicSchema in Options) then
-        begin
-          ConsoleThread.Log('Drop Public MetaData ' + Database, lgStatus);
-          cmd.SQL.Text := 'drop schema public cascade';
-          cmd.Execute;
-        end;
-
-        if (roCreateMissedMetaData in Options) then
-        begin
-          ConsoleThread.Log('Creating Missed MetaData ' + Database, lgStatus);
-          cmd.SQL.Text := 'create extension pg_trgm';
-          cmd.Execute;
-          cmd.SQL.Text := 'create extension intarray';
-          cmd.Execute;
-          cmd.SQL.Text := 'create extension postgres_fdw';
-          cmd.Execute;
-          cmd.SQL.Text := 'create extension pgcrypto';
-          cmd.Execute;
-        end;
-      finally
-        cmd.Free;
-      end;
-    finally
-      ClosePG;
-    end;
-  end;
-
-end;
-
-procedure TRestoreExecuteObject.Execute(const ConsoleThread: TmnConsoleThread);
-var
-  cmd: TmncPGCommand;
-  aDatabase: string;
-begin
-  if (roDirectDatabase in Options) then
-    aDatabase := Database
-  else
-    aDatabase := Database + '_temp_' + Suffix;
-
-  if not (roDirectDatabase in Options) then
-  begin
-    OpenPG('postgres');
-    try
-      cmd := PGSession.CreateCommand as TmncPGCommand;
-      try
-        ConsoleThread.Log('Renaming database ' + Database, lgStatus);
-        cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
-        cmd.SQL.Add('WHERE datistemplate = false and datname = ''' + Database + '''');
-        if cmd.Execute then
-        begin
-          if roOverwrite in Options then
-          begin
-            cmd.SQL.Text := 'alter database "' + Database + '" rename to "' + Database + '.old_' + Suffix + '"';
-            cmd.Execute;
-          end
-          else
-            raise Exception.Create('Can''t restore, database is exists ' + Database);
-        end;
-        ConsoleThread.Log('Rename new Database ' + Database, lgStatus);
-        cmd.SQL.Text := 'alter database "' + aDatabase + '" rename to "' + Database + '"';
-        ConsoleThread.Log('Renamed database ' + Database, lgStatus);
-        cmd.Execute;
-      finally
-        cmd.Free;
-      end;
-    finally
-      ClosePG;
-    end;
-  end;
-
-  if roCreativeSolutions in Options then
-  begin
-    OpenPG(aDatabase);
-    try
-      cmd := PGSession.CreateCommand as TmncPGCommand;
-      try
-        cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastRestoreDate'', ?SysValue)';
-        cmd.SQL.Add('on conflict ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
-        cmd.Param['SysValue'].AsString := FormatDateTime('YYYY-MM-DD HH:MM:SS', Now) +  ' at ' + GetLocalName;
-        cmd.Execute;
-      finally
-        cmd.Free;
-      end;
-    finally
-      ClosePG;
-    end;
-  end;
-end;
-
-procedure TMainForm.RestoreDatabase(DB: String; APointName: String);
-var
-  o: TRestoreExecuteObject;
-  cmd: String;
-  ini: TIniFile;
-  filename: string;
-  aDatabase: string;
-begin
-  o := TRestoreExecuteObject.Create;
-  o.UserName := UserNameEdit.Text;
-  o.Password := PasswordEdit.Text;
-  o.Port := GetPort;
-  o.Database := DB;
-  o.Directory := GetBackupDBDirectory(o.Database);
-  o.Options := [roOverwrite] + RO(CSProductsChk.Checked, roCreativeSolutions);
-  o.PointName := APointName;
-
-  if APointName <> '' then
-    o.Directory := IncludeTrailingPathDelimiter(o.Directory + 'points');
-  if APointName <> '' then
-    filename := o.Directory + APointName +'.backup'
-  else
-  begin
-    ini := TIniFile.Create(GetBackupDBDirectory(DB) + DB + '.ini');
-    try
-       filename := ini.ReadString('info', 'last', '');
-    finally
-      ini.Free;
-    end;
-    if filename = '' then
-    begin
-      MsgBox.Error('There is no last file to restore');
-      exit;
-    end;
-    filename := o.Directory + filename;
-  end;
-  if roDirectDatabase in o.Options then
-    aDatabase := DB
-  else
-    aDatabase := DB + '_temp_' + o.Suffix;
-  cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" --dbname "' + aDatabase + '" --password --verbose "' + filename + '"';
-  Launch('Restoring: ' + DB + ' file: ' + filename, 'pg_restore.exe', cmd, PasswordEdit.Text, o);
-end;
-
-procedure TMainForm.RestoreDatabaseFile(DB: String; AFileName: String; Options: TRestoreOptions);
-var
-  o: TRestoreExecuteObject;
-  aParams: string;
-  cmd: String;
-  ini: TIniFile;
-  aDatabase: string;
-  procedure AddParam(s: string);
-  begin
-{    if aParams <> '' then
-      aParams := aParams + ' ';}
-    aParams := aParams + ' ' + S;
-  end;
-begin
-  o := TRestoreExecuteObject.Create;
-  o.UserName := UserNameEdit.Text;
-  o.Password := PasswordEdit.Text;
-  o.Port := GetPort;
-  o.Database := DB;
-  o.Directory := GetBackupDBDirectory(o.Database);
-  o.Options := Options + RO(CSProductsChk.Checked, roCreativeSolutions);
-
-  if AFileName = '' then
-  begin
-    ini := TIniFile.Create(GetBackupDBDirectory(DB) + DB + '.ini');
-    try
-       AFileName := ini.ReadString('info', 'last', '');
-    finally
-      ini.Free;
-    end;
-    if AFileName = '' then
-    begin
-      MsgBox.Error('There is no last file to restore');
-      exit;
-    end;
-    AFileName := o.Directory + AFileName;
-  end;
-
-  if RestoreCleanErrorChk.Checked then
-    AddParam('--clean --if-exists');
-
-  if roRestorePublicSchemaOnly in Options then
-    AddParam('--schema=public');
-
-  if roRestroreDataOnly in Options then
-    AddParam('--data-only');
-
-  if roDirectDatabase in Options then
-    aDatabase := DB
-  else
-    aDatabase := DB + '_temp_' + o.Suffix;
-  cmd := '--host localhost --port ' + GetPort + ' --username "' + o.UserName + '" ' + aParams + ' --dbname "' + aDatabase + '" --password --verbose "' + AFileName + '"';
-
-  Launch('Restoring: ' + DB + ' file: ' + AFileName, 'pg_restore.exe', cmd, PasswordEdit.Text, o, roIgnoreError in Options);
-end;
-
-procedure TMainForm.BackupDatabase(DB: String; APointName: string);
-var
-  cmd: String;
-  o: TBackupExecuteObject;
-begin
-  //o.Overwrite := Overwrite;
-  //"SET PGPASSWORD=<password>"
-  o := TBackupExecuteObject.Create;
-  o.UserName := UserNameEdit.Text;
-  o.Password := PasswordEdit.Text;
-  o.Port := GetPort;
-  o.Options := RO(CSProductsChk.Checked, roCreativeSolutions);
-  o.Database := DB;
-  o.Directory := GetBackupDBDirectory(o.Database);
-  if APointName <> '' then
-    o.Directory := IncludeTrailingPathDelimiter(o.Directory + 'points');
-  if APointName <> '' then
-    o.FileName := o.Directory + APointName + '.backup'
-  else
-    o.FileName := o.Directory + DB + '.' + o.Suffix + '.backup';
-  o.FileName := ExpandToPath(o.FileName, Application.Location);
-  ForceDirectories(ExtractFilePath(o.FileName));
-  cmd := '';
-  cmd := cmd + ' -v --host localhost --port ' + GetPort + ' --password --username "' + o.UserName + '"';
-  if PublicSchemaChk.Checked then
-    cmd := cmd + ' --schema=public'
-  else
-    cmd := cmd + ' --blobs';
-  if QuickBackupChk.Checked then
-    cmd := cmd + ' -T ' + sExcludeTables;
-  cmd := cmd + ' --format custom --compress=9 --file "' + o.FileName + '" "' + DB + '"';
-
-  //cmd := cmd + ' --format tar --blobs --file "' + filename + '" "' + DB + '"';
-  Launch('Backuping: ' + DB + ' file: ' + o.FileName, 'pg_dump.exe', cmd, PasswordEdit.Text, o);
 end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
@@ -846,7 +402,7 @@ begin
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
     aDatabase := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
-    aDirectory := GetBackupDBDirectory(aDatabase);
+    aDirectory := PGObject.GetBackupDBDirectory(aDatabase);
     ini := TIniFile.Create(aDirectory + aDatabase + '.ini');
     try
       s := ini.ReadString('info', 'lastfile', '');
@@ -871,15 +427,19 @@ begin
         MsgBox.Show('Nothing to do')
       else
       begin
-        OpenPG('postgres', False);
-        MsgBox.ShowStatus(Self, 'Dropping ' + DB + ' to ' + ToName);
-        try
-          RenameDatabase(DB, ToName);
-          DatabasesCbo.Items[DatabasesCbo.ItemIndex] := ToName;
-        finally
-          ClosePG(False);
+        with PGObject do
+        begin
+          SetInfo;
+          OpenPG('postgres', False);
+          MsgBox.ShowStatus(Self, 'Renaming ' + DB + ' to ' + ToName);
+          try
+            PGObject.RenameDatabase(DB, ToName);
+            DatabasesCbo.Items[DatabasesCbo.ItemIndex] := ToName;
+          finally
+            ClosePG(False);
+          end;
+          MsgBox.HideStatus(Self);
         end;
-        MsgBox.HideStatus(Self);
       end;
     end;
   end;
@@ -894,14 +454,10 @@ begin
     db := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
     //if not MsgBox.No('Are you sure you want to restore database?') then
     if MsgBox.Input(DB, 'Enter then name of new Database to restore') then
-      RestoreDatabaseFile(DB, '',
-        [roDirectDatabase] +
-        RO(RestoreFileOverwriteChk.Checked, roOverwrite) +
-        RO(RestoreFileIgnoreErrorChk.Checked, roIgnoreError) +
-        RO(CreateMissedMetaDataChk.Checked, roCreateMissedMetaData) +
-        RO(DropPublicSchemaChk.Checked, roDropPublicSchema) +
-        RO(RestorePublicSchemaOnlyChk.Checked, roRestorePublicSchemaOnly)
-      );
+    begin
+      SetInfo;
+      PGObject.RestoreDatabaseFile(DB, '', [roDirectDatabase] + GetRestoreOptions);
+    end;
   end;
 end;
 
@@ -913,8 +469,11 @@ begin
   begin
     db := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
     if not MsgBox.No('Are you sure you want to restore database?') then
-      RestoreDatabase(db);
-   end;
+    begin
+      SetInfo;
+      PGObject.RestoreDatabase(db, GetRestoreOptions);
+    end;
+  end;
 end;
 
 procedure TMainForm.RestoreNewFromFileBtnClick(Sender: TObject);
@@ -923,15 +482,10 @@ var
 begin
   DB := ExtractFileNameWithoutExt(ExtractFileName(BackupFileNameEdit.Text));
   if MsgBox.Input(DB, 'Enter then name of new Database to restore') then
-    RestoreDatabaseFile(DB, BackupFileNameEdit.Text,
-      [roDirectDatabase] +
-      RO(RestoreFileOverwriteChk.Checked, roOverwrite) +
-      RO(RestoreFileIgnoreErrorChk.Checked, roIgnoreError) +
-      RO(CreateMissedMetaDataChk.Checked, roCreateMissedMetaData) +
-      RO(DropPublicSchemaChk.Checked, roDropPublicSchema) +
-      RO(RestoreDataOnlyChk.Checked, roRestroreDataOnly) +
-      RO(RestorePublicSchemaOnlyChk.Checked, roRestorePublicSchemaOnly)
-    );
+  begin
+    SetInfo;
+    PGObject.RestoreDatabaseFile(DB, BackupFileNameEdit.Text, [roDirectDatabase] + GetRestoreFileOptions);
+  end;
 end;
 
 procedure TMainForm.BrowseBackupBtnClick(Sender: TObject);
@@ -959,7 +513,7 @@ begin
     names := TStringList.Create;
     try
       DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
-      Dir := ExpandToPath(GetBackupDBDirectory(DB), Application.Location);
+      Dir := ExpandToPath(PGObject.GetBackupDBDirectory(DB), Application.Location);
       i := -1;
       EnumFiles(files, Dir, DB + '.*.backup');
       files.Sort;
@@ -976,8 +530,8 @@ begin
 
       if MsgBox.List(i, 'Select a point to restore', names) then
       begin
-        RestoreDatabaseFile(DB, Dir + files[i], [roOverwrite]);
-        files.CommaText
+        SetInfo;
+        PGObject.RestoreDatabaseFile(DB, Dir + files[i], [roRestoreOverwrite]);
       end;
     finally
       files.Free;
@@ -993,14 +547,15 @@ begin
   if not MsgBox.No('Are you sure you want to RESTORE all databases?') then
     for i := 0 to BackupDatabasesList.Items.Count - 1 do
     begin
-      RestoreDatabase(BackupDatabasesList.Items[i]);
+      PGObject.RestoreDatabase(BackupDatabasesList.Items[i], GetRestoreOptions);
     end;
 end;
 
-procedure TMainForm.RestorFromFileBtnClick(Sender: TObject);
+procedure TMainForm.RestoreFromFileBtnClick(Sender: TObject);
 var
   DB, Selected: String;
 begin
+  SetInfo;
   with TOpenDialog.Create(Self) do
   begin
     Filter := '*.backup';
@@ -1017,11 +572,11 @@ begin
         if not SameText(DB, Selected) then
           MsgBox.Error('Please select backup file with same name of database selected')
         else if not MsgBox.No('Are you sure you want to restore database?') then
-          RestoreDatabaseFile(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], FileName, [roOverwrite]);
+          PGObject.RestoreDatabaseFile(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], FileName, [roRestoreOverwrite]);
       end
       else
         if MsgBox.Input(DB, 'Enter then name of new Database to restore') then
-          RestoreDatabaseFile(DB, FileName, []);
+          PGObject.RestoreDatabaseFile(DB, FileName, []);
     end;
     Free;
   end;
@@ -1048,16 +603,17 @@ var
   i: Integer;
   DB: string;
 begin
+  SetInfo;
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
     files := TStringList.Create;
     try
       DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
       i := -1;
-      EnumFiles(files, GetBackupDBDirectory(DB) + 'points', '*.backup', false);
+      EnumFiles(files, PGObject.GetBackupDBDirectory(DB) + 'points', '*.backup', false);
       if MsgBox.List(i, 'Select a point to restore', files) then
       begin
-        RestoreDatabase(DB, files[i]);
+        PGObject.RestoreDatabase(DB, GetRestoreOptions, files[i]);
       end;
     finally
       files.Free;
@@ -1073,7 +629,7 @@ begin
   begin
     APoint := '';
     if MsgBox.Input(APoint, 'Enter then name of new Database to restore') and (APoint <> '') then
-      BackupDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], APoint);
+      PGObject.BackupDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], GetRestoreOptions, APoint);
   end;
 end;
 
@@ -1090,14 +646,7 @@ end;
 
 procedure TMainForm.StopBtnClick(Sender: TObject);
 begin
-  FStop := True;
-  if ConsoleThread <> nil then
-  begin
-    ConsoleThread.Kill;
-    ConsoleThread.Terminate;
-    //ConsoleThread.WaitFor;
-    //FreeAndNil(ConsoleThread);
-  end;
+  PGObject.Stop;
 end;
 
 function TMainForm.GetPort: String;
@@ -1128,22 +677,22 @@ begin
     LogEdit.CaretY := LogEdit.Lines.Count;
 end;
 
-procedure TMainForm.ConsoleTerminated(Sender: TObject);
+procedure TMainForm.SetInfo;
 begin
-  if not FDestroying then
-  begin
-    if ConsoleThread <> nil then
-    begin
-      if ConsoleThread.Status = 0 then
-        Log(ConsoleThread.Message + ' Done', lgDone)
-      else
-        Log('Error look the log', lgMessage);
-      ConsoleThread := nil;
-      //FreeAndNil(ConsoleThread); //nop
-      if not FStop then
-        Resume;
-    end;
-  end;
+  PGObject.Password := UserNameEdit.Text;
+  PGObject.Password := PasswordEdit.Text;
+  PGObject.Port := GetPort;
+
+  if BackupDatabasesList.ItemIndex >= 0 then
+    PGObject.Database := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex]
+  else
+    PGObject.Database := '';
+
+  if DirectoryEdit.Text <> '' then
+    PGObject.BackupDirectory := ExpandToPath(IncludeTrailingPathDelimiter(DirectoryEdit.Text), Application.Location)
+  else
+    PGObject.BackupDirectory := Application.Location;
+
 end;
 
 procedure TMainForm.BringInfo;
@@ -1154,7 +703,7 @@ begin
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
       db := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
-      ini := TIniFile.Create(GetBackupDBDirectory(db) + db+ '.ini');
+      ini := TIniFile.Create(PGObject.GetBackupDBDirectory(db) + db+ '.ini');
       try
          BackupDeviceIDLbl.Caption := ini.ReadString('info', 'id', '');
       finally
@@ -1165,154 +714,27 @@ begin
     BackupDeviceIDLbl.Caption := '';
 end;
 
-function TMainForm.GetBackupDBDirectory: string;
+function TMainForm.GetRestoreOptions: TRestoreOptions;
 begin
-  if BackupDatabasesList.ItemIndex >=0 then
-    Result := GetBackupDBDirectory(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex])
-  else
-    Result := GetBackupDirectory;
+  Result :=
+    RO(RestoreFileOverwriteChk.Checked, roRestoreOverwrite) +
+    RO(RestoreFileIgnoreErrorChk.Checked, roIgnoreError) +
+    RO(CreateMissedMetaDataChk.Checked, roCreateMissedMetaData) +
+    RO(DropPublicSchemaChk.Checked, roDropPublicSchema) +
+    RO(RestoreDataOnlyChk.Checked, roRestroreDataOnly) +
+    RO(PublicSchemaChk.Checked, roBackupPublicSchemaOnly);
 end;
 
-function TMainForm.GetBackupDBDirectory(DB: string): string;
+function TMainForm.GetRestoreFileOptions: TRestoreOptions;
 begin
-  Result := GetBackupDirectory;
-  Result := IncludeTrailingPathDelimiter(Result + DB);
-end;
-
-function TMainForm.GetBackupDirectory: String;
-begin
-  if DirectoryEdit.Text <> '' then
-    Result := ExpandToPath(IncludeTrailingPathDelimiter(DirectoryEdit.Text), Application.Location)
-  else
-    Result := Application.Location;
-end;
-
-function TMainForm.GetPGDirectory: String;
-begin
-  Result := InternalPGDirectory;
-end;
-
-procedure TMainForm.EnumDatabases(vOld: Boolean);
-var
-  cmd: TmncPGCommand;
-begin
-  Databases.Clear;
-  cmd := PGSession.CreateCommand as TmncPGCommand;
-  try
-    cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
-    cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
-    if CSProductsChk.Checked then
-      cmd.SQL.Add('and datname <> ''CreativeSolutions''');
-    if vOld then
-      cmd.SQL.Add('and ')
-    else
-      cmd.SQL.Add('and not ');
-    cmd.SQL.Add('(datname like ''%_old%''');
-    cmd.SQL.Add('or datname like ''%.old%''');
-    cmd.SQL.Add('or datname like ''%.temp%''');
-    cmd.SQL.Add('or datname like ''%_temp%'')');
-    cmd.SQL.Add('order by datname');
-
-    if cmd.Execute then
-    begin
-      while not cmd.Done do
-      begin
-        Databases.Add(cmd.Field['name'].AsString);
-        //Log(cmd.Field['name'].AsString);
-        cmd.Next;
-      end;
-    end;
-  finally
-    cmd.Free;
-  end;
-end;
-
-procedure TMainForm.DropDatabase(ADatabase: String);
-begin
-  InfoPanel.Caption := 'Dropping database ' + ADatabase;
-  PGConn.Execute('drop database "' + ADatabase + '"');
-  Log('Database Dropped: "' + ADatabase + '"', lgStatus);
-end;
-
-procedure TMainForm.RenameDatabase(ADatabase, AToName: String);
-begin
-  InfoPanel.Caption := 'Renaming database ' + AToName;
-  PGConn.Execute('alter database "' + ADatabase + '" rename to "' + AToName + '"');
-  Log('Database Renamed: "' + ADatabase + '"', lgStatus);
-end;
-
-procedure TMainForm.CopyDatabase(ADatabase, AToName: String);
-begin
-  InfoPanel.Caption := 'Copying database ' + ADatabase + ' to ' + AToName;
-  PGConn.Execute('CREATE DATABASE "' + AToName + '" TEMPLATE "' + ADatabase + '"');
-  Log('Database copied: "' + ADatabase + ' to ' + AToName + '"', lgStatus);
-end;
-
-procedure TMainForm.OpenPG(vDatabase: String; StartSession: Boolean);
-begin
-  if PGConn = nil then
-    PGConn := TmncPGConnection.Create;
-  PGConn.UserName := UserNameEdit.Text;
-  PGConn.Password := PasswordEdit.Text;
-  PGConn.Port := GetPort;
-  PGConn.Resource := vDatabase;
-
-  PGConn.ClientEncoding := 'UNICODE';
-  PGConn.ByteaOutput := 'escape';
-  PGConn.DateStyle := 'iso, mdy';
-
-  PGConn.Connect;
-  //PGConn.AutoStart : = true;
-  PGSession := PGConn.CreateSession as TmncPGSession;
-  if StartSession then
-    PGSession.Start;
-end;
-
-procedure TMainForm.ClosePG(StopSession: Boolean);
-begin
-  if PGConn <> nil then
-  begin
-    if StopSession then
-      PGSession.Commit;
-    FreeAndNil(PGSession);
-    FreeAndNil(PGConn);
-  end;
-end;
-
-procedure TMainForm.Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject; IgnoreError: Boolean);
-var
-  aConsoleThread: TmnConsoleThread;
-begin
-  if GetPGDirectory <> '' then
-    vExecutable := IncludeTrailingPathDelimiter(GetPGDirectory) + vExecutable;
-  aConsoleThread := TmnConsoleThread.Create(vExecutable, GetBackupDirectory, vParameters, @Log);
-  aConsoleThread.OnTerminate := @ConsoleTerminated;
-  aConsoleThread.Password := vPassword;
-  aConsoleThread.Message := vMessage;
-  aConsoleThread.ExecuteObject := vExecuteObject;
-  aConsoleThread.IgnoreError := IgnoreError;
-  PoolThread.Add(aConsoleThread);
-  Resume;
-end;
-
-procedure TMainForm.Resume;
-begin
-  if (PoolThread.Count > 0) then
-  begin
-    if (ConsoleThread = nil) then
-    begin
-      ConsoleThread := PoolThread.Extract(PoolThread.First) as TmnConsoleThread;
-      //Log(ConsoleThread.Message);
-      InfoPanel.Caption := ConsoleThread.Message;
-      Application.ProcessMessages;
-      ConsoleThread.Start;
-    end;
-  end
-  else
-  begin
-    Log('Finished', lgMessage);
-    InfoPanel.Caption := '';
-  end;
+  Result :=
+    RO(RestoreFileOverwriteChk.Checked, roRestoreOverwrite) +
+    RO(RestoreFileIgnoreErrorChk.Checked, roIgnoreError) +
+    RO(CreateMissedMetaDataChk.Checked, roCreateMissedMetaData) +
+    RO(DropPublicSchemaChk.Checked, roDropPublicSchema) +
+    RO(RestoreDataOnlyChk.Checked, roRestroreDataOnly) +
+    RO(PublicSchemaChk.Checked, roBackupPublicSchemaOnly);
+    RO(RestorePublicSchemaOnlyChk.Checked, roRestorePublicSchemaOnly);
 end;
 
 procedure TMainForm.LoadIni;
@@ -1336,7 +758,7 @@ begin
     ExportTab.TabVisible := True;
     AdminTab.TabVisible := True;
     AdminPanel.Visible := True;
-    RestorFromFileBtn.Visible := True;
+    RestoreFromFileBtn.Visible := True;
     RestoreByDateBtn.Visible := True;
   end;
   //PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
@@ -1348,7 +770,7 @@ procedure TMainForm.DetectPGDirectory;
   begin
     Result := FileExists(f);
     if Result then
-      InternalPGDirectory := ExtractFilePath(f);
+      PGObject.InternalPGDirectory := ExtractFilePath(f);
   end;
 begin
   if not Check(Application.Location + 'libpq.dll') then
@@ -1369,10 +791,10 @@ var
   aStrings: TStringList;
 begin
   inherited;
+  PGObject := TPGTool.Create;
   UserNameEdit.Text := 'postgres';
   DetectPGDirectory;
   Log('This Device: ' + GetLocalName);
-  PoolThread := TObjectList.Create;
   ini := TIniFile.Create(Application.Location + 'pgtools.ini');
   Portable := ini.ReadBool('options', 'portable', True);
   ini.Free;
@@ -1403,8 +825,8 @@ begin
     BackupDatabasesList.ItemIndex := 0;
   Databases := TStringList.Create;
   BringInfo;
-  if GetPGDirectory <> '' then
-    SetCurrentDir(GetPGDirectory);
+  if PGObject.GetPGDirectory <> '' then
+    SetCurrentDir(PGObject.GetPGDirectory);
 end;
 
 destructor TMainForm.Destroy;
@@ -1412,17 +834,7 @@ var
   i: Integer;
   ini: TIniFile;
 begin
-  FDestroying := True;
-  FStop := True;
-  PoolThread.Clear;
-  if ConsoleThread <> nil then
-  begin
-    ConsoleThread.Kill;
-    ConsoleThread.Terminate;
-    //ConsoleThread.WaitFor;
-    //FreeAndNil(ConsoleThread);
-  end;
-  ClosePG;
+  PGObject.Shutdown;
   FreeAndNil(Databases);
 
   ini := TIniFile.Create(IniPath + 'pgtools.ini');
@@ -1442,9 +854,8 @@ begin
   for i := 0 to BackupDatabasesList.Items.Count - 1 do
     ini.WriteString('data', 'data' + IntToStr(i), BackupDatabasesList.Items[i]);
   ini.Free;
-  FreeAndNil(PoolThread);
+  FreeAndNil(PGObject);
   inherited;
-   Screen.Width
 end;
 
 initialization

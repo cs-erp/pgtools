@@ -2,10 +2,23 @@ msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
 #: mainforms.scleandone
+msgctxt "mainforms.scleandone"
 msgid "Clean Done"
 msgstr "تمت التنظيف"
 
 #: mainforms.sexcludetables
+msgctxt "mainforms.sexcludetables"
+msgid "\"*.\\\"AppFiles\\\"\""
+msgstr ""
+
+#: pgtoolsutils.scleandone
+#, fuzzy
+msgctxt "pgtoolsutils.scleandone"
+msgid "Clean Done"
+msgstr "تمت التنظيف"
+
+#: pgtoolsutils.sexcludetables
+msgctxt "pgtoolsutils.sexcludetables"
 msgid "\"*.\\\"AppFiles\\\"\""
 msgstr ""
 
@@ -233,6 +246,12 @@ msgctxt "tmainform.restorefiletonewdatabaselbl.caption"
 msgid "Restore this file to new database"
 msgstr "استرجع الملف لقاعدة بيانات جديدة"
 
+#: tmainform.restorefromfilebtn.caption
+#, fuzzy
+msgctxt "tmainform.restorefromfilebtn.caption"
+msgid "Restore File"
+msgstr "استرجع ملف"
+
 #: tmainform.restorelastbtn.caption
 msgctxt "tmainform.restorelastbtn.caption"
 msgid "&Restore Last"
@@ -261,11 +280,6 @@ msgstr "استرجاع البيانات العامة فقط"
 msgctxt "tmainform.restorepublicschemaonlychk.hint"
 msgid "Use this only for Creative Solutions databases"
 msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
-
-#: tmainform.restorfromfilebtn.caption
-msgctxt "tmainform.restorfromfilebtn.caption"
-msgid "Restore File"
-msgstr "استرجع ملف"
 
 #: tmainform.savepasswordchk.caption
 msgid "Save password (saved uncrypted)"

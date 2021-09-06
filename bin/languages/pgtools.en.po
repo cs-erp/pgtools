@@ -2,10 +2,22 @@ msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
 #: mainforms.scleandone
+msgctxt "mainforms.scleandone"
 msgid "Clean Done"
 msgstr ""
 
 #: mainforms.sexcludetables
+msgctxt "mainforms.sexcludetables"
+msgid "\"*.\\\"AppFiles\\\"\""
+msgstr ""
+
+#: pgtoolsutils.scleandone
+msgctxt "pgtoolsutils.scleandone"
+msgid "Clean Done"
+msgstr ""
+
+#: pgtoolsutils.sexcludetables
+msgctxt "pgtoolsutils.sexcludetables"
 msgid "\"*.\\\"AppFiles\\\"\""
 msgstr ""
 
@@ -211,6 +223,11 @@ msgstr ""
 msgid "Restore this file to new database"
 msgstr ""
 
+#: tmainform.restorefromfilebtn.caption
+msgctxt "tmainform.restorefromfilebtn.caption"
+msgid "Restore File"
+msgstr ""
+
 #: tmainform.restorelastbtn.caption
 msgctxt "tmainform.restorelastbtn.caption"
 msgid "&Restore Last"
@@ -236,11 +253,6 @@ msgstr ""
 #: tmainform.restorepublicschemaonlychk.hint
 msgctxt "tmainform.restorepublicschemaonlychk.hint"
 msgid "Use this only for Creative Solutions databases"
-msgstr ""
-
-#: tmainform.restorfromfilebtn.caption
-msgctxt "tmainform.restorfromfilebtn.caption"
-msgid "Restore File"
 msgstr ""
 
 #: tmainform.savepasswordchk.caption

@@ -14,7 +14,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces,
-  Forms, MainForms;
+  Forms, MainForms, PGToolsUtils;
 
 {$R *.res}
 
