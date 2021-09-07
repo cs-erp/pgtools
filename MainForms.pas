@@ -141,7 +141,7 @@ type
     function GetPort: String;
     procedure Log(S: String; Kind: TmnLogKind = lgLog);
   protected
-    PGObject: TPGTool;
+    PGObject: TMyPGTool;
     Databases: TStringList;
     procedure SetInfo;
     procedure BringInfo;
@@ -757,7 +757,7 @@ var
   aStrings: TStringList;
 begin
   inherited;
-  PGObject := TPGTool.Create;
+  PGObject := TMyPGTool.Create;
   UserNameEdit.Text := 'postgres';
   DetectPGDirectory;
   Log('This Device: ' + GetLocalName);

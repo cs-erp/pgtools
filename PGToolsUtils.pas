@@ -74,6 +74,7 @@ type
 
     procedure Log(S: String; Kind: TmnLogKind = lgLog); virtual;
   public
+    ConnectCount: Integer;
     PoolThread: TObjectList;
     PGPathBin: String;
     FDestroying: Boolean;
@@ -555,7 +556,7 @@ var
   Databases: TStringList;
 begin
   OpenPG('postgres', False);
-  Databases:=TStringList.Create;
+  Databases := TStringList.Create;
   try
     EnumDatabases(Databases, Options, True);
     for i := 0 to Databases.Count - 1 do
@@ -636,34 +637,41 @@ end;
 
 procedure TPGTool.OpenPG(vDatabase: String; StartSession: Boolean);
 begin
-  if PGConn = nil then
+  if ConnectCount = 0 then
+  begin
+    if PGConn <> nil then
+      raise Exception.Create('Already connected check your code');
     PGConn := TmncPGConnection.Create;
 
-  PGConn.UserName := UserName;
-  PGConn.Password := Password;
-  PGConn.Port := Port;
-  PGConn.Resource := vDatabase;
+    PGConn.UserName := UserName;
+    PGConn.Password := Password;
+    PGConn.Port := Port;
+    PGConn.Resource := vDatabase;
 
-  PGConn.ClientEncoding := 'UNICODE';
-  PGConn.ByteaOutput := 'escape';
-  PGConn.DateStyle := 'iso, mdy';
+    PGConn.ClientEncoding := 'UNICODE';
+    PGConn.ByteaOutput := 'escape';
+    PGConn.DateStyle := 'iso, mdy';
 
-  PGConn.Connect;
-  //PGConn.AutoStart : = true;
-  PGSession := PGConn.CreateSession as TmncPGSession;
-  if StartSession then
-    PGSession.Start;
+    PGConn.Connect;
+    //PGConn.AutoStart : = true;
+    PGSession := PGConn.CreateSession as TmncPGSession;
+    if StartSession then
+      PGSession.Start;
+  end;
+  Inc(ConnectCount);
 end;
 
 procedure TPGTool.ClosePG(StopSession: Boolean);
 begin
-  if PGConn <> nil then
-  begin
-    if StopSession and (PGSession <> nil) then
-      PGSession.Commit;
-    FreeAndNil(PGSession);
-    FreeAndNil(PGConn);
-  end;
+  Dec(ConnectCount);
+  if ConnectCount = 0 then
+    if PGConn <> nil then
+    begin
+      if StopSession and (PGSession <> nil) then
+        PGSession.Commit;
+      FreeAndNil(PGSession);
+      FreeAndNil(PGConn);
+    end;
 end;
 
 procedure TPGTool.Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject; IgnoreError: Boolean);

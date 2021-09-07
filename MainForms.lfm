@@ -622,9 +622,9 @@ object MainForm: TMainForm
     Height = 249
     Top = 179
     Width = 385
-    ActivePage = DatabaseTab
+    ActivePage = AdminTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 3
     TabOrder = 5
     object DatabaseTab: TTabSheet
       Caption = 'Database'
@@ -885,10 +885,10 @@ object MainForm: TMainForm
         Caption = 'New Password'
       end
       object NewPasswordEdit: TEdit
-        Left = 142
+        Left = 96
         Height = 23
         Top = 13
-        Width = 112
+        Width = 158
         AutoSize = False
         EchoMode = emPassword
         PasswordChar = '*'
