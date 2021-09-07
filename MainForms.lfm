@@ -622,9 +622,9 @@ object MainForm: TMainForm
     Height = 249
     Top = 179
     Width = 385
-    ActivePage = RestoreFileTab
+    ActivePage = DatabaseTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 5
     object DatabaseTab: TTabSheet
       Caption = 'Database'
@@ -649,13 +649,13 @@ object MainForm: TMainForm
         OnClick = RestoreLastBtnClick
         TabOrder = 1
       end
-      object BackupBtn2: TButton
+      object InfoBtn: TButton
         Left = 6
         Height = 25
         Top = 34
         Width = 100
         Caption = '&Info'
-        OnClick = BackupBtn2Click
+        OnClick = InfoBtnClick
         TabOrder = 2
       end
       object BackupDeviceIDLbl: TLabel

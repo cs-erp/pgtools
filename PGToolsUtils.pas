@@ -66,6 +66,13 @@ type
   { TPGToolClass }
 
   TPGTool = class(TObject)
+  protected
+    procedure OpenPG(vDatabase: String = 'postgres'; StartSession: Boolean = True);
+    procedure ClosePG(StopSession: Boolean = True);
+    procedure Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject = nil; IgnoreError: Boolean = False);
+    procedure Resume;
+
+    procedure Log(S: String; Kind: TmnLogKind = lgLog); virtual;
   public
     PoolThread: TObjectList;
     PGPathBin: String;
@@ -73,7 +80,7 @@ type
     FStop: Boolean;
     PGConn: TmncPGConnection;
     PGSession: TmncPGSession;
-    InternalPGDirectory: String;//detected when load
+    PGDirectory: String;//detected when load
     Database: string;
     BackupDirectory: string;
     ConsoleThread: TmnConsoleThread;
@@ -84,24 +91,19 @@ type
     procedure Stop;
     procedure Shutdown;
     function GetBackupDBDirectory(DB: string): string;
-    function GetPGDirectory: String;
-
-    procedure Log(S: String; Kind: TmnLogKind = lgLog); virtual;
-    procedure ConsoleTerminated(Sender: TObject); virtual;
-
-    procedure OpenPG(vDatabase: String = 'postgres'; StartSession: Boolean = True);
-    procedure ClosePG(StopSession: Boolean = True);
-    procedure Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject = nil; IgnoreError: Boolean = False);
-    procedure Resume;
+    procedure ConsoleTerminated(Sender: TObject);
 
     procedure DropDatabase(ADatabase: String);
     procedure RenameDatabase(ADatabase, AToName: String);
     procedure CopyDatabase(ADatabase, AToName: String);
+    procedure ChangePassword(APassword: string);
 
     procedure BackupDatabase(DB: String; Options: TRestoreOptions; APointName: string = '');
     procedure RestoreDatabase(DB: String; Options: TRestoreOptions; APointName: String = '');
     procedure RestoreDatabaseFile(DB: String; AFileName: String = ''; Options: TRestoreOptions = [roRestoreOverwrite]);
     procedure DropAllTemps(Options: TRestoreOptions);
+
+    procedure Info;
     procedure EnumDatabases(Databases: TStringList; Options: TRestoreOptions; vOld: Boolean);
   end;
 
@@ -388,11 +390,6 @@ begin
   Result := IncludeTrailingPathDelimiter(Result + DB);
 end;
 
-function TPGTool.GetPGDirectory: String;
-begin
-  Result := InternalPGDirectory;
-end;
-
 procedure TPGTool.Log(S: String; Kind: TmnLogKind);
 begin
 
@@ -577,38 +574,62 @@ begin
   Log(sCleanDone, lgDone);
 end;
 
+procedure TPGTool.Info;
+var
+  cmd: TmncPGCommand;
+begin
+  OpenPG(Database);
+  try
+    cmd := PGSession.CreateCommand as TmncPGCommand;
+    try
+      cmd.SQL.Text := 'select * from "System" where "SysSection" = ''Backup''';
+      while cmd.Step do
+        Log(cmd.Field['SysIdent'].AsString + ': ' + cmd.Field['SysValue'].AsString);
+    finally
+      cmd.Free;
+    end;
+  finally
+    ClosePG;
+  end;
+end;
+
 procedure TPGTool.EnumDatabases(Databases: TStringList; Options: TRestoreOptions; vOld: Boolean);
 var
   cmd: TmncPGCommand;
 begin
-  Databases.Clear;
-  cmd := PGSession.CreateCommand as TmncPGCommand;
+  OpenPG('postgres');
   try
-    cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
-    cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
-    if roCreativeSolutions in Options then
-      cmd.SQL.Add('and datname <> ''CreativeSolutions''');
-    if vOld then
-      cmd.SQL.Add('and ')
-    else
-      cmd.SQL.Add('and not ');
-    cmd.SQL.Add('(datname like ''%_old%''');
-    cmd.SQL.Add('or datname like ''%.old%''');
-    cmd.SQL.Add('or datname like ''%.temp%''');
-    cmd.SQL.Add('or datname like ''%_temp%'')');
-    cmd.SQL.Add('order by datname');
+    Databases.Clear;
+    cmd := PGSession.CreateCommand as TmncPGCommand;
+    try
+      cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
+      cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
+      if roCreativeSolutions in Options then
+        cmd.SQL.Add('and datname <> ''CreativeSolutions''');
+      if vOld then
+        cmd.SQL.Add('and ')
+      else
+        cmd.SQL.Add('and not ');
+      cmd.SQL.Add('(datname like ''%_old%''');
+      cmd.SQL.Add('or datname like ''%.old%''');
+      cmd.SQL.Add('or datname like ''%.temp%''');
+      cmd.SQL.Add('or datname like ''%_temp%'')');
+      cmd.SQL.Add('order by datname');
 
-    if cmd.Execute then
-    begin
-      while not cmd.Done do
+      if cmd.Execute then
       begin
-        Databases.Add(cmd.Field['name'].AsString);
-        //Log(cmd.Field['name'].AsString);
-        cmd.Next;
+        while not cmd.Done do
+        begin
+          Databases.Add(cmd.Field['name'].AsString);
+          //Log(cmd.Field['name'].AsString);
+          cmd.Next;
+        end;
       end;
+    finally
+      cmd.Free;
     end;
   finally
-    cmd.Free;
+    ClosePG;
   end;
 end;
 
@@ -617,6 +638,7 @@ procedure TPGTool.OpenPG(vDatabase: String; StartSession: Boolean);
 begin
   if PGConn = nil then
     PGConn := TmncPGConnection.Create;
+
   PGConn.UserName := UserName;
   PGConn.Password := Password;
   PGConn.Port := Port;
@@ -637,7 +659,7 @@ procedure TPGTool.ClosePG(StopSession: Boolean);
 begin
   if PGConn <> nil then
   begin
-    if StopSession then
+    if StopSession and (PGSession <> nil) then
       PGSession.Commit;
     FreeAndNil(PGSession);
     FreeAndNil(PGConn);
@@ -648,8 +670,8 @@ procedure TPGTool.Launch(vMessage, vExecutable, vParameters, vPassword: String; 
 var
   aConsoleThread: TmnConsoleThread;
 begin
-  if GetPGDirectory <> '' then
-    vExecutable := IncludeTrailingPathDelimiter(GetPGDirectory) + vExecutable;
+  if PGDirectory <> '' then
+    vExecutable := IncludeTrailingPathDelimiter(PGDirectory) + vExecutable;
   aConsoleThread := TmnConsoleThread.Create(vExecutable, BackupDirectory, vParameters, @Log);
   aConsoleThread.OnTerminate := @ConsoleTerminated;
   aConsoleThread.Password := vPassword;
@@ -714,6 +736,25 @@ begin
     Log('Database copied: "' + ADatabase + ' to ' + AToName + '"', lgStatus);
   finally
     ClosePG(False);
+  end;
+end;
+
+procedure TPGTool.ChangePassword(APassword: string);
+var
+  cmd: TmncPGCommand;
+begin
+  OpenPG('postgres');
+  try
+    cmd := PGSession.CreateCommand as TmncPGCommand;
+    try
+      cmd.SQL.Text := 'ALTER ROLE ' + UserName + ' WITH PASSWORD ''' + APassword + '''';
+      cmd.Execute;
+      Log('Password changed successfully', lgMessage);
+    finally
+      cmd.Free;
+    end;
+  finally
+    ClosePG;
   end;
 end;
 

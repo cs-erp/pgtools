@@ -42,10 +42,6 @@ msgstr ""
 msgid "&Backup"
 msgstr ""
 
-#: tmainform.backupbtn2.caption
-msgid "&Info"
-msgstr ""
-
 #: tmainform.browsebackupbtn.caption
 msgid "Browse"
 msgstr ""
@@ -126,6 +122,11 @@ msgstr ""
 
 #: tmainform.exporttab.caption
 msgid "Expert"
+msgstr ""
+
+#: tmainform.infobtn.caption
+msgctxt "tmainform.infobtn.caption"
+msgid "&Info"
 msgstr ""
 
 #: tmainform.label8.caption

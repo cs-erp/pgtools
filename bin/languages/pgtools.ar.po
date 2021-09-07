@@ -45,10 +45,6 @@ msgstr "انسخ ال&كل"
 msgid "&Backup"
 msgstr "أن&سخ"
 
-#: tmainform.backupbtn2.caption
-msgid "&Info"
-msgstr "م&علومات"
-
 #: tmainform.browsebackupbtn.caption
 msgctxt "tmainform.browsebackupbtn.caption"
 msgid "Browse"
@@ -137,6 +133,12 @@ msgstr "استعملها فقط مع قواعد بيانات الحلول الم
 #: tmainform.exporttab.caption
 msgid "Expert"
 msgstr "خبير"
+
+#: tmainform.infobtn.caption
+#, fuzzy
+msgctxt "tmainform.infobtn.caption"
+msgid "&Info"
+msgstr "م&علومات"
 
 #: tmainform.label8.caption
 msgid "All this operations on selected database on the left"

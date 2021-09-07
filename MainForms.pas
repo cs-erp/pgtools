@@ -19,13 +19,18 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls, StrUtils,
-  ComCtrls, Menus, IniFiles, Contnrs, SynEdit, SynHighlighterAny,
+  ComCtrls, Menus, IniFiles, SynEdit, SynHighlighterAny,
   LCLTranslator, PGToolsUtils,
   mncPostgre, mnMsgBox, GUIMsgBox, process,
   ConsoleProcess, FileUtil, mnUtils, LazFileUtils;
 
 type
+
+  { TMyPGTool }
+
   TMyPGTool = class(TPGTool)
+  protected
+    procedure Log(S: String; Kind: TmnLogKind = lgLog); override;
   public
   end;
 
@@ -35,7 +40,7 @@ type
     BackFolderLbl: TLabel;
     BackupAllBtn: TButton;
     BackupBtn1: TButton;
-    BackupBtn2: TButton;
+    InfoBtn: TButton;
     RestoreDataOnlyChk: TCheckBox;
     RestorePublicSchemaOnlyChk: TCheckBox;
     LangListCbo: TComboBox;
@@ -100,7 +105,7 @@ type
     StatusTimer: TTimer;
     UserNameEdit: TEdit;
     procedure BackupBtn1Click(Sender: TObject);
-    procedure BackupBtn2Click(Sender: TObject);
+    procedure InfoBtnClick(Sender: TObject);
     procedure BackupAllBtnClick(Sender: TObject);
     procedure BackupDatabasesListClick(Sender: TObject);
     procedure BackupDatabasesListDblClick(Sender: TObject);
@@ -167,6 +172,13 @@ begin
     Result := [];
 end;
 
+{ TMyPGTool }
+
+procedure TMyPGTool.Log(S: String; Kind: TmnLogKind);
+begin
+  MainForm.Log(S, Kind);
+end;
+
 { TMainForm }
 
 procedure TMainForm.DropAllTempsBtnClick(Sender: TObject);
@@ -203,26 +215,11 @@ begin
 end;
 
 procedure TMainForm.ChangeBtnClick(Sender: TObject);
-var
-  cmd: TmncPGCommand;
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
-  with PGObject do
   begin
     SetInfo;
-    OpenPG('postgres');
-    try
-      cmd := PGSession.CreateCommand as TmncPGCommand;
-      try
-        cmd.SQL.Text := 'ALTER ROLE ' + UserNameEdit.Text + ' WITH PASSWORD ''' + NewPasswordEdit.Text + '''';
-        cmd.Execute;
-        MsgBox.Show('Password changed successfully');
-      finally
-        cmd.Free;
-      end;
-    finally
-      ClosePG;
-    end;
+    PGObject.ChangePassword(NewPasswordEdit.Text)
   end;
 end;
 
@@ -242,12 +239,10 @@ begin
       else
       begin
         MsgBox.ShowStatus(Self, 'Coping ' + DB + ' to ' + ToName);
-        OpenPG('postgres', False);
         try
-          CopyDatabase(DB, ToName);
+          PGObject.CopyDatabase(DB, ToName);
           DatabasesCbo.Items[DatabasesCbo.ItemIndex] := ToName;
         finally
-          ClosePG(False);
           MsgBox.HideStatus(Self);
         end;
       end;
@@ -296,46 +291,23 @@ begin
   end;
 end;
 
-procedure TMainForm.BackupBtn2Click(Sender: TObject);
-var
-  cmd: TmncPGCommand;
-  DB: String;
+procedure TMainForm.InfoBtnClick(Sender: TObject);
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
-  with PGObject do
   begin
-    DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
-    OpenPG(DB);
-    try
-      cmd := PGSession.CreateCommand as TmncPGCommand;
-      try
-        cmd.SQL.Text := 'select * from "System" where "SysSection" = ''Backup''';
-        while cmd.Step do
-          Log(cmd.Field['SysIdent'].AsString + ': ' + cmd.Field['SysValue'].AsString);
-      finally
-        cmd.Free;
-      end;
-    finally
-      ClosePG;
-    end;
+    SetInfo;
+    PGObject.Info;
   end;
 end;
 
 procedure TMainForm.ListDatabasesBtnClick(Sender: TObject);
 begin
-  with PGObject do
-  begin
-    OpenPG('postgres');
-    try
-      EnumDatabases(Databases, GetRestoreOptions, GetKeyShiftState = [ssCtrl]);
-      DatabasesCbo.Items.Assign(Databases);
-      if DatabasesCbo.Items.Count > 0 then
-        DatabasesCbo.ItemIndex := 0;
-      Databases.Clear;
-    finally
-      ClosePG;
-    end;
-  end;
+  SetInfo;
+  PGObject.EnumDatabases(Databases, GetRestoreOptions, GetKeyShiftState = [ssCtrl]);
+  DatabasesCbo.Items.Assign(Databases);
+  if DatabasesCbo.Items.Count > 0 then
+    DatabasesCbo.ItemIndex := 0;
+  Databases.Clear;
 end;
 
 procedure TMainForm.AddDatabaseBtnClick(Sender: TObject);
@@ -427,17 +399,11 @@ begin
         MsgBox.Show('Nothing to do')
       else
       begin
-        with PGObject do
-        begin
-          SetInfo;
-          OpenPG('postgres', False);
-          MsgBox.ShowStatus(Self, 'Renaming ' + DB + ' to ' + ToName);
-          try
-            PGObject.RenameDatabase(DB, ToName);
-            DatabasesCbo.Items[DatabasesCbo.ItemIndex] := ToName;
-          finally
-            ClosePG(False);
-          end;
+        SetInfo;
+        MsgBox.ShowStatus(Self, 'Renaming ' + DB + ' to ' + ToName);
+        try
+          PGObject.RenameDatabase(DB, ToName);
+        finally
           MsgBox.HideStatus(Self);
         end;
       end;
@@ -679,7 +645,7 @@ end;
 
 procedure TMainForm.SetInfo;
 begin
-  PGObject.Password := UserNameEdit.Text;
+  PGObject.UserName := UserNameEdit.Text;
   PGObject.Password := PasswordEdit.Text;
   PGObject.Port := GetPort;
 
@@ -770,7 +736,7 @@ procedure TMainForm.DetectPGDirectory;
   begin
     Result := FileExists(f);
     if Result then
-      PGObject.InternalPGDirectory := ExtractFilePath(f);
+      PGObject.PGDirectory := ExtractFilePath(f);
   end;
 begin
   if not Check(Application.Location + 'libpq.dll') then
@@ -825,8 +791,8 @@ begin
     BackupDatabasesList.ItemIndex := 0;
   Databases := TStringList.Create;
   BringInfo;
-  if PGObject.GetPGDirectory <> '' then
-    SetCurrentDir(PGObject.GetPGDirectory);
+  if PGObject.PGDirectory <> '' then
+    SetCurrentDir(PGObject.PGDirectory);
 end;
 
 destructor TMainForm.Destroy;
