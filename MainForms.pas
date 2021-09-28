@@ -293,6 +293,7 @@ end;
 
 procedure TMainForm.InfoBtnClick(Sender: TObject);
 begin
+  Log('PQLib Version: ' + IntToStr(PQlibVersion()));
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
     SetInfo;
@@ -345,6 +346,7 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+  PGLib.Load;
   OptionsTab.PageIndex := 0;
 end;
 

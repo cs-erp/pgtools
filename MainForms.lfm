@@ -622,9 +622,9 @@ object MainForm: TMainForm
     Height = 249
     Top = 179
     Width = 385
-    ActivePage = AdminTab
+    ActivePage = DatabaseTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 3
+    TabIndex = 0
     TabOrder = 5
     object DatabaseTab: TTabSheet
       Caption = 'Database'
