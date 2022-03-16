@@ -36,7 +36,7 @@
       <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="15"/>
       <RevisionNr Value="2"/>
-      <BuildNr Value="107"/>
+      <BuildNr Value="108"/>
       <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools" ProductName="PGTools"/>
     </VersionInfo>
     <BuildModes Count="2">
@@ -96,10 +96,10 @@
     </RunParams>
     <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="MiniCtrls"/>
+        <PackageName Value="MiniLib"/>
       </Item1>
       <Item2>
-        <PackageName Value="MiniCommons"/>
+        <PackageName Value="MiniCtrls"/>
       </Item2>
       <Item3>
         <PackageName Value="MiniConnections"/>

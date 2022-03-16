@@ -5,7 +5,7 @@ unit MainForms;
  *
  * @license   mit(https://opensource.org/licenses/MIT)
  *
- * @author    Zaher Dirkey <zaher at parmaja dot com>
+ * @author    Zaher Dirkey 
  *
  *  TODO: add clean with : --clean --if-exists
  *}
@@ -346,7 +346,6 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
-  PGLib.Load;
   OptionsTab.PageIndex := 0;
 end;
 

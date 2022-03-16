@@ -1103,9 +1103,10 @@ object MainForm: TMainForm
         Height = 19
         Hint = 'Use this only for big databases, and you are expert'
         Top = 60
-        Width = 250
-        Caption = 'Quick backup (execlude huge tables) TODO'
+        Width = 214
+        Caption = 'Quick backup (execlude huge tables)'
         TabOrder = 2
+        Visible = False
       end
     end
   end
