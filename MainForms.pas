@@ -234,6 +234,7 @@ begin
     ToName := DB;
     if MsgBox.Input(ToName, 'You want copy: ' + DB + ' to?') then
     begin
+      SetInfo;
       if DB = ToName then
         MsgBox.Show('you cant copy on same database')
       else
@@ -374,6 +375,7 @@ var
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
+    SetInfo;
     aDatabase := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
     aDirectory := PGObject.GetBackupDBDirectory(aDatabase);
     ini := TIniFile.Create(aDirectory + aDatabase + '.ini');
@@ -467,6 +469,11 @@ begin
   end;
 end;
 
+function StringListAnsiCompare(List: TStringList; Index1, Index: Integer): Integer;
+begin
+  Result := CompareText(List[Index], List[Index1]);
+end;
+
 procedure TMainForm.RestoreByDateBtnClick(Sender: TObject);
 var
   files, names: TStringList;
@@ -479,21 +486,22 @@ begin
     files := TStringList.Create;
     names := TStringList.Create;
     try
+      SetInfo;
       DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
       Dir := ExpandToPath(PGObject.GetBackupDBDirectory(DB), Application.Location);
       i := -1;
-      EnumFiles(files, Dir, DB + '.*.backup');
-      files.Sort;
+      EnumFiles(files, Dir, DB + '.*.backup', [efFile]);
+      files.CustomSort(@StringListAnsiCompare);
       for fname in files do
       begin
         s := SubStr(fname, '.', 1);
-        if s = '' then
-          s := 'Last Backup'
-        else
-          //yyyymmddhhnnss
-          s := MidStr(s, 1, 4) + '-' + MidStr(s, 5, 2) + '-' + MidStr(s, 7, 2) + ' ' + MidStr(s, 9, 2) + ':' + MidStr(s, 11, 4) + ':' + MidStr(s, 13, 4);
+        //yyyymmddhhnnss
+        s := MidStr(s, 1, 4) + '-' + MidStr(s, 5, 2) + '-' + MidStr(s, 7, 2) + ' ' + MidStr(s, 9, 2) + ':' + MidStr(s, 11, 4) + ':' + MidStr(s, 13, 4);
         names.Add(s);
       end;
+
+      files.Add('');
+      names.Add('Last Backup');
 
       if MsgBox.List(i, 'Select a point to restore', names) then
       begin
@@ -512,10 +520,13 @@ var
   i: Integer;
 begin
   if not MsgBox.No('Are you sure you want to RESTORE all databases?') then
+  begin
+    SetInfo;
     for i := 0 to BackupDatabasesList.Items.Count - 1 do
     begin
       PGObject.RestoreDatabase(BackupDatabasesList.Items[i], GetRestoreOptions);
     end;
+  end;
 end;
 
 procedure TMainForm.RestoreFromFileBtnClick(Sender: TObject);
@@ -573,6 +584,7 @@ begin
   SetInfo;
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
+    SetInfo;
     files := TStringList.Create;
     try
       DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
@@ -594,6 +606,7 @@ var
 begin
   if BackupDatabasesList.ItemIndex >= 0 then
   begin
+    SetInfo;
     APoint := '';
     if MsgBox.Input(APoint, 'Enter then name of new Database to restore') and (APoint <> '') then
       PGObject.BackupDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], GetRestoreOptions, APoint);

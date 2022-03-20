@@ -155,7 +155,7 @@ msgid "Use this only for big databases, and you are expert"
 msgstr ""
 
 #: tmainform.quickbackupchk.caption
-msgid "Quick backup (execlude huge tables) TODO"
+msgid "Quick backup (execlude huge tables)"
 msgstr ""
 
 #: tmainform.quickbackupchk.hint
