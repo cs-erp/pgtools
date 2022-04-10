@@ -507,6 +507,8 @@ var
       aParams := aParams + ' ';}
     aParams := aParams + ' ' + S;
   end;
+var
+  isSQL: Boolean;
 begin
   o := TRestoreExecuteObject.Create;
   o.UserName := UserName;
@@ -532,22 +534,45 @@ begin
     AFileName := o.Directory + AFileName;
   end;
 
-  if roClean in Options then
-    AddParam('--clean --if-exists');
+  IsSQL := SameText(ExtractFileExt(AFileName), '.sql');
 
-  if roRestorePublicSchemaOnly in Options then
-    AddParam('--schema=public');
+  if IsSQL then
+  begin
+    {if roClean in Options then
+      AddParam('--clean --if-exists');
 
-  if roRestroreDataOnly in Options then
-    AddParam('--data-only');
+    if roRestorePublicSchemaOnly in Options then
+      AddParam('--schema=public');
 
-  if roDirectDatabase in Options then
-    aDatabase := DB
+    if roRestroreDataOnly in Options then
+      AddParam('--data-only');}
+
+    if roDirectDatabase in Options then
+      aDatabase := DB
+    else
+      aDatabase := DB + '_temp_' + o.Suffix;
+    cmd := '--host=localhost --port=' + Port + ' --username="' + o.UserName + '" ' + aParams + ' --dbname="' + aDatabase + '" --password --file="' + AFileName + '"';
+    Launch('Restoring: ' + DB + ' file: ' + AFileName, 'psql.exe', cmd, Password, o, roIgnoreError in Options);
+  end
   else
-    aDatabase := DB + '_temp_' + o.Suffix;
-  cmd := '--host localhost --port ' + Port + ' --username "' + o.UserName + '" ' + aParams + ' --dbname "' + aDatabase + '" --password --verbose "' + AFileName + '"';
+  begin
+    if roClean in Options then
+      AddParam('--clean --if-exists');
 
-  Launch('Restoring: ' + DB + ' file: ' + AFileName, 'pg_restore.exe', cmd, Password, o, roIgnoreError in Options);
+    if roRestorePublicSchemaOnly in Options then
+      AddParam('--schema=public');
+
+    if roRestroreDataOnly in Options then
+      AddParam('--data-only');
+
+    if roDirectDatabase in Options then
+      aDatabase := DB
+    else
+      aDatabase := DB + '_temp_' + o.Suffix;
+    cmd := '--host localhost --port ' + Port + ' --username "' + o.UserName + '" ' + aParams + ' --dbname "' + aDatabase + '" --password --verbose "' + AFileName + '"';
+    Launch('Restoring: ' + DB + ' file: ' + AFileName, 'pg_restore.exe', cmd, Password, o, roIgnoreError in Options);
+  end;
+
 end;
 
 procedure TPGTool.DropAllTemps(Options: TRestoreOptions);

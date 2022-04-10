@@ -536,8 +536,8 @@ begin
   SetInfo;
   with TOpenDialog.Create(Self) do
   begin
-    Filter := '*.backup';
-    FileName := '*.backup';
+    Filter := '*.backup; *.sql';
+    FileName := '*.backup; *.sql';
     if Execute then
     begin
       DB := ExtractFileNameWithoutExt(ExtractFileName(FileName));
