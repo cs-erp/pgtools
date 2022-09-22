@@ -32,7 +32,7 @@ type
   TPGExecuteObject = class(TExecuteObject)
   public
     PGConn: TmncPGConnection;
-    PGSession: TmncPGSession;
+    PGTransaction: TmncPGTransaction;
     UserName: String;
     Password: String;
     Port: String;
@@ -67,8 +67,8 @@ type
 
   TPGTool = class(TObject)
   protected
-    procedure OpenPG(vDatabase: String = 'postgres'; StartSession: Boolean = True);
-    procedure ClosePG(StopSession: Boolean = True);
+    procedure OpenPG(vDatabase: String = 'postgres'; StartTransaction: Boolean = True);
+    procedure ClosePG(StopTransaction: Boolean = True);
     procedure Launch(vMessage, vExecutable, vParameters, vPassword: String; vExecuteObject: TExecuteObject = nil; IgnoreError: Boolean = False);
     procedure Resume;
 
@@ -80,7 +80,7 @@ type
     FDestroying: Boolean;
     FStop: Boolean;
     PGConn: TmncPGConnection;
-    PGSession: TmncPGSession;
+    PGTransaction: TmncPGTransaction;
     PGDirectory: String;//detected when load
     Database: string;
     BackupDirectory: string;
@@ -135,7 +135,7 @@ if roCreativeSolutions in Options then
 begin
   OpenPG(Database);
   try
-    cmd := PGSession.CreateCommand as TmncPGCommand;
+    cmd := PGTransaction.CreateCommand as TmncPGCommand;
     try
       cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBeforeBackupDate'', ?SysValue)';
       cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
@@ -159,7 +159,7 @@ begin
   begin
     OpenPG(Database);
     try
-      cmd := PGSession.CreateCommand as TmncPGCommand;
+      cmd := PGTransaction.CreateCommand as TmncPGCommand;
       try
         cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastBackupDate'', ?SysValue)';
         cmd.SQL.Add('ON CONFLICT ("SysSection", "SysIdent") DO UPDATE SET "SysValue" = ?SysValue');
@@ -197,12 +197,12 @@ begin
   PGConn.Port := Port;
   PGConn.Resource := vDatabase;
   PGConn.Connect;
-  PGSession := PGConn.CreateSession as TmncPGSession;
+  PGTransaction := PGConn.CreateTransaction as TmncPGTransaction;
 end;
 
 procedure TPGExecuteObject.ClosePG;
 begin
-  FreeAndNil(PGSession);
+  FreeAndNil(PGTransaction);
   FreeAndNil(PGConn);
 end;
 
@@ -224,7 +224,7 @@ begin
     aDatabase := Database + '_temp_' + Suffix;
   OpenPG('postgres');
   try
-    cmd := PGSession.CreateCommand as TmncPGCommand;
+    cmd := PGTransaction.CreateCommand as TmncPGCommand;
     try
       cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
       cmd.SQL.Add('WHERE datistemplate = false and datname = ''' + Database + '''');
@@ -255,7 +255,7 @@ begin
   begin
     OpenPG(aDatabase);
     try
-      cmd := PGSession.CreateCommand as TmncPGCommand;
+      cmd := PGTransaction.CreateCommand as TmncPGCommand;
       try
         if (roDropPublicSchema in Options) then
         begin
@@ -299,7 +299,7 @@ begin
   begin
     OpenPG('postgres');
     try
-      cmd := PGSession.CreateCommand as TmncPGCommand;
+      cmd := PGTransaction.CreateCommand as TmncPGCommand;
       try
         ConsoleThread.Log('Renaming database ' + Database, lgStatus);
         cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
@@ -330,7 +330,7 @@ begin
   begin
     OpenPG(aDatabase);
     try
-      cmd := PGSession.CreateCommand as TmncPGCommand;
+      cmd := PGTransaction.CreateCommand as TmncPGCommand;
       try
         cmd.SQL.Text := 'insert into "System" ("SysSection", "SysIdent", "SysValue") values (''Backup'', ''LastRestoreDate'', ?SysValue)';
         cmd.SQL.Add('on conflict ("SysSection", "SysIdent") do update set "SysValue" = ?SysValue');
@@ -606,7 +606,7 @@ var
 begin
   OpenPG(Database);
   try
-    cmd := PGSession.CreateCommand as TmncPGCommand;
+    cmd := PGTransaction.CreateCommand as TmncPGCommand;
     try
       cmd.SQL.Text := 'select * from "System" where "SysSection" = ''Backup''';
       while cmd.Step do
@@ -626,7 +626,7 @@ begin
   OpenPG('postgres');
   try
     Databases.Clear;
-    cmd := PGSession.CreateCommand as TmncPGCommand;
+    cmd := PGTransaction.CreateCommand as TmncPGCommand;
     try
       cmd.SQL.Text := 'SELECT datname as name FROM pg_database';
       cmd.SQL.Add('WHERE datistemplate = false and datname <> ''postgres''');
@@ -660,7 +660,7 @@ begin
 end;
 
 
-procedure TPGTool.OpenPG(vDatabase: String; StartSession: Boolean);
+procedure TPGTool.OpenPG(vDatabase: String; StartTransaction: Boolean);
 begin
   if ConnectCount = 0 then
   begin
@@ -679,22 +679,22 @@ begin
 
     PGConn.Connect;
     //PGConn.AutoStart : = true;
-    PGSession := PGConn.CreateSession as TmncPGSession;
-    if StartSession then
-      PGSession.Start;
+    PGTransaction := PGConn.CreateTransaction as TmncPGTransaction;
+    if StartTransaction then
+      PGTransaction.Start;
   end;
   Inc(ConnectCount);
 end;
 
-procedure TPGTool.ClosePG(StopSession: Boolean);
+procedure TPGTool.ClosePG(StopTransaction: Boolean);
 begin
   Dec(ConnectCount);
   if ConnectCount = 0 then
     if PGConn <> nil then
     begin
-      if StopSession and (PGSession <> nil) then
-        PGSession.Commit;
-      FreeAndNil(PGSession);
+      if StopTransaction and (PGTransaction <> nil) then
+        PGTransaction.Commit;
+      FreeAndNil(PGTransaction);
       FreeAndNil(PGConn);
     end;
 end;
@@ -778,7 +778,7 @@ var
 begin
   OpenPG('postgres');
   try
-    cmd := PGSession.CreateCommand as TmncPGCommand;
+    cmd := PGTransaction.CreateCommand as TmncPGCommand;
     try
       cmd.SQL.Text := 'ALTER ROLE ' + UserName + ' WITH PASSWORD ''' + APassword + '''';
       cmd.Execute;
