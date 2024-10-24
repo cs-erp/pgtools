@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms,
-  mncPostgre, mnMsgBox, GUIMsgBox, process,
+  mncPostgre, mnMsgBox, GUIMsgBox,
   Contnrs, IniFiles,
   ConsoleProcess, FileUtil, mnUtils, LazFileUtils;
 
@@ -348,7 +348,7 @@ end;
 
 constructor TPGTool.Create;
 begin
-  inherited Create;
+  inherited;
   PoolThread := TObjectList.Create;
 end;
 

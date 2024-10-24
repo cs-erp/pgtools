@@ -7,10 +7,10 @@ object MainForm: TMainForm
   ClientHeight = 578
   ClientWidth = 582
   Constraints.MinWidth = 500
-  OnCreate = FormCreate
   Position = poDefaultPosOnly
   ShowHint = True
-  LCLVersion = '2.3.0.0'
+  LCLVersion = '3.99.0.0'
+  OnCreate = FormCreate
   inline LogEdit: TSynEdit
     Left = 5
     Height = 106
@@ -595,9 +595,9 @@ object MainForm: TMainForm
     Top = 204
     Width = 181
     ItemHeight = 0
+    TabOrder = 2
     OnClick = BackupDatabasesListClick
     OnDblClick = BackupDatabasesListDblClick
-    TabOrder = 2
   end
   object DatabasesCbo: TComboBox
     Left = 6
@@ -614,17 +614,17 @@ object MainForm: TMainForm
     Top = 151
     Width = 80
     Caption = '&List'
-    OnClick = ListDatabasesBtnClick
     TabOrder = 1
+    OnClick = ListDatabasesBtnClick
   end
   object RestoreFilePageControl: TPageControl
     Left = 192
     Height = 249
     Top = 179
     Width = 385
-    ActivePage = DatabaseTab
+    ActivePage = AdminTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 3
     TabOrder = 5
     object DatabaseTab: TTabSheet
       Caption = 'Database'
@@ -636,8 +636,8 @@ object MainForm: TMainForm
         Top = 76
         Width = 100
         Caption = '&Backup'
-        OnClick = BackupBtn1Click
         TabOrder = 0
+        OnClick = BackupBtn1Click
       end
       object RestoreLastBtn: TButton
         Left = 267
@@ -646,8 +646,8 @@ object MainForm: TMainForm
         Width = 100
         Anchors = [akTop, akRight]
         Caption = '&Restore Last'
-        OnClick = RestoreLastBtnClick
         TabOrder = 1
+        OnClick = RestoreLastBtnClick
       end
       object InfoBtn: TButton
         Left = 8
@@ -655,8 +655,8 @@ object MainForm: TMainForm
         Top = 32
         Width = 100
         Caption = '&Info'
-        OnClick = InfoBtnClick
         TabOrder = 2
+        OnClick = InfoBtnClick
       end
       object BackupDeviceIDLbl: TLabel
         Left = 111
@@ -673,8 +673,8 @@ object MainForm: TMainForm
         Top = 103
         Width = 100
         Caption = '&Save Point'
-        OnClick = SavePointBtnClick
         TabOrder = 3
+        OnClick = SavePointBtnClick
       end
       object RestorePointBtn: TButton
         Left = 267
@@ -683,8 +683,8 @@ object MainForm: TMainForm
         Width = 100
         Anchors = [akTop, akRight]
         Caption = 'Restore &Point'
-        OnClick = RestorePointBtnClick
         TabOrder = 4
+        OnClick = RestorePointBtnClick
       end
       object RestoreFromFileBtn: TButton
         Left = 267
@@ -693,9 +693,9 @@ object MainForm: TMainForm
         Width = 100
         Anchors = [akTop, akRight]
         Caption = 'Restore File'
-        OnClick = RestoreFromFileBtnClick
         TabOrder = 5
         Visible = False
+        OnClick = RestoreFromFileBtnClick
       end
       object Label8: TLabel
         Left = 6
@@ -712,8 +712,8 @@ object MainForm: TMainForm
         Width = 100
         Anchors = [akTop, akRight]
         Caption = 'Restore Date'
-        OnClick = RestoreByDateBtnClick
         TabOrder = 6
+        OnClick = RestoreByDateBtnClick
       end
       object OpenFolderBtn: TButton
         Left = 6
@@ -721,8 +721,8 @@ object MainForm: TMainForm
         Top = 130
         Width = 100
         Caption = 'Open Folder'
-        OnClick = OpenFolderBtnClick
         TabOrder = 7
+        OnClick = OpenFolderBtnClick
       end
     end
     object RestoreFileTab: TTabSheet
@@ -752,8 +752,8 @@ object MainForm: TMainForm
         Width = 100
         Anchors = [akTop, akRight]
         Caption = 'Restore'
-        OnClick = RestoreNewFromFileBtnClick
         TabOrder = 1
+        OnClick = RestoreNewFromFileBtnClick
       end
       object BrowseBackupBtn: TButton
         Left = 271
@@ -762,15 +762,15 @@ object MainForm: TMainForm
         Width = 100
         Anchors = [akTop, akRight]
         Caption = 'Browse'
-        OnClick = BrowseBackupBtnClick
         TabOrder = 2
+        OnClick = BrowseBackupBtnClick
       end
       object RestoreFileOverwriteChk: TCheckBox
         Left = 14
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
         Top = 65
-        Width = 246
+        Width = 247
         Caption = 'Overwrite old database if exist (rename old)'
         TabOrder = 3
       end
@@ -808,8 +808,8 @@ object MainForm: TMainForm
         Width = 100
         Anchors = [akRight, akBottom]
         Caption = '&Restore Last'
-        OnClick = RestoreLastBtn1Click
         TabOrder = 10
+        OnClick = RestoreLastBtn1Click
       end
       object DropPublicSchemaChk: TCheckBox
         Left = 14
@@ -850,8 +850,8 @@ object MainForm: TMainForm
         Top = 8
         Width = 110
         Caption = 'Backup a&ll'
-        OnClick = BackupAllBtnClick
         TabOrder = 0
+        OnClick = BackupAllBtnClick
       end
       object RestoreAllBtn: TButton
         Left = 3
@@ -859,8 +859,8 @@ object MainForm: TMainForm
         Top = 34
         Width = 110
         Caption = 'Restore all'
-        OnClick = RestoreAllBtnClick
         TabOrder = 1
+        OnClick = RestoreAllBtnClick
       end
       object DropAllTempsBtn: TButton
         Left = 3
@@ -870,8 +870,8 @@ object MainForm: TMainForm
         Width = 110
         Anchors = [akLeft, akBottom]
         Caption = 'Drop all temps'
-        OnClick = DropAllTempsBtnClick
         TabOrder = 2
+        OnClick = DropAllTempsBtnClick
       end
     end
     object AdminTab: TTabSheet
@@ -904,8 +904,8 @@ object MainForm: TMainForm
         Top = 12
         Width = 81
         Caption = 'Change'
-        OnClick = ChangeBtnClick
         TabOrder = 1
+        OnClick = ChangeBtnClick
       end
     end
   end
@@ -915,8 +915,8 @@ object MainForm: TMainForm
     Top = 176
     Width = 91
     Caption = '&Add'
-    OnClick = AddDatabaseBtnClick
     TabOrder = 6
+    OnClick = AddDatabaseBtnClick
   end
   object RemoveDatabaseBtn: TButton
     Left = 96
@@ -924,8 +924,8 @@ object MainForm: TMainForm
     Top = 176
     Width = 91
     Caption = 'Re&move'
-    OnClick = RemoveDatabaseBtnClick
     TabOrder = 7
+    OnClick = RemoveDatabaseBtnClick
   end
   object Image1: TImage
     Left = 6
@@ -1103,7 +1103,7 @@ object MainForm: TMainForm
         Height = 19
         Hint = 'Use this only for big databases, and you are expert'
         Top = 36
-        Width = 239
+        Width = 240
         Caption = 'Backup `Public` Schema only (expert only)'
         TabOrder = 1
       end
@@ -1112,7 +1112,7 @@ object MainForm: TMainForm
         Height = 19
         Hint = 'Use this only for big databases, and you are expert'
         Top = 60
-        Width = 212
+        Width = 213
         Caption = 'Quick backup (execlude huge tables)'
         TabOrder = 2
         Visible = False
@@ -1140,8 +1140,8 @@ object MainForm: TMainForm
       Top = 0
       Width = 52
       Caption = 'Drop'
-      OnClick = DropBtnClick
       TabOrder = 0
+      OnClick = DropBtnClick
     end
     object RenameBtn: TButton
       Left = 55
@@ -1149,8 +1149,8 @@ object MainForm: TMainForm
       Top = 0
       Width = 69
       Caption = 'Rename'
-      OnClick = RenameBtnClick
       TabOrder = 1
+      OnClick = RenameBtnClick
     end
     object CopyBtn: TButton
       Left = 127
@@ -1158,8 +1158,8 @@ object MainForm: TMainForm
       Top = 0
       Width = 54
       Caption = 'Copy'
-      OnClick = CopyBtnClick
       TabOrder = 2
+      OnClick = CopyBtnClick
     end
     object StopBtn: TButton
       Left = 239
@@ -1168,8 +1168,8 @@ object MainForm: TMainForm
       Width = 54
       Anchors = [akTop, akRight]
       Caption = 'Stop'
-      OnClick = StopBtnClick
       TabOrder = 3
+      OnClick = StopBtnClick
     end
   end
   object LangListCbo: TComboBox
@@ -1184,11 +1184,11 @@ object MainForm: TMainForm
       'English'
       'Arabic'
     )
-    OnChange = LangListCboChange
-    OnSelect = LangListCboSelect
     Style = csDropDownList
     TabOrder = 10
     Text = 'English'
+    OnChange = LangListCboChange
+    OnSelect = LangListCboSelect
   end
   object LogPopupMenu: TPopupMenu
     Left = 172

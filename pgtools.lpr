@@ -24,17 +24,17 @@ var
 begin
   PODirectory := Application.Location;
   Lang:='en';
-  FallbackLang:='em';
+  FallbackLang:='en';
   LazGetLanguageIDs(Lang, FallbackLang); // in unit LazUTF8
   Translations.TranslateUnitResourceStrings('LCLStrConsts', PODirectory + 'pgtools.%s.po', Lang, FallbackLang);
 end;}
 
 begin
   //TranslateLCL;
-  Application.Title :='PGTools';
+  Application.Title:='PGTools';
   Application.Name := 'pgtools';
   RequireDerivedFormResource:= True;
-  Application.Scaled :=True;
+  Application.Scaled:=True;
   Application.Initialize;
   Application.CreateForm(TMainForm, MainForm);
   Application.Run;
