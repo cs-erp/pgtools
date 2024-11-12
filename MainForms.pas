@@ -148,7 +148,9 @@ type
     function GetRestoreOptions: TRestoreOptions;
     function GetRestoreFileOptions: TRestoreOptions;
     procedure LoadIni;
-    procedure DetectPGDirectory;
+    procedure SaveIni;
+    procedure DetectPGPath;
+    procedure DetectPortable;
   public
     IniPath: String;
     ExportMode: Boolean;
@@ -722,35 +724,67 @@ var
   ini: TIniFile;
 begin
   ini := TIniFile.Create(IniPath + 'pgtools.ini');
-  LangListCbo.Text := ini.ReadString('options', 'Language', 'English');
-  CheckLanguage;
-  UserNameEdit.Text := ini.ReadString('options', 'username', 'postgres');
-  SavePasswordChk.Checked := ini.ReadBool('options', 'savepassword', False);
-  if SavePasswordChk.Checked then
-    PasswordEdit.Text := ini.ReadString('options', 'password', '')
-  else
-    PasswordEdit.Text := '';
-  PortEdit.Text := ini.ReadString('options', 'port', '');
-  DirectoryEdit.Text := ini.ReadString('options', 'directory', './');
-  ExportMode := ini.ReadBool('options', 'expert', False);
-  if ExportMode then
-  begin
-    ExportTab.TabVisible := True;
-    AdminTab.TabVisible := True;
-    AdminPanel.Visible := True;
-    RestoreFromFileBtn.Visible := True;
-    RestoreByDateBtn.Visible := True;
+  try
+    LangListCbo.Text := ini.ReadString('options', 'Language', 'English');
+    CheckLanguage;
+    UserNameEdit.Text := ini.ReadString('options', 'username', 'postgres');
+    SavePasswordChk.Checked := ini.ReadBool('options', 'savepassword', False);
+    if SavePasswordChk.Checked then
+      PasswordEdit.Text := ini.ReadString('options', 'password', '')
+    else
+      PasswordEdit.Text := '';
+    PortEdit.Text := ini.ReadString('options', 'port', '');
+    DirectoryEdit.Text := ini.ReadString('options', 'directory', './');
+    ExportMode := ini.ReadBool('options', 'expert', False);
+    if ExportMode then
+    begin
+      ExportTab.TabVisible := True;
+      AdminTab.TabVisible := True;
+      AdminPanel.Visible := True;
+      RestoreFromFileBtn.Visible := True;
+      RestoreByDateBtn.Visible := True;
+    end;
+    //PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
+    RestoreFileOverwriteChk.Checked := ini.ReadBool('options', 'RestoreFileOverwriteChk', False);
+    PGObject.PGPath := ExpandToPath(ini.ReadString('options', 'lib', PGObject.PGPath), Application.Location);
+  finally
+    ini.Free;
   end;
-  //PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
-  RestoreFileOverwriteChk.Checked := ini.ReadBool('options', 'RestoreFileOverwriteChk', False);
 end;
 
-procedure TMainForm.DetectPGDirectory;
+procedure TMainForm.SaveIni;
+var
+  i: Integer;
+  ini: TIniFile;
+begin
+  ini := TIniFile.Create(IniPath + 'pgtools.ini');
+  try
+    ini.WriteInteger('options', 'version', 2);
+    ini.WriteString('options', 'Language', LangListCbo.Text);
+    ini.WriteString('options', 'username', UserNameEdit.Text);
+    ini.WriteBool('options', 'savepassword', SavePasswordChk.Checked);
+    if SavePasswordChk.Checked then
+      ini.WriteString('options', 'password', PasswordEdit.Text);
+    ini.WriteString('options', 'port', PortEdit.Text);
+    ini.WriteString('options', 'directory', DirectoryEdit.Text);
+    ini.WriteBool('options', 'expert', ExportTab.TabVisible);
+    ini.WriteBool('options', 'portable', Portable);
+    //ini.WriteBool('options', 'PublicSchema', PublicSchemaChk.Checked); //do not save it, it is for special
+    ini.WriteBool('options', 'RestoreFileOverwrite', RestoreFileOverwriteChk.Checked);
+    ini.EraseSection('data');
+    for i := 0 to BackupDatabasesList.Items.Count - 1 do
+      ini.WriteString('data', 'data' + IntToStr(i), BackupDatabasesList.Items[i]);
+  finally
+    ini.Free;
+  end;
+end;
+
+procedure TMainForm.DetectPGPath;
   function Check(f: string): Boolean;
   begin
     Result := FileExists(f);
     if Result then
-      PGObject.PGDirectory := ExtractFilePath(f);
+      PGObject.PGPath := ExtractFilePath(f);
   end;
 begin
   if not Check(Application.Location + 'libpq.dll') then
@@ -763,6 +797,22 @@ begin
   {$endif}
 end;
 
+procedure TMainForm.DetectPortable;
+var
+  ini: TIniFile;
+begin
+  ini := TIniFile.Create(Application.Location + 'pgtools.ini');
+  try
+    Portable := ini.ReadBool('options', 'portable', True);
+  finally
+    ini.Free;
+  end;
+  if Portable then
+    IniPath := Application.Location
+  else
+    IniPath := GetAppConfigDir(False);
+end;
+
 constructor TMainForm.Create(TheOwner: TComponent);
 var
   i: Integer;
@@ -773,21 +823,17 @@ begin
   inherited;
   PGObject := TMyPGTool.Create;
   UserNameEdit.Text := 'postgres';
-  DetectPGDirectory;
+  DetectPortable;
+  DetectPGPath;
   Log('This Device: ' + GetLocalName);
-  ini := TIniFile.Create(Application.Location + 'pgtools.ini');
-  Portable := ini.ReadBool('options', 'portable', True);
-  ini.Free;
-  if Portable then
-    IniPath := Application.Location
-  else
-    IniPath := GetAppConfigDir(False);
+
   LoadIni;
+
   RestoreFilePageControl.TabIndex := 0;
   i := 0;
 
-  //if ini.ReadInteger('options', 'version', 1) < 2 then
   aStrings := TStringList.Create;
+  ini := TIniFile.Create(IniPath + 'pgtools.ini');
   try
     ini.ReadSectionRaw('data', aStrings);
     for i :=0 to aStrings.Count -1 do
@@ -803,37 +849,18 @@ begin
 
   if BackupDatabasesList.Items.Count > 0 then
     BackupDatabasesList.ItemIndex := 0;
+
   Databases := TStringList.Create;
   BringInfo;
-  if PGObject.PGDirectory <> '' then
-    SetCurrentDir(PGObject.PGDirectory);
+  if PGObject.PGPath <> '' then
+    SetCurrentDir(PGObject.PGPath);
 end;
 
 destructor TMainForm.Destroy;
-var
-  i: Integer;
-  ini: TIniFile;
 begin
   PGObject.Shutdown;
+  SaveIni;
   FreeAndNil(Databases);
-
-  ini := TIniFile.Create(IniPath + 'pgtools.ini');
-  ini.WriteInteger('options', 'version', 2);
-  ini.WriteString('options', 'Language', LangListCbo.Text);
-  ini.WriteString('options', 'username', UserNameEdit.Text);
-  ini.WriteBool('options', 'savepassword', SavePasswordChk.Checked);
-  if SavePasswordChk.Checked then
-    ini.WriteString('options', 'password', PasswordEdit.Text);
-  ini.WriteString('options', 'port', PortEdit.Text);
-  ini.WriteString('options', 'directory', DirectoryEdit.Text);
-  ini.WriteBool('options', 'expert', ExportTab.TabVisible);
-  ini.WriteBool('options', 'portable', Portable);
-  //ini.WriteBool('options', 'PublicSchema', PublicSchemaChk.Checked); //do not save it, it is for special
-  ini.WriteBool('options', 'RestoreFileOverwrite', RestoreFileOverwriteChk.Checked);
-  ini.EraseSection('data');
-  for i := 0 to BackupDatabasesList.Items.Count - 1 do
-    ini.WriteString('data', 'data' + IntToStr(i), BackupDatabasesList.Items[i]);
-  ini.Free;
   FreeAndNil(PGObject);
   inherited;
 end;

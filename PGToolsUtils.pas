@@ -81,7 +81,7 @@ type
     FStop: Boolean;
     PGConn: TmncPGConnection;
     PGTransaction: TmncPGTransaction;
-    PGDirectory: String;//detected when load
+    PGPath: String;//detected when load
     Database: string;
     BackupDirectory: string;
     ConsoleThread: TmnConsoleThread;
@@ -703,8 +703,8 @@ procedure TPGTool.Launch(vMessage, vExecutable, vParameters, vPassword: String; 
 var
   aConsoleThread: TmnConsoleThread;
 begin
-  if PGDirectory <> '' then
-    vExecutable := IncludeTrailingPathDelimiter(PGDirectory) + vExecutable;
+  if PGPath <> '' then
+    vExecutable := IncludeTrailingPathDelimiter(PGPath) + vExecutable;
   aConsoleThread := TmnConsoleThread.Create(vExecutable, BackupDirectory, vParameters, @Log);
   aConsoleThread.OnTerminate := @ConsoleTerminated;
   aConsoleThread.Password := vPassword;
