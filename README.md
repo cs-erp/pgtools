@@ -28,13 +28,15 @@ For example if you want to distripute it with your application, add this ini to 
 ```ini
 [Options]
 Portable=0
+Lib=1
+
 Language=Arabic
 Expert=1
 ```
 
 ## Compile
 
-Use FPC 3.3 snapshot from date 2020-10
+Use FPC 3.3 snapshot
 
-Lazarus from SVN, version 2.1 or later
+Lazarus version 2.1 or later
 
