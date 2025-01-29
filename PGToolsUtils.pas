@@ -418,6 +418,7 @@ procedure TPGTool.BackupDatabase(DB: String; Options: TRestoreOptions; APointNam
 var
   cmd: String;
   o: TBackupExecuteObject;
+  UserInfo: string;
 begin
   //o.Overwrite := Overwrite;
   //"SET PGPASSWORD=<password>"
@@ -437,7 +438,11 @@ begin
   o.FileName := ExpandToPath(o.FileName, Application.Location);
   ForceDirectories(ExtractFilePath(o.FileName));
   cmd := '';
-  cmd := cmd + ' -v --host localhost --port ' + Port + ' --password --username "' + o.UserName + '"';
+  if o.UserName <> '' then
+    UserInfo := ' --username "' + o.UserName + '" --password'
+  else
+    UserInfo := '';
+  cmd := cmd + ' -v --host localhost --port ' + Port + UserInfo;
   if roBackupPublicSchemaOnly in Options then
     cmd := cmd + ' --schema=public'
   else
@@ -457,6 +462,7 @@ var
   ini: TIniFile;
   filename: string;
   aDatabase: string;
+  UserInfo: string;
 begin
   o := TRestoreExecuteObject.Create;
   o.UserName := UserName;
@@ -490,7 +496,11 @@ begin
     aDatabase := DB
   else
     aDatabase := DB + '_temp_' + o.Suffix;
-  cmd := '--host localhost --port ' + Port + ' --username "' + o.UserName + '" --dbname "' + aDatabase + '" --password --verbose "' + filename + '"';
+  if o.UserName <> '' then
+    UserInfo := ' --username "' + o.UserName + '" --password'
+  else
+    UserInfo := '';
+  cmd := '--host localhost --port ' + Port + ' --dbname "' + aDatabase + '"' + UserInfo + ' --verbose "' + filename + '"';
   Launch('Restoring: ' + DB + ' file: ' + filename, 'pg_restore.exe', cmd, Password, o);
 end;
 
@@ -507,6 +517,8 @@ var
       aParams := aParams + ' ';}
     aParams := aParams + ' ' + S;
   end;
+var
+  UserInfo: string;
 var
   isSQL: Boolean;
 begin
@@ -551,7 +563,11 @@ begin
       aDatabase := DB
     else
       aDatabase := DB + '_temp_' + o.Suffix;
-    cmd := '--host=localhost --port=' + Port + ' --username="' + o.UserName + '" ' + aParams + ' --dbname="' + aDatabase + '" --password --file="' + AFileName + '"';
+    if o.UserName <> '' then
+      UserInfo := ' --username "' + o.UserName + '" --password'
+    else
+      UserInfo := '';
+    cmd := '--host=localhost --port=' + Port + aParams + ' --dbname="' + aDatabase + '"' + UserInfo + ' --file="' + AFileName + '"';
     Launch('Restoring: ' + DB + ' file: ' + AFileName, 'psql.exe', cmd, Password, o, roIgnoreError in Options);
   end
   else
@@ -569,7 +585,11 @@ begin
       aDatabase := DB
     else
       aDatabase := DB + '_temp_' + o.Suffix;
-    cmd := '--host localhost --port ' + Port + ' --username "' + o.UserName + '" ' + aParams + ' --dbname "' + aDatabase + '" --password --verbose "' + AFileName + '"';
+    if o.UserName <> '' then
+      UserInfo := ' --username "' + o.UserName + '" --password'
+    else
+      UserInfo := '';
+    cmd := '--host localhost --port ' + Port + '" ' + aParams + ' --dbname "' + aDatabase + '"' + UserInfo + ' --verbose "' + AFileName + '"';
     Launch('Restoring: ' + DB + ' file: ' + AFileName, 'pg_restore.exe', cmd, Password, o, roIgnoreError in Options);
   end;
 
@@ -609,7 +629,7 @@ begin
     cmd := PGTransaction.CreateCommand as TmncPGCommand;
     try
       cmd.SQL.Text := 'select * from "System" where "SysSection" = ''Backup''';
-      while cmd.Step do
+      while cmd.Fetch do
         Log(cmd.Field['SysIdent'].AsString + ': ' + cmd.Field['SysValue'].AsString);
     finally
       cmd.Free;
@@ -677,11 +697,24 @@ begin
     PGConn.ByteaOutput := 'escape';
     PGConn.DateStyle := 'iso, mdy';
 
-    PGConn.Connect;
-    //PGConn.AutoStart : = true;
-    PGTransaction := PGConn.CreateTransaction as TmncPGTransaction;
-    if StartTransaction then
-      PGTransaction.Start;
+    try
+      PGConn.Connect;
+    except
+      on E:Exception do
+      begin
+        FreeAndNil(PGConn);
+        Log(E.Message);
+        MsgBox.Error(E.Message);
+        Abort;
+      end;
+    end;
+    if PGConn<>nil then
+    begin
+      //PGConn.AutoStart : = true;
+      PGTransaction := PGConn.CreateTransaction as TmncPGTransaction;
+      if StartTransaction then
+        PGTransaction.Start;
+    end;
   end;
   Inc(ConnectCount);
 end;
