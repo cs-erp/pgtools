@@ -445,7 +445,7 @@ begin
     UserInfo := ' --username "' + o.UserName + '" --password'
   else
     UserInfo := '';
-  cmd := cmd + ' -v --host localhost --port ' + Port + UserInfo;
+  cmd := cmd + ' -v --no-owner --no-privileges --host localhost --port ' + Port + UserInfo;
   if roBackupPublicSchemaOnly in Options then
     cmd := cmd + ' --schema=public'
   else
@@ -503,7 +503,7 @@ begin
     UserInfo := ' --username "' + o.UserName + '" --password'
   else
     UserInfo := '';
-  cmd := '--host localhost --port ' + Port + ' --dbname "' + aDatabase + '"' + UserInfo + ' --verbose "' + filename + '"';
+  cmd := '--no-owner --no-privileges --host localhost --port ' + Port + ' --dbname "' + aDatabase + '"' + UserInfo + ' --verbose "' + filename + '"';
   Launch('Restoring: ' + DB + ' file: ' + filename, 'pg_restore.exe', cmd, Password, o);
 end;
 
