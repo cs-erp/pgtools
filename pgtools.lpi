@@ -36,7 +36,7 @@
       <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="17"/>
       <RevisionNr Value="2"/>
-      <BuildNr Value="147"/>
+      <BuildNr Value="149"/>
       <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools" ProductName="PGTools"/>
     </VersionInfo>
     <BuildModes Count="2">
@@ -169,4 +169,11 @@
       </Options>
     </Linking>
   </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="1">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+    </Exceptions>
+  </Debugging>
 </CONFIG>

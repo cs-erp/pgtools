@@ -727,10 +727,12 @@ begin
   try
     LangListCbo.Text := ini.ReadString('options', 'Language', 'English');
     CheckLanguage;
-    UserNameEdit.Text := ini.ReadString('options', 'username', 'postgres');
     SavePasswordChk.Checked := ini.ReadBool('options', 'savepassword', False);
     if SavePasswordChk.Checked then
+    begin
+      UserNameEdit.Text := ini.ReadString('options', 'username', ''); //postgres
       PasswordEdit.Text := ini.ReadString('options', 'password', '')
+    end
     else
       PasswordEdit.Text := '';
     PortEdit.Text := ini.ReadString('options', 'port', '');
@@ -761,10 +763,12 @@ begin
   try
     ini.WriteInteger('options', 'version', 2);
     ini.WriteString('options', 'Language', LangListCbo.Text);
-    ini.WriteString('options', 'username', UserNameEdit.Text);
     ini.WriteBool('options', 'savepassword', SavePasswordChk.Checked);
     if SavePasswordChk.Checked then
+    begin
+      ini.WriteString('options', 'username', UserNameEdit.Text);
       ini.WriteString('options', 'password', PasswordEdit.Text);
+    end;
     ini.WriteString('options', 'port', PortEdit.Text);
     ini.WriteString('options', 'directory', DirectoryEdit.Text);
     ini.WriteBool('options', 'expert', ExportTab.TabVisible);
@@ -822,7 +826,7 @@ var
 begin
   inherited;
   PGObject := TMyPGTool.Create;
-  UserNameEdit.Text := 'postgres';
+  UserNameEdit.Text := '';
   DetectPortable;
   DetectPGPath;
   Log('This Device: ' + GetLocalName);

@@ -240,7 +240,10 @@ begin
       if CreateIt then
       begin
         ConsoleThread.Log('Creating new Database ' + Database, lgStatus);
-        cmd.SQL.Text := 'create database "' + aDatabase + '" OWNER = postgres ENCODING = ''UTF8'' CONNECTION LIMIT = -1';
+        if (UserName = '') and (Password='') then
+          cmd.SQL.Text := 'create database "' + aDatabase + '" ENCODING = ''UTF8'' CONNECTION LIMIT = -1'
+        else
+          cmd.SQL.Text := 'create database "' + aDatabase + '" OWNER = postgres ENCODING = ''UTF8'' CONNECTION LIMIT = -1';
         cmd.Execute;
       end;
 
@@ -692,6 +695,8 @@ begin
     PGConn.Password := Password;
     PGConn.Port := Port;
     PGConn.Resource := vDatabase;
+    PGConn.Host := 'localhost';
+
 
     PGConn.ClientEncoding := 'UNICODE';
     PGConn.ByteaOutput := 'escape';

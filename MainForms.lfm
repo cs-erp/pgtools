@@ -1003,9 +1003,9 @@ object MainForm: TMainForm
     Height = 112
     Top = 37
     Width = 573
-    ActivePage = SpecialOptionsTab
+    ActivePage = ConnectionInfoTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 8
     object ConnectionInfoTab: TTabSheet
       Caption = 'Database'
