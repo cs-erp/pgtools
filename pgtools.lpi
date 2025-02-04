@@ -34,9 +34,9 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <MinorVersionNr Value="18"/>
+      <MinorVersionNr Value="19"/>
       <RevisionNr Value="2"/>
-      <BuildNr Value="150"/>
+      <BuildNr Value="161"/>
       <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools" ProductName="PGTools"/>
     </VersionInfo>
     <BuildModes Count="2">
@@ -169,11 +169,4 @@
       </Options>
     </Linking>
   </CompilerOptions>
-  <Debugging>
-    <Exceptions Count="1">
-      <Item1>
-        <Name Value="EAbort"/>
-      </Item1>
-    </Exceptions>
-  </Debugging>
 </CONFIG>

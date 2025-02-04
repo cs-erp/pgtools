@@ -42,6 +42,7 @@ type
     BackupBtn1: TButton;
     InfoBtn: TButton;
     RestoreDataOnlyChk: TCheckBox;
+    RestoreFileIgnoreOwnerChk: TCheckBox;
     RestorePublicSchemaOnlyChk: TCheckBox;
     LangListCbo: TComboBox;
     CopyBtn: TButton;
@@ -552,11 +553,11 @@ begin
         if not SameText(DB, Selected) then
           MsgBox.Error('Please select backup file with same name of database selected')
         else if not MsgBox.No('Are you sure you want to restore database?') then
-          PGObject.RestoreDatabaseFile(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], FileName, [roRestoreOverwrite]);
+          PGObject.RestoreDatabaseFile(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], FileName, [roIgnoreOwner, roRestoreOverwrite]);
       end
       else
         if MsgBox.Input(DB, 'Enter then name of new Database to restore') then
-          PGObject.RestoreDatabaseFile(DB, FileName, []);
+          PGObject.RestoreDatabaseFile(DB, FileName, [roIgnoreOwner]);
     end;
     Free;
   end;
@@ -711,12 +712,14 @@ function TMainForm.GetRestoreFileOptions: TRestoreOptions;
 begin
   Result :=
     RO(RestoreFileOverwriteChk.Checked, roRestoreOverwrite) +
+    RO(RestoreCleanErrorChk.Checked, roClean) +
     RO(RestoreFileIgnoreErrorChk.Checked, roIgnoreError) +
     RO(CreateMissedMetaDataChk.Checked, roCreateMissedMetaData) +
     RO(DropPublicSchemaChk.Checked, roDropPublicSchema) +
     RO(RestoreDataOnlyChk.Checked, roRestroreDataOnly) +
-    RO(PublicSchemaChk.Checked, roBackupPublicSchemaOnly);
-    RO(RestorePublicSchemaOnlyChk.Checked, roRestorePublicSchemaOnly);
+    RO(PublicSchemaChk.Checked, roBackupPublicSchemaOnly)+
+    RO(RestorePublicSchemaOnlyChk.Checked, roRestorePublicSchemaOnly)+
+    RO(RestoreFileIgnoreOwnerChk.Checked, roIgnoreOwner);
 end;
 
 procedure TMainForm.LoadIni;

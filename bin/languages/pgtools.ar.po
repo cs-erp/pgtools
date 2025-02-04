@@ -229,6 +229,10 @@ msgctxt "tmainform.restorefileignoreerrorchk.hint"
 msgid "Use this only for Creative Solutions databases"
 msgstr "استعملها فقط مع قواعد بيانات الحلول المبتكرة"
 
+#: tmainform.restorefileignoreownerchk.caption
+msgid "تجاهل Owner و Privileges"
+msgstr ""
+
 #: tmainform.restorefileoverwritechk.caption
 msgid "Overwrite old database if exist (rename old)"
 msgstr "فوق القاعدة القديمة (بعد اعادة التسمية)"

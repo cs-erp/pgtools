@@ -22,7 +22,8 @@ type
     roBackupPublicSchemaOnly,
     roRestorePublicSchemaOnly,
     roRestroreDataOnly,
-    roCreativeSolutions
+    roCreativeSolutions,
+    roIgnoreOwner
   );
 
   TRestoreOptions = set of TRestoreOption;
@@ -442,7 +443,11 @@ begin
   ForceDirectories(ExtractFilePath(o.FileName));
   cmd := '';
   if o.UserName <> '' then
-    UserInfo := ' --username "' + o.UserName + '" --password'
+  begin
+    UserInfo := ' --username "' + o.UserName + '"';
+    if Password<>'' then
+      UserInfo := UserInfo + ' --password';
+  end
   else
     UserInfo := '';
   cmd := cmd + ' -v --no-owner --no-privileges --host localhost --port ' + Port + UserInfo;
@@ -495,12 +500,21 @@ begin
     end;
     filename := o.Directory + filename;
   end;
+  if not FileExists(filename) then
+  begin
+    MsgBox.Error('Backup file not exists '#13+filename);
+    exit;
+  end;
   if roDirectDatabase in o.Options then
     aDatabase := DB
   else
     aDatabase := DB + '_temp_' + o.Suffix;
   if o.UserName <> '' then
-    UserInfo := ' --username "' + o.UserName + '" --password'
+  begin
+    UserInfo := ' --username "' + o.UserName + '"';
+    if o.Password <> '' then
+      UserInfo := UserInfo + ' --password';
+  end
   else
     UserInfo := '';
   cmd := '--no-owner --no-privileges --host localhost --port ' + Port + ' --dbname "' + aDatabase + '"' + UserInfo + ' --verbose "' + filename + '"';
@@ -567,7 +581,11 @@ begin
     else
       aDatabase := DB + '_temp_' + o.Suffix;
     if o.UserName <> '' then
-      UserInfo := ' --username "' + o.UserName + '" --password'
+    begin
+      UserInfo := ' --username "' + o.UserName + '"';
+      if o.Password <> '' then
+        UserInfo := UserInfo + ' --password';
+    end
     else
       UserInfo := '';
     cmd := '--host=localhost --port=' + Port + aParams + ' --dbname="' + aDatabase + '"' + UserInfo + ' --file="' + AFileName + '"';
@@ -584,15 +602,22 @@ begin
     if roRestroreDataOnly in Options then
       AddParam('--data-only');
 
+    if roIgnoreOwner in Options then
+      AddParam('--no-owner --no-privileges');
+
     if roDirectDatabase in Options then
       aDatabase := DB
     else
       aDatabase := DB + '_temp_' + o.Suffix;
     if o.UserName <> '' then
-      UserInfo := ' --username "' + o.UserName + '" --password'
+    begin
+      UserInfo := ' --username "' + o.UserName + '"';
+      if o.Password <> '' then
+        UserInfo := UserInfo + ' --password';
+    end
     else
       UserInfo := '';
-    cmd := '--host localhost --port ' + Port + '" ' + aParams + ' --dbname "' + aDatabase + '"' + UserInfo + ' --verbose "' + AFileName + '"';
+    cmd := '--host localhost --port ' + Port + ' ' + aParams + ' --dbname "' + aDatabase + '"' + UserInfo + ' --verbose "' + AFileName + '"';
     Launch('Restoring: ' + DB + ' file: ' + AFileName, 'pg_restore.exe', cmd, Password, o, roIgnoreError in Options);
   end;
 

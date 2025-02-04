@@ -13,8 +13,8 @@ object MainForm: TMainForm
   OnCreate = FormCreate
   inline LogEdit: TSynEdit
     Left = 5
-    Height = 106
-    Top = 432
+    Height = 90
+    Top = 448
     Width = 572
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 60
@@ -591,7 +591,7 @@ object MainForm: TMainForm
   end
   object BackupDatabasesList: TListBox
     Left = 6
-    Height = 223
+    Height = 239
     Top = 204
     Width = 181
     ItemHeight = 0
@@ -619,16 +619,16 @@ object MainForm: TMainForm
   end
   object RestoreFilePageControl: TPageControl
     Left = 192
-    Height = 249
+    Height = 262
     Top = 179
     Width = 385
-    ActivePage = DatabaseTab
+    ActivePage = RestoreFileTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 5
     object DatabaseTab: TTabSheet
       Caption = 'Database'
-      ClientHeight = 221
+      ClientHeight = 234
       ClientWidth = 377
       object BackupBtn1: TButton
         Left = 6
@@ -727,7 +727,7 @@ object MainForm: TMainForm
     end
     object RestoreFileTab: TTabSheet
       Caption = 'Restore File'
-      ClientHeight = 221
+      ClientHeight = 234
       ClientWidth = 377
       object BackupFileNameEdit: TEdit
         Left = 6
@@ -769,7 +769,7 @@ object MainForm: TMainForm
         Left = 14
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 65
+        Top = 62
         Width = 247
         Caption = 'Overwrite old database if exist (rename old)'
         TabOrder = 3
@@ -778,16 +778,16 @@ object MainForm: TMainForm
         Left = 14
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 191
+        Top = 209
         Width = 135
         Caption = 'Ignore Errors/Warning'
-        TabOrder = 9
+        TabOrder = 10
       end
       object RestoreCleanErrorChk: TCheckBox
         Left = 14
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 86
+        Top = 83
         Width = 90
         Caption = 'Restore Clean'
         TabOrder = 4
@@ -796,7 +796,7 @@ object MainForm: TMainForm
         Left = 14
         Height = 19
         Hint = 'Needed to restore quick backup, only for Creative Solutions databases'
-        Top = 169
+        Top = 166
         Width = 145
         Caption = 'Create missed metadata'
         TabOrder = 8
@@ -804,18 +804,18 @@ object MainForm: TMainForm
       object RestoreLastBtn1: TButton
         Left = 271
         Height = 25
-        Top = 194
+        Top = 207
         Width = 100
         Anchors = [akRight, akBottom]
         Caption = '&Restore Last'
-        TabOrder = 10
+        TabOrder = 11
         OnClick = RestoreLastBtn1Click
       end
       object DropPublicSchemaChk: TCheckBox
         Left = 14
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 148
+        Top = 145
         Width = 124
         Caption = 'Drop public schema'
         TabOrder = 7
@@ -824,7 +824,7 @@ object MainForm: TMainForm
         Left = 14
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 107
+        Top = 104
         Width = 163
         Caption = 'Restore public schema only'
         TabOrder = 5
@@ -833,15 +833,25 @@ object MainForm: TMainForm
         Left = 14
         Height = 19
         Hint = 'Use this only for Creative Solutions databases'
-        Top = 127
+        Top = 124
         Width = 109
         Caption = 'Restore data only'
         TabOrder = 6
       end
+      object RestoreFileIgnoreOwnerChk: TCheckBox
+        Left = 14
+        Height = 19
+        Top = 188
+        Width = 166
+        Caption = 'Ignore Owner and Privileges'
+        Checked = True
+        State = cbChecked
+        TabOrder = 9
+      end
     end
     object ExportTab: TTabSheet
       Caption = 'Expert'
-      ClientHeight = 221
+      ClientHeight = 234
       ClientWidth = 377
       TabVisible = False
       object BackupAllBtn: TButton
@@ -866,7 +876,7 @@ object MainForm: TMainForm
         Left = 3
         Height = 25
         Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
-        Top = 193
+        Top = 206
         Width = 110
         Anchors = [akLeft, akBottom]
         Caption = 'Drop all temps'
@@ -876,7 +886,7 @@ object MainForm: TMainForm
     end
     object AdminTab: TTabSheet
       Caption = 'Admin'
-      ClientHeight = 221
+      ClientHeight = 234
       ClientWidth = 377
       TabVisible = False
       object NewPasswordLbl: TLabel
