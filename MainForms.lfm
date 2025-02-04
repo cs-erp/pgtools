@@ -622,9 +622,9 @@ object MainForm: TMainForm
     Height = 262
     Top = 179
     Width = 385
-    ActivePage = RestoreFileTab
+    ActivePage = AdminTab
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 1
+    TabIndex = 3
     TabOrder = 5
     object DatabaseTab: TTabSheet
       Caption = 'Database'
@@ -650,7 +650,7 @@ object MainForm: TMainForm
         OnClick = RestoreLastBtnClick
       end
       object InfoBtn: TButton
-        Left = 8
+        Left = 6
         Height = 25
         Top = 32
         Width = 100
@@ -679,7 +679,7 @@ object MainForm: TMainForm
       object RestorePointBtn: TButton
         Left = 267
         Height = 25
-        Top = 102
+        Top = 103
         Width = 100
         Anchors = [akTop, akRight]
         Caption = 'Restore &Point'
@@ -689,7 +689,7 @@ object MainForm: TMainForm
       object RestoreFromFileBtn: TButton
         Left = 267
         Height = 25
-        Top = 34
+        Top = 32
         Width = 100
         Anchors = [akTop, akRight]
         Caption = 'Restore File'
@@ -707,8 +707,8 @@ object MainForm: TMainForm
       end
       object RestoreByDateBtn: TButton
         Left = 267
-        Height = 25
-        Top = 128
+        Height = 26
+        Top = 130
         Width = 100
         Anchors = [akTop, akRight]
         Caption = 'Restore Date'
@@ -910,8 +910,8 @@ object MainForm: TMainForm
       end
       object ChangeBtn: TButton
         Left = 259
-        Height = 25
-        Top = 12
+        Height = 23
+        Top = 13
         Width = 81
         Caption = 'Change'
         TabOrder = 1

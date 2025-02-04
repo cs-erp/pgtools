@@ -34,9 +34,9 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <MinorVersionNr Value="19"/>
+      <MinorVersionNr Value="18"/>
       <RevisionNr Value="2"/>
-      <BuildNr Value="161"/>
+      <BuildNr Value="163"/>
       <StringTable CompanyName="Creative Solutions" FileDescription="PostgreSQL backup tools" ProductName="PGTools"/>
     </VersionInfo>
     <BuildModes Count="2">
