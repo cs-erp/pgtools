@@ -153,7 +153,7 @@ type
     procedure DetectPGPath;
     procedure DetectPortable;
   public
-    IniPath: String;
+    WorkPath: String;
     ExportMode: Boolean;
     Portable: Boolean;
     constructor Create(TheOwner: TComponent); override;
@@ -316,9 +316,15 @@ begin
 end;
 
 procedure TMainForm.AddDatabaseBtnClick(Sender: TObject);
+var
+  s: string;
 begin
   if DatabasesCbo.ItemIndex >= 0 then
-    BackupDatabasesList.Items.Add(DatabasesCbo.Items[DatabasesCbo.ItemIndex]);
+  begin
+    s := DatabasesCbo.Items[DatabasesCbo.ItemIndex];
+    if BackupDatabasesList.Items.IndexOf(s) < 0 then
+      BackupDatabasesList.ItemIndex := BackupDatabasesList.Items.Add(s);
+  end;
 end;
 
 procedure TMainForm.RemoveDatabaseBtnClick(Sender: TObject);
@@ -491,7 +497,7 @@ begin
     try
       SetInfo;
       DB := BackupDatabasesList.Items[BackupDatabasesList.ItemIndex];
-      Dir := ExpandToPath(PGObject.GetBackupDBDirectory(DB), Application.Location);
+      Dir := ExpandToPath(PGObject.GetBackupDBDirectory(DB), WorkPath);
       i := -1;
       EnumFiles(files, Dir, DB + '.*.backup', [efFile]);
       files.CustomSort(@StringListAnsiCompare);
@@ -672,9 +678,9 @@ begin
     PGObject.Database := '';
 
   if DirectoryEdit.Text <> '' then
-    PGObject.BackupDirectory := ExpandToPath(IncludeTrailingPathDelimiter(DirectoryEdit.Text), Application.Location)
+    PGObject.BackupDirectory := ExpandToPath(IncludeTrailingPathDelimiter(DirectoryEdit.Text), WorkPath)
   else
-    PGObject.BackupDirectory := Application.Location;
+    PGObject.BackupDirectory := WorkPath;
 
 end;
 
@@ -726,7 +732,7 @@ procedure TMainForm.LoadIni;
 var
   ini: TIniFile;
 begin
-  ini := TIniFile.Create(IniPath + 'pgtools.ini');
+  ini := TIniFile.Create(WorkPath + 'pgtools.ini');
   try
     LangListCbo.Text := ini.ReadString('options', 'Language', 'English');
     CheckLanguage;
@@ -740,6 +746,9 @@ begin
       PasswordEdit.Text := '';
     PortEdit.Text := ini.ReadString('options', 'port', '');
     DirectoryEdit.Text := ini.ReadString('options', 'directory', './');
+    if ini.ValueExists('options', 'CSProducts') then
+      CSProductsChk.Checked := ini.ReadBool('options', 'CSProducts', False);
+
     ExportMode := ini.ReadBool('options', 'expert', False);
     if ExportMode then
     begin
@@ -752,8 +761,6 @@ begin
     //PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
     RestoreFileOverwriteChk.Checked := ini.ReadBool('options', 'RestoreFileOverwriteChk', False);
     PGObject.PGPath := ExpandToPath(ini.ReadString('options', 'lib', PGObject.PGPath), Application.Location);
-    if ini.ValueExists('options', 'CSProducts') then
-      CSProductsChk.Checked := ini.ReadBool('options', 'CSProducts', False);
   finally
     ini.Free;
   end;
@@ -764,7 +771,7 @@ var
   i: Integer;
   ini: TIniFile;
 begin
-  ini := TIniFile.Create(IniPath + 'pgtools.ini');
+  ini := TIniFile.Create(WorkPath + 'pgtools.ini');
   try
     ini.WriteInteger('options', 'version', 2);
     ini.WriteString('options', 'Language', LangListCbo.Text);
@@ -819,9 +826,9 @@ begin
     ini.Free;
   end;
   if Portable then
-    IniPath := Application.Location
+    WorkPath := Application.Location
   else
-    IniPath := GetAppConfigDir(False);
+    WorkPath := GetAppConfigDir(False);
 end;
 
 constructor TMainForm.Create(TheOwner: TComponent);
@@ -844,8 +851,8 @@ begin
   i := 0;
 
   aStrings := TStringList.Create;
-  ForceDirectoriesUTF8(ExtractFilePath(IniPath));
-  ini := TIniFile.Create(IniPath + 'pgtools.ini');
+  ForceDirectoriesUTF8(ExtractFilePath(WorkPath));
+  ini := TIniFile.Create(WorkPath + 'pgtools.ini');
   try
     ini.ReadSectionRaw('data', aStrings);
     for i :=0 to aStrings.Count -1 do

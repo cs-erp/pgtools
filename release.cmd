@@ -6,10 +6,6 @@ if errorlevel 1 goto erroroccurred
 
 upx .\bin\pgtools64.exe
 
-cd ./bin
-7z a -r "./pgtools-%DATE:~-4%-%DATE:~4,2%-%DATE:~7,2%.7z" pgtools64.exe bin64\*.*
-if errorlevel 1 goto erroroccurred
-
 goto noerrors
 
 :erroroccurred
