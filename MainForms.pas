@@ -752,6 +752,8 @@ begin
     //PublicSchemaChk.Checked := ini.ReadBool('options', 'PublicSchema', False);
     RestoreFileOverwriteChk.Checked := ini.ReadBool('options', 'RestoreFileOverwriteChk', False);
     PGObject.PGPath := ExpandToPath(ini.ReadString('options', 'lib', PGObject.PGPath), Application.Location);
+    if ini.ValueExists('options', 'CSProducts') then
+      CSProductsChk.Checked := ini.ReadBool('options', 'CSProducts', False);
   finally
     ini.Free;
   end;
@@ -778,6 +780,7 @@ begin
     ini.WriteBool('options', 'portable', Portable);
     //ini.WriteBool('options', 'PublicSchema', PublicSchemaChk.Checked); //do not save it, it is for special
     ini.WriteBool('options', 'RestoreFileOverwrite', RestoreFileOverwriteChk.Checked);
+    ini.WriteBool('options', 'CSProducts', CSProductsChk.Checked);
     ini.EraseSection('data');
     for i := 0 to BackupDatabasesList.Items.Count - 1 do
       ini.WriteString('data', 'data' + IntToStr(i), BackupDatabasesList.Items[i]);
@@ -810,7 +813,8 @@ var
 begin
   ini := TIniFile.Create(Application.Location + 'pgtools.ini');
   try
-    Portable := ini.ReadBool('options', 'portable', True);
+    Portable := ini.ReadBool('options', 'portable', False);
+    CSProductsChk.Checked := ini.ReadBool('options', 'CSProducts', False);
   finally
     ini.Free;
   end;
@@ -840,6 +844,7 @@ begin
   i := 0;
 
   aStrings := TStringList.Create;
+  ForceDirectoriesUTF8(ExtractFilePath(IniPath));
   ini := TIniFile.Create(IniPath + 'pgtools.ini');
   try
     ini.ReadSectionRaw('data', aStrings);
