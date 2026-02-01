@@ -9,6 +9,7 @@ object MainForm: TMainForm
   Constraints.MinWidth = 500
   Position = poDefaultPosOnly
   ShowHint = True
+  LCLVersion = '4.99.0.0'
   OnCreate = FormCreate
   inline LogEdit: TSynEdit
     Left = 5
@@ -539,6 +540,10 @@ object MainForm: TMainForm
     SelectedColor.ForePriority = 50
     SelectedColor.BackPriority = 50
     SelectedColor.FramePriority = 50
+    SelectedColor.BoldPriority = 0
+    SelectedColor.ItalicPriority = 0
+    SelectedColor.UnderlinePriority = 0
+    SelectedColor.StrikeOutPriority = 0
     SelectedColor.ExtendPastEol = True
     IncrementColor.ExtendPastEol = False
     BracketHighlightStyle = sbhsBoth
@@ -599,13 +604,14 @@ object MainForm: TMainForm
     TabOrder = 2
     OnClick = BackupDatabasesListClick
     OnDblClick = BackupDatabasesListDblClick
+    OnKeyDown = BackupDatabasesListKeyDown
   end
   object DatabasesCbo: TComboBox
     Left = 6
-    Height = 23
+    Height = 25
     Top = 151
     Width = 181
-    ItemHeight = 15
+    ItemHeight = 17
     Style = csDropDownList
     TabOrder = 0
   end
@@ -629,7 +635,7 @@ object MainForm: TMainForm
     TabOrder = 5
     object DatabaseTab: TTabSheet
       Caption = 'Database'
-      ClientHeight = 234
+      ClientHeight = 232
       ClientWidth = 377
       object BackupBtn1: TButton
         Left = 6
@@ -661,9 +667,9 @@ object MainForm: TMainForm
       end
       object BackupDeviceIDLbl: TLabel
         Left = 111
-        Height = 15
+        Height = 17
         Top = 38
-        Width = 85
+        Width = 91
         Caption = 'BackupDeviceID'
         ParentColor = False
       end
@@ -700,9 +706,9 @@ object MainForm: TMainForm
       end
       object Label8: TLabel
         Left = 6
-        Height = 15
+        Height = 17
         Top = 14
-        Width = 265
+        Width = 297
         Caption = 'All this operations on selected database on the left'
         ParentColor = False
       end
@@ -728,11 +734,11 @@ object MainForm: TMainForm
     end
     object RestoreFileTab: TTabSheet
       Caption = 'Restore File'
-      ClientHeight = 234
+      ClientHeight = 232
       ClientWidth = 377
       object BackupFileNameEdit: TEdit
         Left = 6
-        Height = 23
+        Height = 25
         Top = 30
         Width = 365
         Anchors = [akTop, akLeft, akRight]
@@ -740,9 +746,9 @@ object MainForm: TMainForm
       end
       object RestoreFileToNewDatabaseLbl: TLabel
         Left = 6
-        Height = 15
+        Height = 17
         Top = 9
-        Width = 169
+        Width = 191
         Caption = 'Restore this file to new database'
         ParentColor = False
       end
@@ -768,44 +774,44 @@ object MainForm: TMainForm
       end
       object RestoreFileOverwriteChk: TCheckBox
         Left = 14
-        Height = 19
+        Height = 21
         Hint = 'Use this only for Creative Solutions databases'
         Top = 62
-        Width = 247
+        Width = 275
         Caption = 'Overwrite old database if exist (rename old)'
         TabOrder = 3
       end
       object RestoreFileIgnoreErrorChk: TCheckBox
         Left = 14
-        Height = 19
+        Height = 21
         Hint = 'Use this only for Creative Solutions databases'
         Top = 209
-        Width = 135
+        Width = 150
         Caption = 'Ignore Errors/Warning'
         TabOrder = 10
       end
       object RestoreCleanErrorChk: TCheckBox
         Left = 14
-        Height = 19
+        Height = 21
         Hint = 'Use this only for Creative Solutions databases'
         Top = 83
-        Width = 90
+        Width = 99
         Caption = 'Restore Clean'
         TabOrder = 4
       end
       object CreateMissedMetaDataChk: TCheckBox
         Left = 14
-        Height = 19
+        Height = 21
         Hint = 'Needed to restore quick backup, only for Creative Solutions databases'
         Top = 166
-        Width = 145
+        Width = 160
         Caption = 'Create missed metadata'
         TabOrder = 8
       end
       object RestoreLastBtn1: TButton
         Left = 271
         Height = 25
-        Top = 207
+        Top = 205
         Width = 100
         Anchors = [akRight, akBottom]
         Caption = '&Restore Last'
@@ -814,36 +820,36 @@ object MainForm: TMainForm
       end
       object DropPublicSchemaChk: TCheckBox
         Left = 14
-        Height = 19
+        Height = 21
         Hint = 'Use this only for Creative Solutions databases'
         Top = 145
-        Width = 124
+        Width = 135
         Caption = 'Drop public schema'
         TabOrder = 7
       end
       object RestorePublicSchemaOnlyChk: TCheckBox
         Left = 14
-        Height = 19
+        Height = 21
         Hint = 'Use this only for Creative Solutions databases'
         Top = 104
-        Width = 163
+        Width = 178
         Caption = 'Restore public schema only'
         TabOrder = 5
       end
       object RestoreDataOnlyChk: TCheckBox
         Left = 14
-        Height = 19
+        Height = 21
         Hint = 'Use this only for Creative Solutions databases'
         Top = 124
-        Width = 109
+        Width = 121
         Caption = 'Restore data only'
         TabOrder = 6
       end
       object RestoreFileIgnoreOwnerChk: TCheckBox
         Left = 14
-        Height = 19
+        Height = 21
         Top = 188
-        Width = 166
+        Width = 183
         Caption = 'Ignore Owner and Privileges'
         Checked = True
         State = cbChecked
@@ -852,7 +858,7 @@ object MainForm: TMainForm
     end
     object ExportTab: TTabSheet
       Caption = 'Expert'
-      ClientHeight = 234
+      ClientHeight = 232
       ClientWidth = 377
       TabVisible = False
       object BackupAllBtn: TButton
@@ -877,7 +883,7 @@ object MainForm: TMainForm
         Left = 3
         Height = 25
         Hint = 'Drop all batabases ended with _temp... _old... .old... .temp...'
-        Top = 206
+        Top = 204
         Width = 110
         Anchors = [akLeft, akBottom]
         Caption = 'Drop all temps'
@@ -887,7 +893,7 @@ object MainForm: TMainForm
     end
     object AdminTab: TTabSheet
       Caption = 'Admin'
-      ClientHeight = 234
+      ClientHeight = 232
       ClientWidth = 377
       TabVisible = False
       object NewPasswordLbl: TLabel
@@ -1002,9 +1008,9 @@ object MainForm: TMainForm
   end
   object LogoTestLbl: TLabel
     Left = 49
-    Height = 15
+    Height = 17
     Top = 11
-    Width = 201
+    Width = 221
     Caption = 'Creative Solution tools www.cserp.org'
     ParentBidiMode = False
     ParentColor = False
@@ -1020,18 +1026,18 @@ object MainForm: TMainForm
     TabOrder = 8
     object ConnectionInfoTab: TTabSheet
       Caption = 'Database'
-      ClientHeight = 84
+      ClientHeight = 82
       ClientWidth = 565
       object UserNameEdit: TEdit
         Left = 91
-        Height = 23
+        Height = 25
         Top = 7
         Width = 90
         TabOrder = 0
       end
       object PasswordEdit: TEdit
         Left = 91
-        Height = 23
+        Height = 25
         Top = 33
         Width = 90
         EchoMode = emPassword
@@ -1040,23 +1046,23 @@ object MainForm: TMainForm
       end
       object DBUserNameLbl: TLabel
         Left = 7
-        Height = 15
+        Height = 17
         Top = 10
-        Width = 56
+        Width = 63
         Caption = 'User name'
         ParentColor = False
       end
       object DBPasswordLbl: TLabel
         Left = 7
-        Height = 15
+        Height = 17
         Top = 36
-        Width = 50
+        Width = 56
         Caption = 'Password'
         ParentColor = False
       end
       object SavePasswordChk: TCheckBox
         Left = 187
-        Height = 19
+        Height = 21
         Hint = 'Use this only for Creative Solutions databases'
         Top = 35
         Width = 284
@@ -1066,30 +1072,30 @@ object MainForm: TMainForm
       end
       object PortEdit: TEdit
         Left = 240
-        Height = 23
+        Height = 25
         Top = 7
         Width = 89
         TabOrder = 3
       end
       object DBPortLbl: TLabel
         Left = 189
-        Height = 15
+        Height = 17
         Top = 10
-        Width = 22
+        Width = 24
         Caption = 'Port'
         ParentColor = False
       end
       object BackFolderLbl: TLabel
         Left = 7
-        Height = 15
+        Height = 17
         Top = 61
-        Width = 75
+        Width = 82
         Caption = 'Backup Folder'
         ParentColor = False
       end
       object DirectoryEdit: TEdit
         Left = 91
-        Height = 23
+        Height = 25
         Top = 59
         Width = 471
         Anchors = [akTop, akLeft, akRight]
@@ -1098,32 +1104,32 @@ object MainForm: TMainForm
     end
     object SpecialOptionsTab: TTabSheet
       Caption = 'Options'
-      ClientHeight = 84
+      ClientHeight = 82
       ClientWidth = 565
       object CSProductsChk: TCheckBox
         Left = 8
-        Height = 19
+        Height = 21
         Hint = 'Use this only for Creative Solutions databases'
         Top = 12
-        Width = 204
+        Width = 225
         Caption = 'Creative Solution Database product'
         TabOrder = 0
       end
       object PublicSchemaChk: TCheckBox
         Left = 8
-        Height = 19
+        Height = 21
         Hint = 'Use this only for big databases, and you are expert'
         Top = 36
-        Width = 240
+        Width = 257
         Caption = 'Backup `Public` Schema only (expert only)'
         TabOrder = 1
       end
       object QuickBackupChk: TCheckBox
         Left = 8
-        Height = 19
+        Height = 21
         Hint = 'Use this only for big databases, and you are expert'
         Top = 60
-        Width = 213
+        Width = 231
         Caption = 'Quick backup (execlude huge tables)'
         TabOrder = 2
         Visible = False
@@ -1147,27 +1153,27 @@ object MainForm: TMainForm
     Visible = False
     object DropBtn: TButton
       Left = 0
-      Height = 25
+      Height = 27
       Top = 0
-      Width = 52
+      Width = 56
       Caption = 'Drop'
       TabOrder = 0
       OnClick = DropBtnClick
     end
     object RenameBtn: TButton
-      Left = 55
-      Height = 25
+      Left = 59
+      Height = 27
       Top = 0
-      Width = 69
+      Width = 73
       Caption = 'Rename'
       TabOrder = 1
       OnClick = RenameBtnClick
     end
     object CopyBtn: TButton
-      Left = 127
-      Height = 25
+      Left = 135
+      Height = 27
       Top = 0
-      Width = 54
+      Width = 56
       Caption = 'Copy'
       TabOrder = 2
       OnClick = CopyBtnClick
@@ -1185,11 +1191,11 @@ object MainForm: TMainForm
   end
   object LangListCbo: TComboBox
     Left = 495
-    Height = 23
+    Height = 25
     Top = 5
     Width = 82
     Anchors = [akTop, akRight]
-    ItemHeight = 15
+    ItemHeight = 17
     ItemIndex = 0
     Items.Strings = (
       'English'

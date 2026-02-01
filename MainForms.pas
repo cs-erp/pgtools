@@ -20,7 +20,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls, StrUtils,
   ComCtrls, Menus, IniFiles, SynEdit, SynHighlighterAny,
-  LCLTranslator, PGToolsUtils,
+  LCLType, LCLTranslator, PGToolsUtils,
   mncPostgre, mnMsgBox, GUIMsgBox, process,
   ConsoleProcess, FileUtil, mnUtils, LazFileUtils;
 
@@ -106,6 +106,10 @@ type
     StatusTimer: TTimer;
     UserNameEdit: TEdit;
     procedure BackupBtn1Click(Sender: TObject);
+    procedure BackupDatabasesListKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure BackupDatabasesListKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     procedure InfoBtnClick(Sender: TObject);
     procedure BackupAllBtnClick(Sender: TObject);
     procedure BackupDatabasesListClick(Sender: TObject);
@@ -293,6 +297,53 @@ begin
     SetInfo;
     PGObject.BackupDatabase(BackupDatabasesList.Items[BackupDatabasesList.ItemIndex], GetRestoreOptions);
   end;
+end;
+
+procedure TMainForm.BackupDatabasesListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  index: Integer;
+begin
+  if ssCtrl in Shift then
+  begin
+    if Key = VK_UP then
+    begin
+      if BackupDatabasesList.ItemIndex > 0 then
+      begin
+        index := BackupDatabasesList.ItemIndex;
+        BackupDatabasesList.Items.BeginUpdate;
+        try
+          Log(index.tostring);
+          BackupDatabasesList.Items.Move(index, index - 1);
+          BackupDatabasesList.ItemIndex := index - 1;
+        finally
+          BackupDatabasesList.Items.EndUpdate;
+        end;
+        Key := 0;
+      end;
+    end
+    else if Key = VK_DOWN then
+    begin
+      if BackupDatabasesList.ItemIndex < (BackupDatabasesList.Count - 1) then
+      begin
+        index := BackupDatabasesList.ItemIndex;
+        BackupDatabasesList.Items.BeginUpdate;
+        try
+          Log(index.tostring);
+          BackupDatabasesList.Items.Move(index, index + 1);
+          BackupDatabasesList.ItemIndex := index + 1;
+        finally
+          BackupDatabasesList.Items.EndUpdate;
+        end;
+        Key := 0;
+      end;
+    end;
+  end;
+end;
+
+procedure TMainForm.BackupDatabasesListKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+
 end;
 
 procedure TMainForm.InfoBtnClick(Sender: TObject);
