@@ -75,7 +75,7 @@ msgstr "انشاء  التوصيفات  المفقودة"
 
 #: tmainform.createmissedmetadatachk.hint
 msgctxt "tmainform.createmissedmetadatachk.hint"
-msgid "Needed to restore quick backup, only for Creative Solutions databases"
+msgid "مطلوب للاسترداد السريع، خاص بقواعد الحلول المبتكرة"
 msgstr ""
 
 #: tmainform.csproductschk.caption
